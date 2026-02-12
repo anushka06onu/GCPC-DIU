@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Certificate Verification | DIU GCPC</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <main class="section verify">
+    <div class="container">
+      <p class="section-kicker">Verification Desk</p>
+      <h2>Certificate Verification</h2>
+      <p class="verify-intro">Enter certificate ID to verify authenticity.</p>
+
+      <form id="verify-cert-form" class="verify-form">
+        <label for="cert-id">Certificate ID</label>
+        <div class="verify-row">
+          <input id="cert-id" name="certId" type="text" placeholder="Certificate ID (e.g. GCPC-2026-ACM-017)" required />
+          <button type="submit" class="btn btn-main">Verify</button>
+        </div>
+      </form>
+
+      <div id="cert-result" class="verify-result" aria-live="polite"></div>
+
+      <div class="detail-actions">
+        <a href="../index.html" class="btn btn-ghost">Back to Home</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="./verify.js"></script>
+</body>
+</html>

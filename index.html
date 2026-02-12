@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GCPC-DIU | Girls' Computer Programming Club</title>
   <meta name="description" content="Official website of Girls' Computer Programming Club (GCPC), Department of CSE, Daffodil International University." />
+  <link rel="icon" type="image/png" href="gcpc-logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet" />
@@ -19,7 +20,11 @@
             <img src="gcpc-logo.png" alt="GCPC-DIU logo" class="brand-logo" onerror="this.onerror=null;this.src='gcpc-logo.jpg';" />
           </a>
 
-          <button class="menu-toggle" aria-expanded="false" aria-controls="nav-menu">Menu</button>
+          <button class="menu-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
 
           <ul class="nav-links" id="nav-menu">
             <li><a href="#about">About</a></li>
@@ -49,7 +54,7 @@
           </div>
 
           <div class="event-banner">
-            <p>Upcoming Highlight: GCPC Research Paper Publishing Workshop | April 20, 2026</p>
+            <p>Upcoming Highlight: Fundamentals of Graphic Design Workshop (Spring 2026) | Last Registration: February 20, 2026</p>
           </div>
         </div>
       </section>
@@ -100,14 +105,20 @@
           <div class="wing-grid">
             <a href="wing-acm.html" class="wing-card wing-link-card">
               <h3>ACM Wing</h3>
+              <p>
+                Builds problem-solving excellence through contests, structured coding tracks, and backend engineering workshops.
+              </p>
               <ul>
                 <li>Competitive programming training</li>
                 <li>ICPC preparation and mock contests</li>
-                <li>Problem-solving sessions</li>
+                <li>Problem-solving and backend practice sessions</li>
               </ul>
             </a>
             <a href="wing-research.html" class="wing-card wing-link-card">
               <h3>Research Wing</h3>
+              <p>
+                Develops publication-focused research skills from beginner level to guided paper writing and submission.
+              </p>
               <ul>
                 <li>NLP and AI mini projects</li>
                 <li>Machine learning workshops</li>
@@ -116,6 +127,9 @@
             </a>
             <a href="wing-career.html" class="wing-card wing-link-card">
               <h3>Career & Development Wing</h3>
+              <p>
+                Prepares members for industry through technical workshops, portfolio building, and career roadmap sessions.
+              </p>
               <ul>
                 <li>Web and app development tracks</li>
                 <li>GitHub collaboration workflow</li>
@@ -131,51 +145,45 @@
           <p class="section-kicker">Executive Committee</p>
           <h2>Student and Teacher Committees</h2>
           <div class="committee-photo-stack">
-            <article class="student-slider committee-slideshow" data-slider>
+            <article class="student-slider committee-slideshow" data-slider data-auto="5200">
               <h3>Student Core Committee</h3>
               <div class="slider-stage">
                 <div class="year-slide active">
-                  <div class="year-media" style="--img:url('student-core-2026.jpg');">Student Core Committee 2026</div>
+                  <div class="year-media committee-empty" aria-label="Student Core Committee 2026 image placeholder"></div>
                   <p class="year-title">Year: 2026</p>
                 </div>
                 <div class="year-slide">
-                  <div class="year-media" style="--img:url('student-core-2025.jpg');">Student Core Committee 2025</div>
+                  <div class="year-media">
+                    <img src="gcpc-2025 stu panel.png" alt="Student Core Committee 2025" />
+                  </div>
                   <p class="year-title">Year: 2025</p>
-                </div>
-                <div class="year-slide">
-                  <div class="year-media" style="--img:url('student-core-2024.jpg');">Student Core Committee 2024</div>
-                  <p class="year-title">Year: 2024</p>
                 </div>
               </div>
               <div class="slider-controls">
                 <button type="button" class="slider-btn prev" aria-label="Previous year">&#10094;</button>
                 <button type="button" class="year-dot active">2026</button>
                 <button type="button" class="year-dot">2025</button>
-                <button type="button" class="year-dot">2024</button>
                 <button type="button" class="slider-btn next" aria-label="Next year">&#10095;</button>
               </div>
             </article>
-            <article class="student-slider committee-slideshow" data-slider>
+            <article class="student-slider committee-slideshow" data-slider data-auto="5600">
               <h3>Teacher Committee</h3>
               <div class="slider-stage">
                 <div class="year-slide active">
-                  <div class="year-media" style="--img:url('teacher-committee-2026.jpg');">Teacher Committee 2026</div>
+                  <div class="year-media committee-empty" aria-label="Teacher Committee 2026 image placeholder"></div>
                   <p class="year-title">Year: 2026</p>
                 </div>
                 <div class="year-slide">
-                  <div class="year-media" style="--img:url('teacher-committee-2025.jpg');">Teacher Committee 2025</div>
+                  <div class="year-media">
+                    <img src="teacher.png" alt="Teacher Committee 2025" />
+                  </div>
                   <p class="year-title">Year: 2025</p>
-                </div>
-                <div class="year-slide">
-                  <div class="year-media" style="--img:url('teacher-committee-2024.jpg');">Teacher Committee 2024</div>
-                  <p class="year-title">Year: 2024</p>
                 </div>
               </div>
               <div class="slider-controls">
                 <button type="button" class="slider-btn prev" aria-label="Previous year">&#10094;</button>
                 <button type="button" class="year-dot active">2026</button>
                 <button type="button" class="year-dot">2025</button>
-                <button type="button" class="year-dot">2024</button>
                 <button type="button" class="slider-btn next" aria-label="Next year">&#10095;</button>
               </div>
             </article>
@@ -194,19 +202,19 @@
               <div class="event-slider" data-slider>
                 <div class="slider-stage event-slider-stage">
                   <a href="event-acm-sprint.html" class="year-slide active event-slide-card">
-                    <p class="event-date-tag">March 2026</p>
-                    <h4>ACM Contest Performance Sprint</h4>
-                    <p>Contest simulation week with scoreboard analysis and upsolving strategy.</p>
+                    <p class="event-date-tag">Spring 2026 | ACM Wing</p>
+                    <h4>Java Core to Java Career (3-Day Workshop)</h4>
+                    <p>Core Java, OOP, practical coding, and career-focused Java roadmap for DIU students.</p>
                   </a>
                   <a href="event-research-workshop.html" class="year-slide event-slide-card">
-                    <p class="event-date-tag">April 2026</p>
-                    <h4>Research Paper Publishing Workshop</h4>
-                    <p>Hands-on publication workflow, formatting quality, and submission readiness.</p>
+                    <p class="event-date-tag">Spring 2026 | Research Wing</p>
+                    <h4>Introduction to Research & Complete Guideline</h4>
+                    <p>Beginner-focused seminar on topic selection, paper writing flow, tools, and publication basics.</p>
                   </a>
                   <a href="event-career-bootcamp.html" class="year-slide event-slide-card">
-                    <p class="event-date-tag">May 2026</p>
-                    <h4>Career Acceleration Bootcamp</h4>
-                    <p>Portfolio review, CV clinic, and interview performance workshop.</p>
+                    <p class="event-date-tag">Spring 2026 | Career & Development</p>
+                    <h4>From Campus to Cloud: DevOps & Cloud Career Seminar</h4>
+                    <p>Industry session on DevOps workflows, cloud roadmap, certifications, and career preparation.</p>
                   </a>
                 </div>
                 <div class="slider-controls">
@@ -249,11 +257,139 @@
           <p class="section-kicker">Gallery</p>
           <h2>Club Moments</h2>
           <div class="gallery-grid">
-            <div class="gallery-item">Workshops</div>
-            <div class="gallery-item">Programming Contests</div>
-            <div class="gallery-item">Meetups</div>
-            <div class="gallery-item">Seminars</div>
-            <div class="gallery-item">Special Events</div>
+            <article class="gallery-item gallery-slider" data-slider data-auto="4200">
+              <h3>Workshops</h3>
+              <div class="slider-stage gallery-slider-stage">
+                <div class="year-slide active">
+                  <div class="gallery-media">
+                    <img src="work1.jpg" alt="Workshop moment 1" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+                <div class="year-slide">
+                  <div class="gallery-media">
+                    <img src="work2.jpg" alt="Workshop moment 2" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+                <div class="year-slide">
+                  <div class="gallery-media">
+                    <img src="meet.jpg" alt="Workshop moment 3" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+              </div>
+              <div class="slider-controls">
+                <button type="button" class="slider-btn prev" aria-label="Previous workshop image">&#10094;</button>
+                <button type="button" class="year-dot active">1</button>
+                <button type="button" class="year-dot">2</button>
+                <button type="button" class="year-dot">3</button>
+                <button type="button" class="slider-btn next" aria-label="Next workshop image">&#10095;</button>
+              </div>
+            </article>
+
+            <article class="gallery-item gallery-slider" data-slider data-auto="4500">
+              <h3>Programming Contests</h3>
+              <div class="slider-stage gallery-slider-stage">
+                <div class="year-slide active">
+                  <div class="gallery-media empty" aria-label="Programming contest image slot 1"></div>
+                </div>
+                <div class="year-slide">
+                  <div class="gallery-media empty" aria-label="Programming contest image slot 2"></div>
+                </div>
+                <div class="year-slide">
+                  <div class="gallery-media empty" aria-label="Programming contest image slot 3"></div>
+                </div>
+              </div>
+              <div class="slider-controls">
+                <button type="button" class="slider-btn prev" aria-label="Previous contest image">&#10094;</button>
+                <button type="button" class="year-dot active">1</button>
+                <button type="button" class="year-dot">2</button>
+                <button type="button" class="year-dot">3</button>
+                <button type="button" class="slider-btn next" aria-label="Next contest image">&#10095;</button>
+              </div>
+            </article>
+
+            <article class="gallery-item gallery-slider" data-slider data-auto="4800">
+              <h3>Meetups</h3>
+              <div class="slider-stage gallery-slider-stage">
+                <div class="year-slide active">
+                  <div class="gallery-media">
+                    <img src="visit.jpg" alt="Meetup moment 1" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+                <div class="year-slide">
+                  <div class="gallery-media">
+                    <img src="meet1.jpg" alt="Meetup moment 2" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+                <div class="year-slide">
+                  <div class="gallery-media">
+                    <img src="meetup1.jpg" alt="Meetup moment 3" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+              </div>
+              <div class="slider-controls">
+                <button type="button" class="slider-btn prev" aria-label="Previous meetup image">&#10094;</button>
+                <button type="button" class="year-dot active">1</button>
+                <button type="button" class="year-dot">2</button>
+                <button type="button" class="year-dot">3</button>
+                <button type="button" class="slider-btn next" aria-label="Next meetup image">&#10095;</button>
+              </div>
+            </article>
+
+            <article class="gallery-item gallery-slider" data-slider data-auto="4300">
+              <h3>Seminars</h3>
+              <div class="slider-stage gallery-slider-stage">
+                <div class="year-slide active">
+                  <div class="gallery-media">
+                    <img src="seminar1.jpg" alt="Seminar moment 1" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+                <div class="year-slide">
+                  <div class="gallery-media">
+                    <img src="seminar2.jpg" alt="Seminar moment 2" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+                <div class="year-slide">
+                  <div class="gallery-media">
+                    <img src="seminar3.jpg" alt="Seminar moment 3" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+              </div>
+              <div class="slider-controls">
+                <button type="button" class="slider-btn prev" aria-label="Previous seminar image">&#10094;</button>
+                <button type="button" class="year-dot active">1</button>
+                <button type="button" class="year-dot">2</button>
+                <button type="button" class="year-dot">3</button>
+                <button type="button" class="slider-btn next" aria-label="Next seminar image">&#10095;</button>
+              </div>
+            </article>
+
+            <article class="gallery-item gallery-slider" data-slider data-auto="5000">
+              <h3>Special Events</h3>
+              <div class="slider-stage gallery-slider-stage">
+                <div class="year-slide active">
+                  <div class="gallery-media">
+                    <img src="special1.jpg" alt="Special event moment 1" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+                <div class="year-slide">
+                  <div class="gallery-media">
+                    <img src="special2.jpg" alt="Special event moment 2" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+                <div class="year-slide">
+                  <div class="gallery-media">
+                    <img src="special3.jpg" alt="Special event moment 3" onerror="this.parentElement.classList.add('empty');this.remove();" />
+                  </div>
+                </div>
+              </div>
+              <div class="slider-controls">
+                <button type="button" class="slider-btn prev" aria-label="Previous special event image">&#10094;</button>
+                <button type="button" class="year-dot active">1</button>
+                <button type="button" class="year-dot">2</button>
+                <button type="button" class="year-dot">3</button>
+                <button type="button" class="slider-btn next" aria-label="Next special event image">&#10095;</button>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -311,13 +447,17 @@
           <p class="section-kicker">Extra Initiatives</p>
           <h2>Special Professional Features</h2>
           <div class="extra-grid">
-            <article>
-              <h3>Women in Tech Spotlight</h3>
-              <p>Monthly feature highlighting successful female alumni and members.</p>
+            <article class="extra-card">
+              <a href="women-in-tech-spotlight.html" class="extra-link">
+                <h3>Women in Tech Spotlight</h3>
+                <p>Monthly feature highlighting successful female alumni and members.</p>
+              </a>
             </article>
-            <article>
-              <h3>Research Publication Tracker</h3>
-              <p>Track ongoing projects, published papers, and collaboration invitations.</p>
+            <article class="extra-card">
+              <a href="research-publication-tracker.html" class="extra-link">
+                <h3>Research Publication Tracker</h3>
+                <p>Track ongoing projects, published papers, and collaboration invitations.</p>
+              </a>
             </article>
           </div>
         </div>
@@ -358,7 +498,7 @@
             <a href="https://t.me/diugcpc" target="_blank" rel="noopener noreferrer" aria-label="Telegram" class="social-link"><svg viewBox="0 0 24 24"><path d="M21.9 4.6l-3.1 14.6c-.2 1-1 1.2-1.8.8l-4.1-3-2 1.9c-.2.2-.4.4-.9.4l.3-4.3 7.9-7.1c.3-.3-.1-.5-.5-.2L8 14.6l-4.1-1.3c-.9-.3-.9-.9.2-1.3L20.4 4c.8-.3 1.6.2 1.5.6z"/></svg></a>
           </div>
           <ul class="footer-mini-links">
-            <li><a href="#verify">Certificate Verification</a></li>
+            <li><a href="verify/">Certificate Verification</a></li>
             <li><a href="#events">Events & Workshops</a></li>
           </ul>
         </div>
@@ -368,7 +508,10 @@
         <img src="university-logo.png" alt="Daffodil International University logo" class="footer-corner-logo" />
       </div>
 
-      <div class="credit-line">&copy; Fateha Hossain Anushka</div>
+      <div class="credit-line">
+        <p>&copy; 2026 Girls' Computer Programming Club. All Rights Reserved.</p>
+        <p>Developed by Fateha Hossain Anushka</p>
+      </div>
     </footer>
   </div>
 

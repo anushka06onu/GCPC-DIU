@@ -1,17 +1,41 @@
 const menuToggle = document.querySelector('.menu-toggle');
 const navMenu = document.querySelector('.nav-links');
+const brandLink = document.querySelector('.brand');
+
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+window.addEventListener('load', () => {
+  window.scrollTo(0, 0);
+});
 
 if (menuToggle && navMenu) {
   menuToggle.addEventListener('click', () => {
     const isOpen = navMenu.classList.toggle('open');
     menuToggle.setAttribute('aria-expanded', String(isOpen));
+    menuToggle.classList.toggle('is-open', isOpen);
   });
 
   navMenu.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', () => {
       navMenu.classList.remove('open');
       menuToggle.setAttribute('aria-expanded', 'false');
+      menuToggle.classList.remove('is-open');
     });
+  });
+}
+
+if (brandLink) {
+  brandLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (navMenu && menuToggle) {
+      navMenu.classList.remove('open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+      menuToggle.classList.remove('is-open');
+    }
+    history.replaceState(null, '', '#top');
   });
 }
 
@@ -35,7 +59,9 @@ document.querySelectorAll('[data-slider]').forEach((slider) => {
   const dots = Array.from(slider.querySelectorAll('.year-dot'));
   const prev = slider.querySelector('.slider-btn.prev');
   const next = slider.querySelector('.slider-btn.next');
+  const autoDelay = Number(slider.dataset.auto || 0);
   let current = 0;
+  let timer = null;
 
   if (!slides.length) return;
 
@@ -53,6 +79,21 @@ document.querySelectorAll('[data-slider]').forEach((slider) => {
   if (next) next.addEventListener('click', () => go(current + 1));
   dots.forEach((dot, i) => dot.addEventListener('click', () => go(i)));
   render(0);
+
+  if (autoDelay > 0 && slides.length > 1) {
+    const startAuto = () => {
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => go(current + 1), autoDelay);
+    };
+    const stopAuto = () => {
+      if (timer) clearInterval(timer);
+    };
+    startAuto();
+    slider.addEventListener('mouseenter', stopAuto);
+    slider.addEventListener('mouseleave', startAuto);
+    slider.addEventListener('focusin', stopAuto);
+    slider.addEventListener('focusout', startAuto);
+  }
 });
 
 const brandLogo = document.querySelector('.brand-logo');

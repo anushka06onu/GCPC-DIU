@@ -4,45 +4,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ACM Wing | DIU GCPC</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="gcpc-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
 </head>
-<body>
-  <main class="section">
+<body data-page="wing" data-wing="acm">
+  <header class="site-nav-wrap">
+    <nav class="site-nav container">
+      <a href="index.html#top" class="brand"><img src="gcpc-logo.png" alt="GCPC logo" /></a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="index.html"><span>Home</span></a></li>
+        <li><a href="wing-acm.html"><span>ACM</span></a></li>
+        <li><a href="wing-research.html"><span>Research</span></a></li>
+        <li><a href="wing-career.html"><span>Career & Dev</span></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section" style="padding-top:8rem;">
     <div class="container">
       <p class="section-kicker">GCPC Wing</p>
       <h2>ACM Wing</h2>
-
-      <article class="about-block">
-        <h3>What This Wing Is About</h3>
-        <p>
-          ACM Wing is focused on contest programming, algorithmic thinking, and practical development capability. The wing helps
-          members become strong problem solvers through regular practice, mentoring, and performance-oriented training.
-        </p>
-        <h3>How This Wing Helps</h3>
-        <ul>
-          <li>Improves logic building and competitive coding speed</li>
-          <li>Builds strong fundamentals for interviews and ICPC-type contests</li>
-          <li>Adds hands-on backend engineering experience through practical workshops</li>
-        </ul>
-      </article>
+      <div class="grid-2" style="margin-top:1rem;">
+        <article class="card">
+          <h3>What This Wing Does</h3>
+          <p>The ACM wing drives competitive programming culture through structured problem-solving sessions, mock contests, backend engineering workshops, and peer mentorship.</p>
+        </article>
+        <article class="card">
+          <h3>How This Helps Members</h3>
+          <p>Members strengthen algorithmic thinking, coding speed, and technical confidence for contests, internships, and software engineering pathways.</p>
+        </article>
+      </div>
 
       <section class="section" style="padding:2rem 0 0;">
         <p class="section-kicker">Upcoming Events</p>
-        <h3>Spring 2026 Event Lineup</h3>
-        <div class="achievement-list">
-          <a class="achievement-card" href="event-acm-sprint.html">
-            <h3>Java Core to Java Career</h3>
-            <p>3-day workshop on Core Java, OOP, practical implementation, and career direction.</p>
-          </a>
-          <a class="achievement-card" href="event-acm-backend-workshop.html">
-            <h3>Backend Development Workshop (Spring Boot)</h3>
-            <p>5-day intensive workshop covering REST APIs, database integration, authentication, and mini project.</p>
-          </a>
+        <h3>ACM-Related Firebase Events</h3>
+        <div id="wing-events" class="event-grid" style="margin-top:1rem;">
+          <article class="card"><p class="loading">Loading wing events...</p></article>
         </div>
       </section>
-
-      <p style="margin-top:1rem;"><a class="btn btn-ghost" href="index.html#wings">Back to Website</a></p>
     </div>
   </main>
+
+  <script type="module" src="assets/app.js"></script>
 </body>
 </html>

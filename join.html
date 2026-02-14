@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join GCPC | DIU GCPC</title>
+  <link rel="icon" type="image/png" href="gcpc-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="join">
+  <header class="site-nav-wrap">
+    <nav class="site-nav container">
+      <a href="index.html#top" class="brand" aria-label="GCPC home"><img src="gcpc-logo.png" alt="GCPC logo" /></a>
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="index.html"><span>Home</span></a></li>
+        <li><a href="verify/"><span>Verify</span></a></li>
+        <li><a href="join.html"><span>Join</span></a></li>
+        <li><a href="contact.html"><span>Contact</span></a></li>
+        <li><a href="admin.html"><span>Admin</span></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section" style="padding-top:8rem;">
+    <div class="container">
+      <p class="section-kicker">Membership Portal</p>
+      <h2>Join DIU GCPC</h2>
+      <p style="margin-top:.6rem;">Submit your membership application to become part of the official GCPC learning and leadership community.</p>
+
+      <div class="form-shell" style="margin-top:1rem;">
+        <form id="join-form" novalidate>
+          <div class="field-grid">
+            <div class="field">
+              <label for="join-name">Full Name</label>
+              <input id="join-name" type="text" placeholder="Your full name" />
+              <p class="error"></p>
+            </div>
+            <div class="field">
+              <label for="join-email">Email</label>
+              <input id="join-email" type="email" placeholder="you@diu.edu.bd" />
+              <p class="error"></p>
+            </div>
+            <div class="field">
+              <label for="join-student-id">Student ID</label>
+              <input id="join-student-id" type="text" placeholder="221-15-0000" />
+              <p class="error"></p>
+            </div>
+            <div class="field">
+              <label for="join-department">Department</label>
+              <input id="join-department" type="text" value="CSE" />
+              <p class="error"></p>
+            </div>
+            <div class="field full">
+              <label for="join-semester">Semester</label>
+              <input id="join-semester" type="text" placeholder="Spring 26 / Fall 25" />
+              <p class="error"></p>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button id="join-submit" class="btn btn-primary" type="submit">Submit Application</button>
+            <a class="btn btn-soft" href="index.html">Back to Home</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="stats-shell">
+        <article class="stat-card">
+          <p>Total Members</p>
+          <p id="members-total" class="stat-value">-</p>
+        </article>
+        <article class="stat-card">
+          <label for="semester-filter" style="font-weight:700;color:#102a72;">Filter by Semester</label>
+          <select id="semester-filter" style="margin-top:.5rem;"></select>
+          <p style="margin-top:.5rem;">Members in selected semester</p>
+          <p id="members-semester" class="stat-value">-</p>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Details | DIU GCPC</title>
+  <link rel="icon" type="image/png" href="gcpc-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="event">
+  <header class="site-nav-wrap">
+    <nav class="site-nav container">
+      <a href="index.html#top" class="brand" aria-label="GCPC home"><img src="gcpc-logo.png" alt="GCPC logo" /></a>
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="index.html"><span>Home</span></a></li>
+        <li><a href="index.html#events"><span>Events</span></a></li>
+        <li><a href="verify/"><span>Verify</span></a></li>
+        <li><a href="join.html"><span>Join</span></a></li>
+        <li><a href="contact.html"><span>Contact</span></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section" style="padding-top:8rem;">
+    <div class="container">
+      <p class="section-kicker">Event Description</p>
+      <div id="event-detail">
+        <article class="card"><p class="loading">Loading event details...</p></article>
+      </div>
+      <div class="form-actions" style="margin-top:1rem;">
+        <a class="btn btn-soft" href="index.html#events">Back to Events</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

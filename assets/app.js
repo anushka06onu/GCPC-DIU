@@ -83,6 +83,17 @@ const validateEmail = (input) => {
   return ok;
 };
 
+const validateCertImagePath = (input) => {
+  const value = String(input?.value || '').trim();
+  if (!value) {
+    setFieldError(input, '');
+    return true;
+  }
+  const ok = /^\/images\/certificates\/.+\.(jpg|jpeg|png|webp)$/i.test(value);
+  setFieldError(input, ok ? '' : 'Use /images/certificates/filename.jpg (.jpg/.png/.webp).');
+  return ok;
+};
+
 const formatDate = (value) => {
   if (!value) return 'TBA';
   if (typeof value === 'string') return value;
@@ -486,7 +497,7 @@ const certificateImageHtml = (url, alt = 'Certificate image') => {
   if (!url) {
     return '<div class="cert-image-wrap"><div class="cert-image-placeholder">Certificate image not available yet.</div></div>';
   }
-  return `<div class="cert-image-wrap"><img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}" loading="lazy" /></div>`;
+  return `<div class="cert-image-wrap"><img class="zoomable-cert-image" src="${escapeHtml(url)}" alt="${escapeHtml(alt)}" loading="lazy" /></div>`;
 };
 
 const verifyByCertId = async (certId) => {
@@ -515,7 +526,7 @@ const verifyByCertId = async (certId) => {
       ${certificateImageHtml(data.certImageUrl, `${data.name || 'Certificate'} image`)}`;
 
     if (status === 'VALID') {
-      renderVerifyResult('success', `<p><strong>✅ Certificate verified</strong></p>${details}`);
+      renderVerifyResult('success', `<p><strong>✅ Certificate Verified</strong></p>${details}`);
     } else {
       renderVerifyResult('warning', `<p><strong>Warning:</strong> Certificate found but status is ${escapeHtml(status || 'UNKNOWN')}.</p>${details}`);
     }
@@ -612,6 +623,31 @@ const initVerify = () => {
   } else {
     renderVerifyResult('', 'Enter certificate details to verify authenticity.');
   }
+
+  // Click-to-zoom for certificate preview images.
+  document.addEventListener('click', (event) => {
+    const img = event.target.closest('.zoomable-cert-image');
+    if (!img) return;
+    let modal = document.getElementById('cert-zoom-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'cert-zoom-modal';
+      modal.className = 'cert-zoom-modal hidden';
+      modal.innerHTML = `
+        <button class="cert-zoom-close" type="button" aria-label="Close image preview">&times;</button>
+        <img id="cert-zoom-image" alt="Certificate zoom preview" />
+      `;
+      document.body.appendChild(modal);
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal || e.target.closest('.cert-zoom-close')) {
+          modal.classList.add('hidden');
+        }
+      });
+    }
+    const zoomImage = document.getElementById('cert-zoom-image');
+    if (zoomImage) zoomImage.src = img.src;
+    modal.classList.remove('hidden');
+  });
 };
 
 const initEventPage = async () => {
@@ -923,6 +959,15 @@ const fillCertForm = async (id) => {
   document.getElementById('cert-issue-date').value = data.issue_date || '';
   document.getElementById('cert-status').value = data.status || 'VALID';
   document.getElementById('cert-issued-by').value = data.issued_by || 'DIU GCPC';
+  const certImageInput = document.getElementById('cert-image-url');
+  const certImagePreview = document.getElementById('cert-image-preview');
+  if (certImageInput) certImageInput.value = String(data.certImageUrl || '').trim();
+  if (certImagePreview) {
+    const url = String(data.certImageUrl || '').trim();
+    certImagePreview.innerHTML = url
+      ? `<img src="${escapeHtml(url)}" alt="Certificate preview" loading="lazy" onerror="this.outerHTML='<span>Certificate image file not found</span>'" />`
+      : '<span>No certificate image selected</span>';
+  }
 };
 
 const wireAdminTabs = () => {
@@ -953,6 +998,8 @@ const initAdmin = async () => {
   const bannerInput = document.getElementById('event-banner');
   const bannerSelect = document.getElementById('event-banner-select');
   const bannerPreview = document.getElementById('event-banner-preview');
+  const certImageInput = document.getElementById('cert-image-url');
+  const certImagePreview = document.getElementById('cert-image-preview');
 
   if (!loginForm || !logoutBtn || !loginShell || !loadingShell || !dashboard || !who || !deniedShell || !deniedSignoutBtn) return;
 
@@ -974,6 +1021,16 @@ const initAdmin = async () => {
     bannerPreview.innerHTML = `<img src="${escapeHtml(normalized)}" alt="Event banner preview" loading="lazy" onerror="this.outerHTML='<span>Banner file not found</span>'" />`;
   };
 
+  const setCertImagePreview = (value) => {
+    if (!certImagePreview) return;
+    const normalized = String(value || '').trim();
+    if (!normalized) {
+      certImagePreview.innerHTML = '<span>No certificate image selected</span>';
+      return;
+    }
+    certImagePreview.innerHTML = `<img src="${escapeHtml(normalized)}" alt="Certificate preview" loading="lazy" onerror="this.outerHTML='<span>Certificate image file not found</span>'" />`;
+  };
+
   if (bannerSelect) {
     const bannerFiles = await loadLocalEventBanners();
     bannerSelect.innerHTML = '<option value="">Select banner file</option>' +
@@ -988,8 +1045,13 @@ const initAdmin = async () => {
   bannerInput?.addEventListener('input', () => {
     setBannerPreview(bannerInput.value);
   });
+  certImageInput?.addEventListener('input', () => {
+    validateCertImagePath(certImageInput);
+    setCertImagePreview(certImageInput.value);
+  });
 
   setBannerPreview('');
+  setCertImagePreview('');
 
   // Start in a strict loading state until onAuthStateChanged resolves.
   loadingShell.classList.remove('hidden');
@@ -1095,6 +1157,7 @@ const initAdmin = async () => {
       issue_date: document.getElementById('cert-issue-date').value,
       status: document.getElementById('cert-status').value,
       issued_by: document.getElementById('cert-issued-by').value.trim() || 'DIU GCPC',
+      certImageUrl: String(document.getElementById('cert-image-url')?.value || '').trim(),
       updatedAt: serverTimestamp()
     };
 
@@ -1102,6 +1165,7 @@ const initAdmin = async () => {
       showToast('Fill required certificate fields.', 'error');
       return;
     }
+    if (!validateCertImagePath(document.getElementById('cert-image-url'))) return;
 
     try {
       await setDoc(doc(db, 'certificates', certId), payload, { merge: true });
@@ -1122,6 +1186,7 @@ const initAdmin = async () => {
 
   document.getElementById('admin-cert-clear')?.addEventListener('click', () => {
     document.getElementById('admin-cert-form')?.reset();
+    setCertImagePreview('');
   });
 
   document.addEventListener('click', async (event) => {

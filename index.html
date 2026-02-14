@@ -23,18 +23,27 @@
       <ul class="nav-links" id="nav-menu">
         <li><a href="#about"><span>About</span></a></li>
         <li><a href="#wings"><span>Wings</span></a></li>
+        <li><a href="#committee"><span>Committee</span></a></li>
         <li><a href="#events"><span>Events</span></a></li>
-        <li><a href="#achievements"><span>Achievements</span></a></li>
+        <li><a href="#gallery"><span>Gallery</span></a></li>
         <li><a href="verify/"><span>Certification Validity</span></a></li>
         <li><a href="join.html"><span>Join</span></a></li>
-        <li><a href="contact.html"><span>Contact</span></a></li>
+        <li><a href="#contact"><span>Contact</span></a></li>
         <li><a href="admin.html"><span>Admin</span></a></li>
       </ul>
     </nav>
   </header>
 
-  <section class="hero">
-    <div class="container hero-main reveal">
+  <section class="hero" id="hero">
+    <div class="hero-bg" id="hero-bg">
+      <div class="hero-bg-slide hero-bg-1 active"></div>
+      <div class="hero-bg-slide hero-bg-2"></div>
+      <div class="hero-bg-slide hero-bg-3"></div>
+      <div class="hero-bg-slide hero-bg-4"></div>
+      <div class="hero-bg-overlay"></div>
+    </div>
+
+    <div class="container hero-content reveal">
       <p class="hero-eyebrow">Departmental Club | Department of CSE, DIU</p>
       <h1>Empowering Women in Tech. Building Future Leaders.</h1>
       <p class="hero-intro">
@@ -86,15 +95,15 @@
         <p class="section-kicker">GCPC Wings</p>
         <h2 class="reveal">Structured Wings for Focused Impact</h2>
         <div class="grid-3 top-gap">
-          <a class="card interactive-card reveal wing-card" href="wing-acm.html">
+          <a class="card interactive-card wing-card reveal" href="wing-acm.html">
             <h3>ACM Wing</h3>
             <p>Competitive programming culture, algorithmic problem-solving, and contest-driven technical growth.</p>
           </a>
-          <a class="card interactive-card reveal wing-card" href="wing-research.html">
+          <a class="card interactive-card wing-card reveal" href="wing-research.html">
             <h3>Research Wing</h3>
             <p>Research foundations, guided methodology, paper writing, publication readiness, and collaborative projects.</p>
           </a>
-          <a class="card interactive-card reveal wing-card" href="wing-career.html">
+          <a class="card interactive-card wing-card reveal" href="wing-career.html">
             <h3>Career & Development Wing</h3>
             <p>Development training, professional skills, project practice, and career-oriented workshops.</p>
           </a>
@@ -102,7 +111,44 @@
       </div>
     </section>
 
-    <section class="section" id="events">
+    <section class="section" id="committee">
+      <div class="container">
+        <p class="section-kicker">Executive Committee</p>
+        <h2 class="reveal">Student and Teacher Committees</h2>
+
+        <div class="committee-wrap top-gap">
+          <article class="card reveal" data-slideshow data-auto="5200">
+            <h3>Student Core Committee</h3>
+            <div class="slide-frame top-gap-sm">
+              <div class="slide active"><img src="gcpc-2025 stu panel.png" alt="Student Committee 2026" /></div>
+              <div class="slide"><img src="gcpc-2025 stu panel.png" alt="Student Committee 2025" /></div>
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">2026</button>
+              <button class="slide-dot" type="button">2025</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+
+          <article class="card reveal" data-slideshow data-auto="5600">
+            <h3>Teacher Committee</h3>
+            <div class="slide-frame top-gap-sm">
+              <div class="slide active"><img src="teacher.png" alt="Teacher Committee 2026" /></div>
+              <div class="slide"><img src="teacher.png" alt="Teacher Committee 2025" /></div>
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">2026</button>
+              <button class="slide-dot" type="button">2025</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft" id="events">
       <div class="container">
         <p class="section-kicker">Events & Workshops</p>
         <h2 class="reveal">Upcoming Activities by Wing</h2>
@@ -110,19 +156,25 @@
         <div class="grid-3 top-gap">
           <article class="card wing-activity-card reveal" data-wing-card="acm">
             <h3>ACM Wing Activities</h3>
-            <div class="vertical-slider" id="acm-activity-slider"></div>
+            <div class="vertical-slider" id="acm-activity-slider">
+              <div class="vertical-skeleton"></div>
+            </div>
             <div class="vertical-dots" id="acm-activity-dots"></div>
           </article>
 
           <article class="card wing-activity-card reveal" data-wing-card="research">
             <h3>Research Wing Activities</h3>
-            <div class="vertical-slider" id="research-activity-slider"></div>
+            <div class="vertical-slider" id="research-activity-slider">
+              <div class="vertical-skeleton"></div>
+            </div>
             <div class="vertical-dots" id="research-activity-dots"></div>
           </article>
 
           <article class="card wing-activity-card reveal" data-wing-card="career">
             <h3>Career & Development Activities</h3>
-            <div class="vertical-slider" id="career-activity-slider"></div>
+            <div class="vertical-slider" id="career-activity-slider">
+              <div class="vertical-skeleton"></div>
+            </div>
             <div class="vertical-dots" id="career-activity-dots"></div>
           </article>
         </div>
@@ -143,6 +195,62 @@
               <p>Professional roadmap guidance for internships, communication, and job readiness.</p>
             </a>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="gallery">
+      <div class="container">
+        <p class="section-kicker">Gallery</p>
+        <h2 class="reveal">Club Moments</h2>
+        <div class="grid-3 top-gap">
+          <article class="card reveal" data-slideshow data-auto="4300">
+            <h3>Workshops</h3>
+            <div class="slide-frame top-gap-sm">
+              <div class="slide active"><img src="work1.jpg" alt="Workshop 1" /></div>
+              <div class="slide"><img src="work2.jpg" alt="Workshop 2" /></div>
+              <div class="slide"><img src="meet.jpg" alt="Workshop 3" /></div>
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">1</button>
+              <button class="slide-dot" type="button">2</button>
+              <button class="slide-dot" type="button">3</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+
+          <article class="card reveal" data-slideshow data-auto="4700">
+            <h3>Seminars</h3>
+            <div class="slide-frame top-gap-sm">
+              <div class="slide active"><img src="seminar1.jpg" alt="Seminar 1" /></div>
+              <div class="slide"><img src="seminar2.jpg" alt="Seminar 2" /></div>
+              <div class="slide"><img src="seminar3.jpg" alt="Seminar 3" /></div>
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">1</button>
+              <button class="slide-dot" type="button">2</button>
+              <button class="slide-dot" type="button">3</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+
+          <article class="card reveal" data-slideshow data-auto="5000">
+            <h3>Meetups & Special Events</h3>
+            <div class="slide-frame top-gap-sm">
+              <div class="slide active"><img src="meetup1.jpg" alt="Meetup 1" /></div>
+              <div class="slide"><img src="visit.jpg" alt="Meetup 2" /></div>
+              <div class="slide"><img src="special1.jpg" alt="Meetup 3" /></div>
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">1</button>
+              <button class="slide-dot" type="button">2</button>
+              <button class="slide-dot" type="button">3</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -172,6 +280,23 @@
       </div>
     </section>
 
+    <section class="section" id="extras">
+      <div class="container">
+        <p class="section-kicker">Extra Initiatives</p>
+        <h2 class="reveal">Special Professional Features</h2>
+        <div class="grid-2 top-gap">
+          <a class="card interactive-card reveal" href="women-in-tech-spotlight.html">
+            <h3>Women in Tech Spotlight</h3>
+            <p>Monthly feature highlighting successful female alumni and members.</p>
+          </a>
+          <a class="card interactive-card reveal" href="research-publication-tracker.html">
+            <h3>Research Publication Tracker</h3>
+            <p>Track ongoing projects, published papers, and collaboration invitations.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="join-section">
       <div class="container">
         <p class="section-kicker">Membership</p>
@@ -180,7 +305,7 @@
           <p>Join DIU GCPC through the official DIU Student Hub registration portal.</p>
           <div class="hero-actions top-gap">
             <a class="btn btn-primary" href="https://studentshub.daffodilvarsity.edu.bd/clubs/registration/19" target="_blank" rel="noopener noreferrer">Join Now</a>
-            <a class="btn btn-soft" href="contact.html">Contact for Queries</a>
+            <a class="btn btn-soft" href="#contact">Contact for Queries</a>
           </div>
         </div>
       </div>
@@ -194,10 +319,18 @@
         <p>Girls' Computer Programming Club, Department of CSE, Daffodil International University.</p>
         <p>Email: gcpc@diu.edu.bd</p>
 
+        <h4 class="top-gap">Official Socials</h4>
+        <div class="socials top-gap-sm">
+          <a href="https://www.facebook.com/DIUGCPC" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M13.5 21v-8.1h2.7l.4-3.2h-3.1V7.7c0-.9.3-1.6 1.6-1.6h1.7V3.2c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4.1v2.5H8v3.2h2.3V21h3.2z"/></svg></a>
+          <a href="https://t.me/diugcpc" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><svg viewBox="0 0 24 24"><path d="M21.9 4.6l-3.1 14.6c-.2 1-1 1.2-1.8.8l-4.1-3-2 1.9c-.2.2-.4.4-.9.4l.3-4.3 7.9-7.1c.3-.3-.1-.5-.5-.2L8 14.6l-4.1-1.3c-.9-.3-.9-.9.2-1.3L20.4 4c.8-.3 1.6.2 1.5.6z"/></svg></a>
+          <a href="https://www.instagram.com/diu_gcpc/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2zm0 1.9C5.7 3.9 3.9 5.7 3.9 7.8v8.4c0 2.1 1.8 3.9 3.9 3.9h8.4c2.1 0 3.9-1.8 3.9-3.9V7.8c0-2.1-1.8-3.9-3.9-3.9H7.8z"/><path d="M12 7.3A4.7 4.7 0 1 1 12 16.7 4.7 4.7 0 0 1 12 7.3zm0 1.9A2.8 2.8 0 1 0 12 14.8 2.8 2.8 0 0 0 12 9.2z"/></svg></a>
+          <a href="https://www.linkedin.com/company/106392305/admin/dashboard/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.7 3.5a1.9 1.9 0 110 3.8 1.9 1.9 0 010-3.8zM3 8.9h3.4V21H3V8.9zm5.4 0h3.3v1.7h.1c.5-.9 1.6-2 3.4-2 3.6 0 4.3 2.4 4.3 5.5V21H16v-5.9c0-1.4 0-3.2-2-3.2s-2.3 1.5-2.3 3.1V21H8.4V8.9z"/></svg></a>
+        </div>
+
         <div class="footer-logo-group">
           <img class="footer-logo" src="gcpc-logo.png" alt="GCPC logo" />
-          <img class="footer-logo" src="university-logo.png" alt="Daffodil International University logo" />
           <img class="footer-logo" src="cse-logo.jpeg" alt="Department of CSE logo" />
+          <img class="footer-logo" src="university-logo.png" alt="Daffodil International University logo" />
         </div>
       </div>
 

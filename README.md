@@ -67,6 +67,43 @@ Set Firebase config in:
 }
 ```
 
+5. Required Firestore fields by collection:
+
+`events`
+- `title` (string)
+- `wing` (string: `acm` | `research` | `career`)
+- `semester` (string)
+- `dateISO` (string, `YYYY-MM-DD`)
+- `deadlineISO` (string, `YYYY-MM-DD`)
+- `venue` (string)
+- `description` (string)
+- `registrationLink` (string)
+- `status` (string: `UPCOMING` | `ONGOING` | `COMPLETED`)
+- `createdAt` (timestamp)
+
+`memberships`
+- `name` (string)
+- `email` (string)
+- `studentId` (string)
+- `department` (string)
+- `semester` (string)
+- `createdAt` (timestamp)
+
+`messages`
+- `email` (string)
+- `subject` (string)
+- `message` (string)
+- `createdAt` (timestamp)
+
+`certificates` (doc ID = certificate ID)
+- `name` (string)
+- `student_id` (string)
+- `course` (string)
+- `issue_date` (string/date)
+- `status` (string)
+- `issued_by` (string)
+- `certImageUrl` (string, optional but recommended for verification image display)
+
 ```json
 {
   "title": "Introduction to Research & Complete Guideline",

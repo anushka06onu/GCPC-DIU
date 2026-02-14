@@ -22,6 +22,15 @@ import {
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
 
+const FIXED_SEMESTERS = [
+  'Spring 2025',
+  'Summer 2025',
+  'Fall 2025',
+  'Spring 2026',
+  'Summer 2026',
+  'Fall 2026'
+];
+
 const escapeHtml = (value) => String(value ?? '')
   .replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;')
@@ -68,10 +77,7 @@ const validateEmail = (input) => {
 const formatDate = (value) => {
   if (!value) return 'TBA';
   if (typeof value === 'string') return value;
-  if (value.toDate) {
-    const d = value.toDate();
-    return d.toISOString().slice(0, 10);
-  }
+  if (value.toDate) return value.toDate().toISOString().slice(0, 10);
   return String(value);
 };
 
@@ -85,83 +91,103 @@ const parseMillis = (value) => {
   return 0;
 };
 
-const isUpcoming = (event) => {
-  const status = String(event.status || '').toUpperCase();
-  if (status === 'UPCOMING') return true;
-  const ms = parseMillis(event.dateISO);
-  return ms > Date.now() - 86400000;
+const normalizeWing = (event) => {
+  const explicit = String(event.wing || '').toLowerCase();
+  if (['acm', 'research', 'career'].includes(explicit)) return explicit;
+
+  const text = `${event.title || ''} ${event.description || ''}`.toLowerCase();
+  if (text.includes('research')) return 'research';
+  if (text.includes('career') || text.includes('development') || text.includes('devops')) return 'career';
+  return 'acm';
 };
 
 const navInit = () => {
   const toggle = $('.menu-toggle');
   const navMenu = $('#nav-menu');
-  if (toggle && navMenu) {
-    toggle.addEventListener('click', () => {
-      const isOpen = navMenu.classList.toggle('open');
-      toggle.classList.toggle('is-open', isOpen);
-      toggle.setAttribute('aria-expanded', String(isOpen));
-    });
+  if (!toggle || !navMenu) return;
 
-    $$('#nav-menu a').forEach((link) => {
-      link.addEventListener('click', () => {
-        navMenu.classList.remove('open');
-        toggle.classList.remove('is-open');
-        toggle.setAttribute('aria-expanded', 'false');
-      });
-    });
-  }
+  toggle.addEventListener('click', () => {
+    const isOpen = navMenu.classList.toggle('open');
+    toggle.classList.toggle('is-open', isOpen);
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
 
-  const page = document.body.dataset.page;
-  if (page === 'home') {
-    const brand = $('.brand');
-    if (brand) {
-      brand.addEventListener('click', (event) => {
-        if (brand.getAttribute('href') === '#top') {
-          event.preventDefault();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      });
-    }
+  $$('#nav-menu a').forEach((link) => {
+    link.addEventListener('click', () => {
+      navMenu.classList.remove('open');
+      toggle.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  const brand = $('.brand');
+  if (brand && brand.getAttribute('href') === '#top') {
+    brand.addEventListener('click', (event) => {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 };
 
-const initSlides = () => {
-  const sliders = $$('[data-slideshow]');
-  sliders.forEach((slider) => {
+const initReveal = () => {
+  const els = $$('.reveal');
+  if (!els.length) return;
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.16 });
+
+  els.forEach((el) => obs.observe(el));
+};
+
+const initSimpleSlides = () => {
+  const cards = $$('[data-slideshow]');
+  cards.forEach((slider) => {
     const slides = $$('.slide', slider);
+    if (slides.length <= 1) return;
     const dots = $$('.slide-dot', slider);
     const nextBtn = $('.slide-btn.next', slider);
     const prevBtn = $('.slide-btn.prev', slider);
-    const autoDelay = Number(slider.dataset.auto || '0');
+    const auto = Number(slider.dataset.auto || '5000');
     let idx = 0;
-    let timer = null;
+    let timer;
 
-    const show = (nextIndex) => {
-      idx = (nextIndex + slides.length) % slides.length;
-      slides.forEach((el, i) => el.classList.toggle('active', i === idx));
-      dots.forEach((el, i) => el.classList.toggle('active', i === idx));
+    const show = (i) => {
+      idx = (i + slides.length) % slides.length;
+      slides.forEach((el, n) => el.classList.toggle('active', n === idx));
+      dots.forEach((el, n) => el.classList.toggle('active', n === idx));
     };
 
-    dots.forEach((dot, i) => dot.addEventListener('click', () => show(i)));
-    if (nextBtn) nextBtn.addEventListener('click', () => show(idx + 1));
-    if (prevBtn) prevBtn.addEventListener('click', () => show(idx - 1));
+    dots.forEach((dot, n) => dot.addEventListener('click', () => show(n)));
+    nextBtn?.addEventListener('click', () => show(idx + 1));
+    prevBtn?.addEventListener('click', () => show(idx - 1));
 
-    const startAuto = () => {
-      if (!autoDelay || slides.length <= 1) return;
-      timer = setInterval(() => show(idx + 1), autoDelay);
-    };
+    const start = () => { timer = setInterval(() => show(idx + 1), auto); };
+    const stop = () => clearInterval(timer);
 
-    const stopAuto = () => {
-      if (!timer) return;
-      clearInterval(timer);
-      timer = null;
-    };
+    slider.addEventListener('mouseenter', stop);
+    slider.addEventListener('mouseleave', start);
 
-    slider.addEventListener('mouseenter', stopAuto);
-    slider.addEventListener('mouseleave', startAuto);
     show(0);
-    startAuto();
+    start();
   });
+};
+
+const fetchUpcomingEvents = async () => {
+  const snap = await getDocs(query(
+    collection(db, 'events'),
+    where('status', '==', 'UPCOMING'),
+    orderBy('deadlineISO', 'asc')
+  ));
+
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => parseMillis(a.deadlineISO) - parseMillis(b.deadlineISO));
 };
 
 const renderTicker = (events) => {
@@ -169,369 +195,412 @@ const renderTicker = (events) => {
   if (!track) return;
 
   if (!events.length) {
-    track.innerHTML = '<span class="ticker-item">Upcoming events will be announced soon.</span>';
+    track.innerHTML = '<span class="ticker-item">No upcoming events yet - check back soon.</span>';
     return;
   }
 
-  const rows = events.map((item) => {
-    const text = `${item.title} | ${formatDate(item.dateISO)} | ${item.semester || 'GCPC'}`;
-    return `<a class="ticker-item" href="event.html?id=${encodeURIComponent(item.id)}">${escapeHtml(text)}</a>`;
+  const row = events.map((event) => {
+    const txt = `${event.title} | ${event.semester || 'GCPC'} | Deadline: ${formatDate(event.deadlineISO)}`;
+    return `<a class="ticker-item" href="event.html?id=${encodeURIComponent(event.id)}">${escapeHtml(txt)}</a>`;
   }).join('');
 
-  track.innerHTML = `${rows}${rows}`;
+  track.innerHTML = `${row}${row}`;
 };
 
-const renderEventCards = (events, selector = '#events-grid') => {
-  const host = $(selector);
-  if (!host) return;
+const buildWingSlider = (containerId, dotsId, events) => {
+  const container = document.getElementById(containerId);
+  const dotsWrap = document.getElementById(dotsId);
+  if (!container || !dotsWrap) return;
 
   if (!events.length) {
-    host.innerHTML = '<article class="card"><p class="loading">No upcoming events published yet.</p></article>';
+    container.innerHTML = '<div class="vertical-empty">No upcoming events yet - check back soon.</div>';
+    dotsWrap.innerHTML = '';
     return;
   }
 
-  host.innerHTML = events.map((event) => `
-    <a class="card event-card" href="event.html?id=${encodeURIComponent(event.id)}">
-      <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
-      <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
-      <p>${escapeHtml(event.description || 'Event details will be shared soon.')}</p>
-      <p class="meta">Date: ${escapeHtml(formatDate(event.dateISO))}</p>
+  container.innerHTML = events.map((event, idx) => `
+    <article class="vertical-slide ${idx === 0 ? 'active' : ''}">
+      <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
+      <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
       <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
-      <div class="card-actions">
-        <span class="btn btn-soft">View Details</span>
-      </div>
-    </a>
+      <a href="event.html?id=${encodeURIComponent(event.id)}">View Details</a>
+    </article>
   `).join('');
-};
 
-const loadEvents = async () => {
-  const snap = await getDocs(query(collection(db, 'events'), orderBy('dateISO', 'asc')));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  dotsWrap.innerHTML = events.map((_, idx) => `<button type="button" class="${idx === 0 ? 'active' : ''}" aria-label="Slide ${idx + 1}"></button>`).join('');
+
+  const slides = $$('.vertical-slide', container);
+  const dots = $$('button', dotsWrap);
+  let idx = 0;
+
+  const show = (next) => {
+    idx = (next + slides.length) % slides.length;
+    slides.forEach((slide, n) => slide.classList.toggle('active', n === idx));
+    dots.forEach((dot, n) => dot.classList.toggle('active', n === idx));
+  };
+
+  dots.forEach((dot, n) => dot.addEventListener('click', () => show(n)));
+  setInterval(() => show(idx + 1), 3600);
 };
 
 const initHome = async () => {
   try {
-    const events = await loadEvents();
-    const upcoming = events.filter(isUpcoming);
+    const upcoming = await fetchUpcomingEvents();
     renderTicker(upcoming);
-    renderEventCards(upcoming.slice(0, 6));
 
-    const highlight = $('#upcoming-highlight');
-    if (highlight) {
-      if (!upcoming.length) {
-        highlight.textContent = 'Upcoming Highlight: New events and workshops will be announced soon.';
-      } else {
-        const top = upcoming[0];
-        const deadline = top.deadlineISO ? ` | Last Registration: ${formatDate(top.deadlineISO)}` : '';
-        highlight.textContent = `Upcoming Highlight: ${top.title}${deadline}`;
-      }
-    }
-  } catch (err) {
-    console.error(err);
-    showToast('Failed to load events from Firebase.', 'error');
+    const acmEvents = upcoming.filter((event) => normalizeWing(event) === 'acm');
+    const researchEvents = upcoming.filter((event) => normalizeWing(event) === 'research');
+    const careerEvents = upcoming.filter((event) => normalizeWing(event) === 'career');
+
+    buildWingSlider('acm-activity-slider', 'acm-activity-dots', acmEvents);
+    buildWingSlider('research-activity-slider', 'research-activity-dots', researchEvents);
+    buildWingSlider('career-activity-slider', 'career-activity-dots', careerEvents);
+  } catch (error) {
+    console.error(error);
+    renderTicker([]);
+    buildWingSlider('acm-activity-slider', 'acm-activity-dots', []);
+    buildWingSlider('research-activity-slider', 'research-activity-dots', []);
+    buildWingSlider('career-activity-slider', 'career-activity-dots', []);
+    showToast('Could not load upcoming events.', 'error');
   }
 };
 
-const initContact = () => {
-  const form = $('#contact-form');
+const submitMessage = async (email, subject, message) => {
+  await addDoc(collection(db, 'messages'), {
+    email: email.trim(),
+    subject: subject.trim(),
+    message: message.trim(),
+    createdAt: createdAt()
+  });
+};
+
+const bindMessageForm = (formId, map) => {
+  const form = document.getElementById(formId);
   if (!form) return;
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const email = $('#contact-email', form);
-    const subject = $('#contact-subject', form);
-    const message = $('#contact-message', form);
 
-    const ok = [
+    const email = document.getElementById(map.email);
+    const subject = document.getElementById(map.subject);
+    const message = document.getElementById(map.message);
+
+    const valid = [
       validateRequired(email, 'Email'),
       validateEmail(email),
       validateRequired(subject, 'Subject'),
       validateRequired(message, 'Message')
     ].every(Boolean);
 
-    if (!ok) return;
+    if (!valid) return;
 
-    const submitBtn = $('#contact-submit', form);
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending...';
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+    }
 
     try {
-      await addDoc(collection(db, 'messages'), {
-        email: email.value.trim(),
-        subject: subject.value.trim(),
-        message: message.value.trim(),
-        createdAt: createdAt()
-      });
+      await submitMessage(email.value, subject.value, message.value);
       form.reset();
-      showToast('Query sent successfully. We will get back to you soon.', 'success');
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to submit message. Please try again.', 'error');
+      showToast('Message sent successfully.', 'success');
+    } catch (error) {
+      console.error(error);
+      showToast('Failed to send message.', 'error');
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Send Message';
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = map.buttonText;
+      }
     }
   });
 };
 
-const loadMembershipStats = async () => {
-  const totalEl = $('#members-total');
-  const semesterEl = $('#members-semester');
-  const filterEl = $('#semester-filter');
+const animateCount = (element, to, duration = 900) => {
+  const start = Number(element.textContent) || 0;
+  const t0 = performance.now();
 
-  if (!totalEl || !semesterEl || !filterEl) return;
+  const tick = (now) => {
+    const progress = Math.min((now - t0) / duration, 1);
+    const value = Math.round(start + (to - start) * progress);
+    element.textContent = String(value);
+    if (progress < 1) requestAnimationFrame(tick);
+  };
+
+  requestAnimationFrame(tick);
+};
+
+const initJoin = async () => {
+  const totalEl = document.getElementById('members-total');
+  const semEl = document.getElementById('members-semester');
+  const select = document.getElementById('semester-filter');
+  if (!totalEl || !semEl || !select) return;
 
   try {
     const snap = await getDocs(collection(db, 'memberships'));
-    const list = snap.docs.map((d) => d.data());
-
-    totalEl.textContent = String(list.length);
+    const memberships = snap.docs.map((d) => d.data());
 
     const map = new Map();
-    list.forEach((m) => {
-      const sem = String(m.semester || 'Unknown');
-      map.set(sem, (map.get(sem) || 0) + 1);
+    memberships.forEach((m) => {
+      const key = String(m.semester || 'Unknown');
+      map.set(key, (map.get(key) || 0) + 1);
     });
 
-    const options = ['All', ...Array.from(map.keys()).sort((a, b) => a.localeCompare(b))];
-    filterEl.innerHTML = options.map((o) => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
+    const options = [...FIXED_SEMESTERS];
+    Array.from(map.keys()).forEach((item) => {
+      if (!options.includes(item)) options.push(item);
+    });
 
-    const renderSelected = () => {
-      const val = filterEl.value;
-      if (val === 'All') {
-        semesterEl.textContent = String(list.length);
-      } else {
-        semesterEl.textContent = String(map.get(val) || 0);
-      }
+    select.innerHTML = options.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
+
+    animateCount(totalEl, memberships.length);
+    const renderSemesterCount = () => {
+      const selected = select.value;
+      const count = map.get(selected) || 0;
+      animateCount(semEl, count);
     };
 
-    filterEl.addEventListener('change', renderSelected);
-    renderSelected();
-  } catch (err) {
-    console.error(err);
-    totalEl.textContent = '-';
-    semesterEl.textContent = '-';
+    select.addEventListener('change', renderSemesterCount);
+    renderSemesterCount();
+  } catch (error) {
+    console.error(error);
+    showToast('Failed to load members count.', 'error');
   }
 };
 
-const initJoin = () => {
-  const form = $('#join-form');
-  if (!form) return;
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const name = $('#join-name', form);
-    const email = $('#join-email', form);
-    const studentId = $('#join-student-id', form);
-    const department = $('#join-department', form);
-    const semester = $('#join-semester', form);
-
-    const checks = [
-      validateRequired(name, 'Name'),
-      validateRequired(email, 'Email'),
-      validateEmail(email),
-      validateRequired(studentId, 'Student ID'),
-      validateRequired(department, 'Department'),
-      validateRequired(semester, 'Semester')
-    ];
-
-    if (!checks.every(Boolean)) return;
-
-    const submitBtn = $('#join-submit', form);
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
-
-    try {
-      await addDoc(collection(db, 'memberships'), {
-        name: name.value.trim(),
-        email: email.value.trim(),
-        studentId: studentId.value.trim(),
-        department: department.value.trim(),
-        semester: semester.value.trim(),
-        createdAt: createdAt()
-      });
-
-      form.reset();
-      showToast('Application submitted successfully.', 'success');
-      await loadMembershipStats();
-    } catch (err) {
-      console.error(err);
-      showToast('Could not submit form. Please try again.', 'error');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit Application';
-    }
-  });
-
-  loadMembershipStats();
-};
-
-const renderCertificateResult = (type, html) => {
-  const box = $('#verify-result');
+const renderVerifyResult = (type, html) => {
+  const box = document.getElementById('verify-result');
   if (!box) return;
-  box.className = `status-box ${type || ''}`;
+  box.className = `status-box top-gap ${type || ''}`;
   box.innerHTML = html;
 };
 
-const verifyCertificate = async (certId) => {
+const verifyByCertId = async (certId) => {
   const normalized = certId.trim();
   if (!normalized) {
-    renderCertificateResult('error', 'Please enter a certificate ID.');
+    renderVerifyResult('error', 'Please enter a certificate ID.');
     return;
   }
 
-  renderCertificateResult('', 'Checking certificate...');
-
   try {
-    const ref = doc(db, 'certificates', normalized);
-    const snap = await getDoc(ref);
-
+    const snap = await getDoc(doc(db, 'certificates', normalized));
     if (!snap.exists()) {
-      renderCertificateResult('error', '<strong>Invalid Certificate</strong>');
+      renderVerifyResult('error', '<strong>Invalid Certificate</strong>');
       return;
     }
 
     const data = snap.data();
     const status = String(data.status || '').toUpperCase();
-    const body = `
+    const html = `
       <p><strong>Certificate ID:</strong> ${escapeHtml(normalized)}</p>
       <p><strong>Name:</strong> ${escapeHtml(data.name || 'N/A')}</p>
       <p><strong>Student ID:</strong> ${escapeHtml(data.student_id || 'N/A')}</p>
       <p><strong>Course:</strong> ${escapeHtml(data.course || 'N/A')}</p>
       <p><strong>Issue Date:</strong> ${escapeHtml(data.issue_date || 'N/A')}</p>
       <p><strong>Status:</strong> ${escapeHtml(status || 'N/A')}</p>
-      <p><strong>Issued By:</strong> ${escapeHtml(data.issued_by || 'GCPC')}</p>
     `;
 
     if (status === 'VALID') {
-      renderCertificateResult('success', `<p><strong>Certificate is VALID</strong></p>${body}`);
+      renderVerifyResult('success', `<p><strong>Certificate is VALID</strong></p>${html}`);
     } else {
-      renderCertificateResult('warning', `<p><strong>Warning:</strong> Certificate found but status is ${escapeHtml(status || 'UNKNOWN')}.</p>${body}`);
+      renderVerifyResult('warning', `<p><strong>Warning:</strong> Certificate found but status is ${escapeHtml(status || 'UNKNOWN')}.</p>${html}`);
     }
-  } catch (err) {
-    console.error(err);
-    renderCertificateResult('error', 'Verification failed. Please try again.');
+  } catch (error) {
+    console.error(error);
+    renderVerifyResult('error', 'Verification failed. Please try again.');
+  }
+};
+
+const verifyByStudentId = async (studentId) => {
+  const normalized = studentId.trim();
+  const list = document.getElementById('student-cert-list');
+  if (!list) return;
+
+  if (!normalized) {
+    list.innerHTML = '';
+    renderVerifyResult('error', 'Please enter a student ID.');
+    return;
+  }
+
+  try {
+    const snap = await getDocs(query(collection(db, 'certificates'), where('student_id', '==', normalized)));
+    if (!snap.docs.length) {
+      renderVerifyResult('error', 'No certificates found for this student ID.');
+      list.innerHTML = '';
+      return;
+    }
+
+    renderVerifyResult('success', `<strong>Found ${snap.docs.length} certificate(s) for Student ID: ${escapeHtml(normalized)}</strong>`);
+
+    list.innerHTML = `<div class="cert-list">${snap.docs.map((d) => {
+      const data = d.data();
+      return `<article class="cert-item">
+        <p><strong>Certificate ID:</strong> ${escapeHtml(d.id)}</p>
+        <p><strong>Name:</strong> ${escapeHtml(data.name || 'N/A')}</p>
+        <p><strong>Course:</strong> ${escapeHtml(data.course || 'N/A')}</p>
+        <p><strong>Issue Date:</strong> ${escapeHtml(data.issue_date || 'N/A')}</p>
+        <p><strong>Status:</strong> ${escapeHtml(data.status || 'N/A')}</p>
+      </article>`;
+    }).join('')}</div>`;
+  } catch (error) {
+    console.error(error);
+    renderVerifyResult('error', 'Search failed. Please try again.');
   }
 };
 
 const initVerify = () => {
-  const form = $('#verify-form');
-  if (!form) return;
+  const certTabBtn = document.querySelector('[data-verify-tab="cert"]');
+  const studentTabBtn = document.querySelector('[data-verify-tab="student"]');
+  const certTab = document.getElementById('verify-tab-cert');
+  const studentTab = document.getElementById('verify-tab-student');
+  const certForm = document.getElementById('verify-form');
+  const studentForm = document.getElementById('student-verify-form');
 
-  form.addEventListener('submit', async (event) => {
+  if (!certForm || !studentForm) return;
+
+  const toggleTab = (tab) => {
+    const isCert = tab === 'cert';
+    certTabBtn?.classList.toggle('active', isCert);
+    studentTabBtn?.classList.toggle('active', !isCert);
+    certTab?.classList.toggle('hidden', !isCert);
+    studentTab?.classList.toggle('hidden', isCert);
+  };
+
+  certTabBtn?.addEventListener('click', () => toggleTab('cert'));
+  studentTabBtn?.addEventListener('click', () => toggleTab('student'));
+
+  certForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const certInput = $('#cert-id', form);
-    const certId = certInput.value.trim();
-    if (!certId) {
-      setFieldError(certInput, 'Certificate ID is required.');
-      return;
-    }
-    setFieldError(certInput, '');
+    const input = document.getElementById('cert-id');
+    if (!validateRequired(input, 'Certificate ID')) return;
 
+    const certId = input.value.trim();
     const url = new URL(window.location.href);
     url.searchParams.set('cert_id', certId);
     window.history.replaceState({}, '', url.toString());
-    await verifyCertificate(certId);
+
+    await verifyByCertId(certId);
   });
 
-  const params = new URLSearchParams(window.location.search);
-  const certId = params.get('cert_id');
-  if (certId) {
-    const input = $('#cert-id', form);
-    input.value = certId;
-    verifyCertificate(certId);
+  studentForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const input = document.getElementById('student-id');
+    if (!validateRequired(input, 'Student ID')) return;
+    await verifyByStudentId(input.value);
+  });
+
+  const certIdFromQuery = new URLSearchParams(window.location.search).get('cert_id');
+  if (certIdFromQuery) {
+    const input = document.getElementById('cert-id');
+    if (input) input.value = certIdFromQuery;
+    verifyByCertId(certIdFromQuery);
+  } else {
+    renderVerifyResult('', 'Enter certificate details to verify authenticity.');
   }
 };
 
 const initEventPage = async () => {
-  const host = $('#event-detail');
+  const host = document.getElementById('event-detail');
   if (!host) return;
 
   const id = new URLSearchParams(window.location.search).get('id');
   if (!id) {
-    host.innerHTML = '<article class="card"><p class="loading">No event selected.</p></article>';
+    host.innerHTML = '<article class="card"><p>No event selected.</p></article>';
     return;
   }
 
   try {
     const snap = await getDoc(doc(db, 'events', id));
     if (!snap.exists()) {
-      host.innerHTML = '<article class="card"><p class="loading">Event not found.</p></article>';
+      host.innerHTML = '<article class="card"><p>Event not found.</p></article>';
       return;
     }
 
     const e = snap.data();
     host.innerHTML = `
-      <article class="card">
+      <article class="card reveal in-view">
         <span class="badge">${escapeHtml(e.semester || 'GCPC')}</span>
         <h2>${escapeHtml(e.title || 'Untitled Event')}</h2>
-        <p>${escapeHtml(e.description || 'No description available.')}</p>
-        <p class="meta"><strong>Date:</strong> ${escapeHtml(formatDate(e.dateISO))}</p>
-        <p class="meta"><strong>Registration Deadline:</strong> ${escapeHtml(formatDate(e.deadlineISO))}</p>
-        <p class="meta"><strong>Venue:</strong> ${escapeHtml(e.venue || 'TBA')}</p>
-        <p class="meta"><strong>Status:</strong> ${escapeHtml(e.status || 'N/A')}</p>
+        <p>${escapeHtml(e.description || 'No description provided.')}</p>
+        <p><strong>Date:</strong> ${escapeHtml(formatDate(e.dateISO))}</p>
+        <p><strong>Deadline:</strong> ${escapeHtml(formatDate(e.deadlineISO))}</p>
+        <p><strong>Venue:</strong> ${escapeHtml(e.venue || 'TBA')}</p>
+        <p><strong>Status:</strong> ${escapeHtml(e.status || 'N/A')}</p>
         ${e.registrationLink ? `<a class="btn btn-primary" href="${escapeHtml(e.registrationLink)}" target="_blank" rel="noopener noreferrer">Registration Link</a>` : ''}
       </article>
     `;
-  } catch (err) {
-    console.error(err);
-    host.innerHTML = '<article class="card"><p class="loading">Failed to load event details.</p></article>';
+  } catch (error) {
+    console.error(error);
+    host.innerHTML = '<article class="card"><p>Failed to load event details.</p></article>';
   }
 };
 
 const initWingPage = async () => {
-  const pageRoot = $('[data-wing]');
+  const pageRoot = document.querySelector('[data-wing]');
   if (!pageRoot) return;
+
   const wing = String(pageRoot.dataset.wing || '').toLowerCase();
-  const host = $('#wing-events');
+  const host = document.getElementById('wing-events');
   if (!host) return;
 
   try {
-    const all = await loadEvents();
-    const filtered = all.filter((event) => {
-      const title = String(event.title || '').toLowerCase();
-      const desc = String(event.description || '').toLowerCase();
-      return title.includes(wing) || desc.includes(wing);
-    }).filter(isUpcoming);
+    const all = await fetchUpcomingEvents();
+    const list = all.filter((e) => normalizeWing(e) === wing);
 
-    renderEventCards(filtered.slice(0, 8), '#wing-events');
-  } catch (err) {
-    console.error(err);
-    host.innerHTML = '<article class="card"><p class="loading">Failed to load wing events.</p></article>';
+    if (!list.length) {
+      host.innerHTML = '<article class="card"><p>No upcoming events yet - check back soon.</p></article>';
+      return;
+    }
+
+    host.innerHTML = list.slice(0, 8).map((event) => `
+      <a class="card interactive-card" href="event.html?id=${encodeURIComponent(event.id)}">
+        <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
+        <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
+        <p>${escapeHtml(event.description || 'Event details coming soon.')}</p>
+        <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+      </a>
+    `).join('');
+  } catch (error) {
+    console.error(error);
+    host.innerHTML = '<article class="card"><p>Failed to load events.</p></article>';
   }
 };
 
-const checkAdmin = async (uid) => {
-  if (!uid) return false;
-  const ref = doc(db, 'admins', uid);
-  const snap = await getDoc(ref);
-  return snap.exists();
+const getAllowedAdminEmails = async () => {
+  const snap = await getDoc(doc(db, 'admins', 'allowed'));
+  if (!snap.exists()) return [];
+  const data = snap.data();
+  if (!Array.isArray(data.emails)) return [];
+  return data.emails.map((e) => String(e).toLowerCase().trim());
 };
 
-const setLoading = (selector, text = 'Loading...') => {
-  const target = $(selector);
-  if (target) target.innerHTML = `<p class="loading">${escapeHtml(text)}</p>`;
+const setSkeleton = (selector) => {
+  const target = document.querySelector(selector);
+  if (target) target.classList.add('skeleton-card');
+};
+
+const clearSkeleton = (selector) => {
+  const target = document.querySelector(selector);
+  if (target) target.classList.remove('skeleton-card');
 };
 
 const renderAdminEvents = async () => {
-  setLoading('#events-table-wrap', 'Loading events...');
-  const snap = await getDocs(query(collection(db, 'events'), orderBy('dateISO', 'asc')));
+  setSkeleton('#events-table-wrap');
+  const wrap = document.getElementById('events-table-wrap');
+  const snap = await getDocs(query(collection(db, 'events'), orderBy('deadlineISO', 'asc')));
   const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-  const wrap = $('#events-table-wrap');
-  if (!wrap) return;
 
   wrap.innerHTML = `
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr><th>Title</th><th>Semester</th><th>Date</th><th>Status</th><th>Action</th></tr>
-        </thead>
+        <thead><tr><th>Title</th><th>Wing</th><th>Semester</th><th>Deadline</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>
           ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(row.title || '')}</td>
+              <td>${escapeHtml(row.wing || normalizeWing(row))}</td>
               <td>${escapeHtml(row.semester || '')}</td>
-              <td>${escapeHtml(formatDate(row.dateISO))}</td>
+              <td>${escapeHtml(formatDate(row.deadlineISO))}</td>
               <td>${escapeHtml(row.status || '')}</td>
               <td>
                 <div class="action-row">
@@ -545,21 +614,20 @@ const renderAdminEvents = async () => {
       </table>
     </div>
   `;
+
+  clearSkeleton('#events-table-wrap');
 };
 
 const renderAdminCertificates = async () => {
-  setLoading('#cert-table-wrap', 'Loading certificates...');
+  setSkeleton('#cert-table-wrap');
+  const wrap = document.getElementById('cert-table-wrap');
   const snap = await getDocs(collection(db, 'certificates'));
   const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-  const wrap = $('#cert-table-wrap');
-  if (!wrap) return;
 
   wrap.innerHTML = `
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr><th>Cert ID</th><th>Name</th><th>Student ID</th><th>Course</th><th>Status</th><th>Action</th></tr>
-        </thead>
+        <thead><tr><th>Cert ID</th><th>Name</th><th>Student ID</th><th>Course</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>
           ${rows.map((row) => `
             <tr>
@@ -580,40 +648,15 @@ const renderAdminCertificates = async () => {
       </table>
     </div>
   `;
-};
 
-const renderAdminMessages = async () => {
-  setLoading('#messages-table-wrap', 'Loading messages...');
-  const snap = await getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc')));
-  const rows = snap.docs.map((d) => d.data());
-  const wrap = $('#messages-table-wrap');
-  if (!wrap) return;
-
-  wrap.innerHTML = `
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Email</th><th>Subject</th><th>Message</th><th>Created</th></tr></thead>
-        <tbody>
-          ${rows.map((row) => `
-            <tr>
-              <td>${escapeHtml(row.email || '')}</td>
-              <td>${escapeHtml(row.subject || '')}</td>
-              <td>${escapeHtml(row.message || '')}</td>
-              <td>${escapeHtml(formatDate(row.createdAt))}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
+  clearSkeleton('#cert-table-wrap');
 };
 
 const renderAdminMemberships = async () => {
-  setLoading('#memberships-table-wrap', 'Loading memberships...');
+  setSkeleton('#memberships-table-wrap');
+  const wrap = document.getElementById('memberships-table-wrap');
   const snap = await getDocs(query(collection(db, 'memberships'), orderBy('createdAt', 'desc')));
   const rows = snap.docs.map((d) => d.data());
-  const wrap = $('#memberships-table-wrap');
-  if (!wrap) return;
 
   wrap.innerHTML = `
     <div class="table-wrap">
@@ -634,81 +677,114 @@ const renderAdminMemberships = async () => {
       </table>
     </div>
   `;
+
+  clearSkeleton('#memberships-table-wrap');
+};
+
+const renderAdminMessages = async () => {
+  setSkeleton('#messages-table-wrap');
+  const wrap = document.getElementById('messages-table-wrap');
+  const snap = await getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc')));
+  const rows = snap.docs.map((d) => d.data());
+
+  wrap.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Email</th><th>Subject</th><th>Message</th><th>Created</th></tr></thead>
+        <tbody>
+          ${rows.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.email || '')}</td>
+              <td>${escapeHtml(row.subject || '')}</td>
+              <td>${escapeHtml(row.message || '')}</td>
+              <td>${escapeHtml(formatDate(row.createdAt))}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  clearSkeleton('#messages-table-wrap');
 };
 
 const fillEventForm = async (id) => {
   const snap = await getDoc(doc(db, 'events', id));
   if (!snap.exists()) return;
   const data = snap.data();
-  $('#event-id').value = id;
-  $('#event-title').value = data.title || '';
-  $('#event-semester').value = data.semester || '';
-  $('#event-date').value = formatDate(data.dateISO) === 'TBA' ? '' : formatDate(data.dateISO);
-  $('#event-deadline').value = formatDate(data.deadlineISO) === 'TBA' ? '' : formatDate(data.deadlineISO);
-  $('#event-venue').value = data.venue || '';
-  $('#event-description').value = data.description || '';
-  $('#event-registration').value = data.registrationLink || '';
-  $('#event-status').value = data.status || 'UPCOMING';
+
+  document.getElementById('event-id').value = id;
+  document.getElementById('event-title').value = data.title || '';
+  document.getElementById('event-wing').value = data.wing || normalizeWing(data);
+  document.getElementById('event-semester').value = data.semester || '';
+  document.getElementById('event-date').value = formatDate(data.dateISO) === 'TBA' ? '' : formatDate(data.dateISO);
+  document.getElementById('event-deadline').value = formatDate(data.deadlineISO) === 'TBA' ? '' : formatDate(data.deadlineISO);
+  document.getElementById('event-venue').value = data.venue || '';
+  document.getElementById('event-registration').value = data.registrationLink || '';
+  document.getElementById('event-description').value = data.description || '';
+  document.getElementById('event-status').value = data.status || 'UPCOMING';
 };
 
-const fillCertForm = async (certId) => {
-  const snap = await getDoc(doc(db, 'certificates', certId));
+const fillCertForm = async (id) => {
+  const snap = await getDoc(doc(db, 'certificates', id));
   if (!snap.exists()) return;
   const data = snap.data();
-  $('#cert-id').value = certId;
-  $('#cert-name').value = data.name || '';
-  $('#cert-student-id').value = data.student_id || '';
-  $('#cert-course').value = data.course || '';
-  $('#cert-issue-date').value = data.issue_date || '';
-  $('#cert-status').value = data.status || 'VALID';
-  $('#cert-issued-by').value = data.issued_by || 'DIU GCPC';
+
+  document.getElementById('cert-id').value = id;
+  document.getElementById('cert-name').value = data.name || '';
+  document.getElementById('cert-student-id').value = data.student_id || '';
+  document.getElementById('cert-course').value = data.course || '';
+  document.getElementById('cert-issue-date').value = data.issue_date || '';
+  document.getElementById('cert-status').value = data.status || 'VALID';
+  document.getElementById('cert-issued-by').value = data.issued_by || 'DIU GCPC';
 };
 
 const wireAdminTabs = () => {
-  const tabs = $$('.tab-btn');
+  const tabs = $$('.tab-btn[data-tab]');
   const panes = $$('.admin-pane');
+
   tabs.forEach((btn) => {
     btn.addEventListener('click', () => {
       const target = btn.dataset.tab;
-      tabs.forEach((b) => b.classList.toggle('active', b === btn));
+      tabs.forEach((tab) => tab.classList.toggle('active', tab === btn));
       panes.forEach((pane) => pane.classList.toggle('hidden', pane.id !== target));
     });
   });
 };
 
 const initAdmin = () => {
-  const loginForm = $('#admin-login-form');
-  const logoutBtn = $('#admin-logout');
-  const loginShell = $('#admin-login-shell');
-  const dashboard = $('#admin-dashboard');
-  const who = $('#admin-who');
+  const loginForm = document.getElementById('admin-login-form');
+  const logoutBtn = document.getElementById('admin-logout');
+  const loginShell = document.getElementById('admin-login-shell');
+  const dashboard = document.getElementById('admin-dashboard');
+  const who = document.getElementById('admin-who');
 
-  if (!loginForm || !logoutBtn || !loginShell || !dashboard) return;
+  if (!loginForm || !logoutBtn || !loginShell || !dashboard || !who) return;
 
   wireAdminTabs();
 
   loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const email = $('#admin-email');
-    const password = $('#admin-password');
 
-    const ok = [
+    const email = document.getElementById('admin-email');
+    const password = document.getElementById('admin-password');
+    const valid = [
       validateRequired(email, 'Email'),
       validateEmail(email),
       validateRequired(password, 'Password')
     ].every(Boolean);
 
-    if (!ok) return;
+    if (!valid) return;
 
-    const btn = $('#admin-login-btn');
+    const btn = document.getElementById('admin-login-btn');
     btn.disabled = true;
     btn.textContent = 'Logging in...';
 
     try {
       await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
-    } catch (err) {
-      console.error(err);
-      showToast('Login failed. Check your credentials.', 'error');
+    } catch (error) {
+      console.error(error);
+      showToast('Login failed.', 'error');
     } finally {
       btn.disabled = false;
       btn.textContent = 'Login';
@@ -720,25 +796,24 @@ const initAdmin = () => {
     showToast('Signed out.', 'success');
   });
 
-  const eventForm = $('#admin-event-form');
-  const certForm = $('#admin-cert-form');
-
-  eventForm?.addEventListener('submit', async (event) => {
+  document.getElementById('admin-event-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const id = $('#event-id').value.trim();
+
+    const id = document.getElementById('event-id').value.trim();
     const payload = {
-      title: $('#event-title').value.trim(),
-      semester: $('#event-semester').value.trim(),
-      dateISO: $('#event-date').value,
-      deadlineISO: $('#event-deadline').value,
-      venue: $('#event-venue').value.trim(),
-      description: $('#event-description').value.trim(),
-      registrationLink: $('#event-registration').value.trim(),
-      status: $('#event-status').value,
+      title: document.getElementById('event-title').value.trim(),
+      wing: document.getElementById('event-wing').value,
+      semester: document.getElementById('event-semester').value.trim(),
+      dateISO: document.getElementById('event-date').value,
+      deadlineISO: document.getElementById('event-deadline').value,
+      venue: document.getElementById('event-venue').value.trim(),
+      description: document.getElementById('event-description').value.trim(),
+      registrationLink: document.getElementById('event-registration').value.trim(),
+      status: document.getElementById('event-status').value,
       createdAt: createdAt()
     };
 
-    if (!payload.title || !payload.semester || !payload.dateISO || !payload.status) {
+    if (!payload.title || !payload.semester || !payload.status || !payload.wing) {
       showToast('Fill required event fields.', 'error');
       return;
     }
@@ -751,30 +826,31 @@ const initAdmin = () => {
         await addDoc(collection(db, 'events'), payload);
         showToast('Event created.', 'success');
       }
-      eventForm.reset();
-      $('#event-id').value = '';
+      event.target.reset();
+      document.getElementById('event-id').value = '';
       await renderAdminEvents();
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       showToast('Failed to save event.', 'error');
     }
   });
 
-  certForm?.addEventListener('submit', async (event) => {
+  document.getElementById('admin-cert-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const certId = $('#cert-id').value.trim();
+
+    const certId = document.getElementById('cert-id').value.trim();
     if (!certId) {
       showToast('Certificate ID is required.', 'error');
       return;
     }
 
     const payload = {
-      name: $('#cert-name').value.trim(),
-      student_id: $('#cert-student-id').value.trim(),
-      course: $('#cert-course').value.trim(),
-      issue_date: $('#cert-issue-date').value,
-      status: $('#cert-status').value,
-      issued_by: $('#cert-issued-by').value.trim() || 'DIU GCPC',
+      name: document.getElementById('cert-name').value.trim(),
+      student_id: document.getElementById('cert-student-id').value.trim(),
+      course: document.getElementById('cert-course').value.trim(),
+      issue_date: document.getElementById('cert-issue-date').value,
+      status: document.getElementById('cert-status').value,
+      issued_by: document.getElementById('cert-issued-by').value.trim() || 'DIU GCPC',
       updatedAt: serverTimestamp()
     };
 
@@ -787,19 +863,19 @@ const initAdmin = () => {
       await setDoc(doc(db, 'certificates', certId), payload, { merge: true });
       showToast('Certificate saved.', 'success');
       await renderAdminCertificates();
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       showToast('Failed to save certificate.', 'error');
     }
   });
 
-  $('#admin-event-clear')?.addEventListener('click', () => {
-    eventForm?.reset();
-    $('#event-id').value = '';
+  document.getElementById('admin-event-clear')?.addEventListener('click', () => {
+    document.getElementById('admin-event-form')?.reset();
+    document.getElementById('event-id').value = '';
   });
 
-  $('#admin-cert-clear')?.addEventListener('click', () => {
-    certForm?.reset();
+  document.getElementById('admin-cert-clear')?.addEventListener('click', () => {
+    document.getElementById('admin-cert-form')?.reset();
   });
 
   document.addEventListener('click', async (event) => {
@@ -814,72 +890,89 @@ const initAdmin = () => {
         showToast('Event loaded into form.', 'success');
       }
       if (deleteEventId) {
-        const ok = window.confirm('Delete this event?');
-        if (!ok) return;
+        if (!window.confirm('Delete this event?')) return;
         await deleteDoc(doc(db, 'events', deleteEventId));
-        showToast('Event deleted.', 'success');
         await renderAdminEvents();
+        showToast('Event deleted.', 'success');
       }
       if (editCertId) {
         await fillCertForm(editCertId);
         showToast('Certificate loaded into form.', 'success');
       }
       if (deleteCertId) {
-        const ok = window.confirm('Delete this certificate?');
-        if (!ok) return;
+        if (!window.confirm('Delete this certificate?')) return;
         await deleteDoc(doc(db, 'certificates', deleteCertId));
-        showToast('Certificate deleted.', 'success');
         await renderAdminCertificates();
+        showToast('Certificate deleted.', 'success');
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       showToast('Action failed.', 'error');
     }
   });
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
+      who.textContent = 'Not signed in';
       loginShell.classList.remove('hidden');
       dashboard.classList.add('hidden');
-      who.textContent = 'Not signed in';
       return;
     }
 
-    const allowed = await checkAdmin(user.uid);
-    if (!allowed) {
-      showToast('This account is not in admins collection.', 'error');
+    try {
+      const allowlist = await getAllowedAdminEmails();
+      const allowed = allowlist.includes(String(user.email || '').toLowerCase());
+
+      if (!allowed) {
+        showToast('This email is not allowlisted in admins/allowed.', 'error');
+        await signOut(auth);
+        return;
+      }
+
+      who.textContent = user.email || 'Admin';
+      loginShell.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+
+      await Promise.all([
+        renderAdminEvents(),
+        renderAdminCertificates(),
+        renderAdminMemberships(),
+        renderAdminMessages()
+      ]);
+    } catch (error) {
+      console.error(error);
+      showToast('Failed to validate admin access.', 'error');
       await signOut(auth);
-      return;
     }
-
-    who.textContent = user.email || 'Admin';
-    loginShell.classList.add('hidden');
-    dashboard.classList.remove('hidden');
-
-    await Promise.all([
-      renderAdminEvents(),
-      renderAdminCertificates(),
-      renderAdminMessages(),
-      renderAdminMemberships()
-    ]);
   });
 };
 
 const initPage = async () => {
-  if ('scrollRestoration' in window.history) {
-    window.history.scrollRestoration = 'manual';
-  }
-
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
   window.addEventListener('pageshow', () => window.scrollTo(0, 0));
 
   navInit();
-  initSlides();
+  initReveal();
+  initSimpleSlides();
+
+  bindMessageForm('contact-form', {
+    email: 'contact-email',
+    subject: 'contact-subject',
+    message: 'contact-message',
+    buttonText: 'Send Message'
+  });
+
+  bindMessageForm('footer-contact-form', {
+    email: 'footer-email',
+    subject: 'footer-subject',
+    message: 'footer-message',
+    buttonText: 'Send'
+  });
 
   const page = document.body.dataset.page;
   if (page === 'home') await initHome();
-  if (page === 'contact') initContact();
-  if (page === 'join') initJoin();
+  if (page === 'join') await initJoin();
   if (page === 'verify') initVerify();
   if (page === 'event') await initEventPage();
   if (page === 'wing') await initWingPage();

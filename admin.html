@@ -17,17 +17,16 @@
       <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
       <ul class="nav-links" id="nav-menu">
         <li><a href="index.html"><span>Home</span></a></li>
-        <li><a href="verify/"><span>Verify</span></a></li>
+        <li><a href="verify/"><span>Certification Validity</span></a></li>
         <li><a href="join.html"><span>Join</span></a></li>
         <li><a href="contact.html"><span>Contact</span></a></li>
-        <li><a href="admin.html"><span>Admin</span></a></li>
       </ul>
     </nav>
   </header>
 
-  <main class="section" style="padding-top:8rem;">
+  <main class="section page-top-space">
     <div class="container admin-shell">
-      <div class="admin-head">
+      <div class="admin-head reveal">
         <div>
           <p class="section-kicker">Admin Panel</p>
           <h2>GCPC Management Console</h2>
@@ -36,9 +35,10 @@
         <button id="admin-logout" class="btn btn-soft" type="button">Logout</button>
       </div>
 
-      <section id="admin-login-shell" class="form-shell">
+      <section id="admin-login-shell" class="form-shell reveal">
         <h3>Admin Login</h3>
-        <form id="admin-login-form" novalidate style="margin-top:.7rem;">
+        <p class="top-gap-sm">Allowed admins are controlled by Firestore doc: <code>admins/allowed</code> with field <code>emails: []</code>.</p>
+        <form id="admin-login-form" novalidate class="top-gap-sm">
           <div class="field-grid">
             <div class="field">
               <label for="admin-email">Email</label>
@@ -57,7 +57,7 @@
         </form>
       </section>
 
-      <section id="admin-dashboard" class="hidden">
+      <section id="admin-dashboard" class="hidden reveal">
         <div class="tabs">
           <button class="tab-btn active" data-tab="pane-events" type="button">Events</button>
           <button class="tab-btn" data-tab="pane-certificates" type="button">Certificates</button>
@@ -65,18 +65,19 @@
           <button class="tab-btn" data-tab="pane-messages" type="button">Messages</button>
         </div>
 
-        <div id="pane-events" class="admin-pane">
-          <div class="grid-2" style="margin-top:1rem;">
+        <div id="pane-events" class="admin-pane top-gap">
+          <div class="grid-2">
             <article class="form-shell">
               <h3>Create / Update Event</h3>
               <form id="admin-event-form" novalidate>
                 <input id="event-id" type="hidden" />
                 <div class="field-grid">
                   <div class="field full"><label for="event-title">Title</label><input id="event-title" type="text" /></div>
+                  <div class="field"><label for="event-wing">Wing</label><select id="event-wing"><option value="acm">ACM</option><option value="research">Research</option><option value="career">Career & Development</option></select></div>
                   <div class="field"><label for="event-semester">Semester</label><input id="event-semester" type="text" /></div>
                   <div class="field"><label for="event-status">Status</label><select id="event-status"><option value="UPCOMING">UPCOMING</option><option value="ONGOING">ONGOING</option><option value="COMPLETED">COMPLETED</option></select></div>
-                  <div class="field"><label for="event-date">Date (ISO)</label><input id="event-date" type="date" /></div>
-                  <div class="field"><label for="event-deadline">Deadline (ISO)</label><input id="event-deadline" type="date" /></div>
+                  <div class="field"><label for="event-date">Date</label><input id="event-date" type="date" /></div>
+                  <div class="field"><label for="event-deadline">Deadline</label><input id="event-deadline" type="date" /></div>
                   <div class="field full"><label for="event-venue">Venue</label><input id="event-venue" type="text" /></div>
                   <div class="field full"><label for="event-registration">Registration Link</label><input id="event-registration" type="url" /></div>
                   <div class="field full"><label for="event-description">Description</label><textarea id="event-description"></textarea></div>
@@ -87,12 +88,12 @@
                 </div>
               </form>
             </article>
-            <article id="events-table-wrap" class="card"><p class="loading">Loading events...</p></article>
+            <article id="events-table-wrap" class="card skeleton-card"></article>
           </div>
         </div>
 
-        <div id="pane-certificates" class="admin-pane hidden">
-          <div class="grid-2" style="margin-top:1rem;">
+        <div id="pane-certificates" class="admin-pane top-gap hidden">
+          <div class="grid-2">
             <article class="form-shell">
               <h3>Create / Update Certificate</h3>
               <form id="admin-cert-form" novalidate>
@@ -111,16 +112,16 @@
                 </div>
               </form>
             </article>
-            <article id="cert-table-wrap" class="card"><p class="loading">Loading certificates...</p></article>
+            <article id="cert-table-wrap" class="card skeleton-card"></article>
           </div>
         </div>
 
-        <div id="pane-memberships" class="admin-pane hidden">
-          <article id="memberships-table-wrap" class="card"><p class="loading">Loading memberships...</p></article>
+        <div id="pane-memberships" class="admin-pane top-gap hidden">
+          <article id="memberships-table-wrap" class="card skeleton-card"></article>
         </div>
 
-        <div id="pane-messages" class="admin-pane hidden">
-          <article id="messages-table-wrap" class="card"><p class="loading">Loading messages...</p></article>
+        <div id="pane-messages" class="admin-pane top-gap hidden">
+          <article id="messages-table-wrap" class="card skeleton-card"></article>
         </div>
       </section>
     </div>

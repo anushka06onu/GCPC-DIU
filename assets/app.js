@@ -631,45 +631,14 @@ const initWingPage = async () => {
 };
 
 const getAllowedAdminEmails = async () => {
-  const candidateDocIds = ['allowed', 'allowlist'];
-  const candidateFields = ['emails', 'allowedEmails'];
-
-  let foundDocId = null;
-  let foundSnap = null;
-  let foundData = null;
-  let fieldUsed = null;
-  let rawEmails = null;
-
-  for (const id of candidateDocIds) {
-    const snap = await getDoc(doc(db, 'admins', id));
-    if (!snap.exists()) continue;
-
-    const data = snap.data() || {};
-    for (const field of candidateFields) {
-      if (Array.isArray(data[field])) {
-        foundDocId = id;
-        foundSnap = snap;
-        foundData = data;
-        fieldUsed = field;
-        rawEmails = data[field];
-        break;
-      }
-    }
-
-    if (rawEmails) break;
-  }
-
-  if (!rawEmails) {
-    throw new Error(
-      "Admin allowlist not found. Expected admins/allowed or admins/allowlist with field emails or allowedEmails."
-    );
-  }
-
+  const snap = await getDoc(doc(db, 'admins', 'allowed'));
+  const data = snap.exists() ? snap.data() : null;
+  const rawEmails = Array.isArray(data?.emails) ? data.emails : [];
   return {
-    docId: foundDocId,
-    fieldName: fieldUsed,
-    snap: foundSnap,
-    data: foundData,
+    docId: 'allowed',
+    fieldName: 'emails',
+    snap,
+    data,
     rawEmails,
     normalizedEmails: rawEmails.map((e) => String(e).trim().toLowerCase())
   };
@@ -871,11 +840,13 @@ const initAdmin = () => {
   const loadingShell = document.getElementById('admin-auth-loading');
   const debugShell = document.getElementById('admin-debug-shell');
   const debugOutput = document.getElementById('admin-debug-output');
+  const deniedShell = document.getElementById('admin-denied-shell');
+  const deniedSignoutBtn = document.getElementById('admin-denied-signout');
   const dashboard = document.getElementById('admin-dashboard');
   const who = document.getElementById('admin-who');
   const debugMode = new URLSearchParams(window.location.search).get('debug') === '1';
 
-  if (!loginForm || !logoutBtn || !loginShell || !loadingShell || !dashboard || !who) return;
+  if (!loginForm || !logoutBtn || !loginShell || !loadingShell || !dashboard || !who || !deniedShell || !deniedSignoutBtn) return;
 
   const setDebug = (payload) => {
     if (!debugMode || !debugShell || !debugOutput) return;
@@ -888,6 +859,7 @@ const initAdmin = () => {
   // Start in a strict loading state until onAuthStateChanged resolves.
   loadingShell.classList.remove('hidden');
   loginShell.classList.add('hidden');
+  deniedShell.classList.add('hidden');
   dashboard.classList.add('hidden');
 
   loginForm.addEventListener('submit', async (event) => {
@@ -908,7 +880,10 @@ const initAdmin = () => {
     btn.textContent = 'Logging in...';
 
     try {
-      await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
+      const credential = await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
+      const signedInEmail = credential?.user?.email || '';
+      who.textContent = signedInEmail || 'Signed in';
+      console.log('[Admin Login] signedIn user.email:', signedInEmail);
     } catch (error) {
       console.error(error);
       showToast('Login failed.', 'error');
@@ -919,6 +894,10 @@ const initAdmin = () => {
   });
 
   logoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    showToast('Signed out.', 'success');
+  });
+  deniedSignoutBtn.addEventListener('click', async () => {
     await signOut(auth);
     showToast('Signed out.', 'success');
   });
@@ -1041,6 +1020,7 @@ const initAdmin = () => {
   onAuthStateChanged(auth, async (user) => {
     loadingShell.classList.remove('hidden');
     loginShell.classList.add('hidden');
+    deniedShell.classList.add('hidden');
     dashboard.classList.add('hidden');
 
     if (!user) {
@@ -1060,6 +1040,10 @@ const initAdmin = () => {
       const rawEmails = allowlistMeta.rawEmails;
       const allowlist = allowlistMeta.normalizedEmails;
       const allowed = allowlist.includes(userEmail);
+      console.log('[Admin Guard] comparing userEmail against allowlist:', {
+        userEmail,
+        allowlist
+      });
 
       setDebug({
         projectId: firebaseConfig.projectId,
@@ -1086,17 +1070,16 @@ const initAdmin = () => {
         console.log('[Admin Guard] doc exists?:', allowDocSnap.exists());
         console.log('[Admin Guard] doc.data() raw:', allowDocData);
         console.log('[Admin Guard] extracted emails array:', allowlist);
-        showToast('You’re signed in, but your account is not authorized for admin access.', 'error');
         loadingShell.classList.add('hidden');
-        if (!debugMode) {
-          await signOut(auth);
-        }
+        deniedShell.classList.remove('hidden');
+        showToast('Access denied', 'error');
         return;
       }
 
       who.textContent = user.email || 'Admin';
       loadingShell.classList.add('hidden');
       loginShell.classList.add('hidden');
+      deniedShell.classList.add('hidden');
       dashboard.classList.remove('hidden');
 
       await Promise.all([
@@ -1108,17 +1091,13 @@ const initAdmin = () => {
     } catch (error) {
       console.error(error);
       devLog('[Admin Guard] allowlist read success:', false);
-      showToast(
-        error?.message?.includes('Admin allowlist not found')
-          ? 'Admin allowlist is missing. Please configure admins/allowed or admins/allowlist.'
-          : 'You’re signed in, but your account is not authorized for admin access.',
-        'error'
-      );
+      showToast('Access denied', 'error');
       loadingShell.classList.add('hidden');
+      deniedShell.classList.remove('hidden');
       setDebug({
         projectId: firebaseConfig.projectId,
         currentUserEmail: user?.email ?? null,
-        firestoreDocPath: 'admins/allowed | admins/allowlist',
+        firestoreDocPath: 'admins/allowed',
         allowlistReadStatus: 'error',
         snapExists: null,
         snapDataRaw: null,
@@ -1130,9 +1109,7 @@ const initAdmin = () => {
         errorCode: error?.code || null,
         errorMessage: error?.message || 'Unknown error'
       });
-      if (!debugMode) {
-        await signOut(auth);
-      }
+      if (!debugMode) devLog('[Admin Guard] access denied without debug mode');
     }
   });
 };

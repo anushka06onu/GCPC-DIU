@@ -630,32 +630,10 @@ const initWingPage = async () => {
   }
 };
 
-const getAllowedAdminEmails = async () => {
-  const snap = await getDoc(doc(db, 'admins', 'allowed'));
+const getAdminAccessByUid = async (uid) => {
+  const snap = await getDoc(doc(db, 'admins', uid));
   const data = snap.exists() ? snap.data() : null;
-  const primaryRaw = data?.emails;
-  const secondaryRaw = data?.allowedEmails;
-  const sourceRaw = primaryRaw ?? secondaryRaw;
-
-  let rawEmails = [];
-  if (Array.isArray(sourceRaw)) {
-    rawEmails = sourceRaw;
-  } else if (typeof sourceRaw === 'string') {
-    rawEmails = [sourceRaw];
-  } else if (sourceRaw && typeof sourceRaw === 'object') {
-    rawEmails = Object.values(sourceRaw);
-  }
-
-  return {
-    docId: 'allowed',
-    fieldName: primaryRaw != null ? 'emails' : 'allowedEmails',
-    snap,
-    data,
-    sourceRaw,
-    sourceType: typeof sourceRaw,
-    rawEmails,
-    normalizedEmails: rawEmails.map((e) => String(e).trim().toLowerCase())
-  };
+  return { snap, data };
 };
 
 const isDevEnv = () => {
@@ -1087,50 +1065,32 @@ const initAdmin = () => {
     }
 
     try {
+      const uid = String(user.uid || '').trim();
       const userEmailRaw = user.email || '';
-      const userEmail = String(user.email || '').trim().toLowerCase();
-      const allowlistMeta = await getAllowedAdminEmails();
-      const allowDocPath = `admins/${allowlistMeta.docId}`;
-      const allowDocSnap = allowlistMeta.snap;
-      const allowDocData = allowlistMeta.data;
-      const allowDocKeys = allowDocData ? Object.keys(allowDocData) : [];
-      const rawEmails = allowlistMeta.rawEmails;
-      const allowlist = allowlistMeta.normalizedEmails;
-      const allowed = allowlist.includes(userEmail);
-      console.log('[Admin Guard] comparing userEmail against allowlist:', {
-        userEmail,
-        allowlist
-      });
+      const { snap: adminSnap, data: adminData } = await getAdminAccessByUid(uid);
+      const adminDocPath = `admins/${uid}`;
+      const allowed = adminSnap.exists();
 
       setDebug({
         projectId: firebaseConfig.projectId,
+        uid,
         currentUserEmail: userEmailRaw,
-        firestoreDocPath: allowDocPath,
-        allowlistReadStatus: 'success',
-        snapExists: allowDocSnap.exists(),
-        snapKeys: allowDocKeys,
-        snapJson: JSON.stringify(allowDocData || {}),
-        snapDataRaw: allowDocData,
-        extractedEmailsRaw: allowlistMeta.sourceRaw,
-        extractedEmailsType: allowlistMeta.sourceType,
-        extractedEmailsArray: rawEmails,
-        extractedEmailsLength: rawEmails.length,
-        normalizedUserEmail: userEmail,
-        normalizedAllowedEmails: allowlist,
-        includesResult: allowed
+        firestoreDocPath: adminDocPath,
+        adminDocReadStatus: 'success',
+        snapExists: adminSnap.exists(),
+        snapKeys: adminData ? Object.keys(adminData) : [],
+        snapJson: JSON.stringify(adminData || {}),
+        isAuthorized: allowed
       });
 
-      devLog('[Admin Guard] allowlist read success:', true);
-      devLog('[Admin Guard] user email:', userEmail);
-      devLog('[Admin Guard] allowlist length:', allowlist.length);
-      devLog('[Admin Guard] doc used:', allowDocPath);
-      devLog('[Admin Guard] field used:', allowlistMeta.fieldName);
+      devLog('[Admin Guard] uid doc read success:', true);
+      devLog('[Admin Guard] uid:', uid);
+      devLog('[Admin Guard] doc used:', adminDocPath);
 
       if (!allowed) {
-        console.log('[Admin Guard] userEmail:', userEmail);
-        console.log('[Admin Guard] doc exists?:', allowDocSnap.exists());
-        console.log('[Admin Guard] doc.data() raw:', allowDocData);
-        console.log('[Admin Guard] extracted emails array:', allowlist);
+        console.log('[Admin Guard] uid:', uid);
+        console.log('[Admin Guard] doc exists?:', adminSnap.exists());
+        console.log('[Admin Guard] doc.data() raw:', adminData);
         loadingShell.classList.add('hidden');
         deniedShell.classList.remove('hidden');
         showToast('Access denied', 'error');
@@ -1151,22 +1111,19 @@ const initAdmin = () => {
       ]);
     } catch (error) {
       console.error(error);
-      devLog('[Admin Guard] allowlist read success:', false);
+      devLog('[Admin Guard] uid doc read success:', false);
       showToast('Access denied', 'error');
       loadingShell.classList.add('hidden');
       deniedShell.classList.remove('hidden');
       setDebug({
         projectId: firebaseConfig.projectId,
+        uid: user?.uid ?? null,
         currentUserEmail: user?.email ?? null,
-        firestoreDocPath: 'admins/allowed',
-        allowlistReadStatus: 'error',
+        firestoreDocPath: `admins/${String(user?.uid || '').trim()}`,
+        adminDocReadStatus: 'error',
         snapExists: null,
         snapDataRaw: null,
-        extractedEmailsArray: [],
-        extractedEmailsLength: 0,
-        normalizedUserEmail: String(user?.email || '').trim().toLowerCase(),
-        normalizedAllowedEmails: [],
-        includesResult: false,
+        isAuthorized: false,
         errorCode: error?.code || null,
         errorMessage: error?.message || 'Unknown error'
       });

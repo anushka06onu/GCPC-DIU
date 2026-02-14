@@ -12,7 +12,7 @@ Official website portal for Girls' Computer Programming Club (GCPC), Department 
 - Join page using DIU Student Hub registration link.
 - Animated member count cards from Firestore `memberships`.
 - Contact forms (contact page + footer compact form) writing to Firestore `messages`.
-- Admin panel with Firebase Auth + allowlist check from `admins/allowed`.
+- Admin panel with Firebase Auth + UID-based admin doc check from `admins/{uid}`.
 
 ## Pages
 - `index.html` - Home
@@ -39,15 +39,14 @@ Set Firebase config in:
 2. Enable Authentication:
 - Firebase Console -> Authentication -> Sign-in method -> Enable **Email/Password**.
 
-3. Create admin allowlist document:
+3. Create admin access document for each admin:
 - Collection: `admins`
-- Document ID: `allowed`
-- Field:
+- Document ID: the admin user UID from Firebase Authentication
+- Example document:
 ```json
 {
-  "emails": [
-    "anushka2305101844@diu.edu.bd"
-  ]
+  "role": "admin",
+  "active": true
 }
 ```
 
@@ -142,8 +141,7 @@ service cloud.firestore {
 
     function isAllowedAdmin() {
       return request.auth != null
-        && exists(/databases/$(database)/documents/admins/allowed)
-        && request.auth.token.email in get(/databases/$(database)/documents/admins/allowed).data.emails;
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
     match /events/{id} {

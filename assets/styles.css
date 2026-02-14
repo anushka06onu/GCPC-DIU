@@ -275,11 +275,35 @@ p { margin: 0; line-height: 1.62; }
 
 .card > * + * { margin-top: .55rem; }
 
+.gcpc-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(182, 205, 255, 0.6);
+  backdrop-filter: blur(6px);
+  background: linear-gradient(145deg, rgba(255,255,255,.84), rgba(245,250,255,.74));
+}
+
+.gcpc-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(31,86,194,.1), rgba(27,163,220,.08), rgba(10,165,99,.08), rgba(242,181,54,.1));
+  background-size: 200% 200%;
+  opacity: .8;
+  pointer-events: none;
+  transition: opacity .32s ease;
+}
+
+.gcpc-card > * {
+  position: relative;
+  z-index: 1;
+}
+
 .interactive-card {
   position: relative;
   overflow: hidden;
   text-decoration: none;
-  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+  transition: transform .32s ease, box-shadow .32s ease, border-color .32s ease;
 }
 
 .interactive-card::after {
@@ -301,14 +325,32 @@ p { margin: 0; line-height: 1.62; }
   border-color: rgba(31,86,194,.4);
 }
 
+.gcpc-card:hover::before {
+  animation: gcpc-gradient-shift 6s ease infinite;
+  opacity: 1;
+}
+
 .interactive-card:hover::after { transform: scaleX(1); }
 .interactive-card:hover p,
 .interactive-card:hover h3,
 .interactive-card:hover h4 { animation: content-rise .32s ease; }
 
 @keyframes content-rise { from { opacity:.6; transform: translateY(8px);} to { opacity:1; transform: translateY(0);} }
+@keyframes gcpc-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
 .wing-card { text-decoration: none; }
+.wing-points {
+  margin: .35rem 0 0;
+  padding-left: 1rem;
+}
+.wing-points li {
+  margin-top: .25rem;
+  color: #2d467f;
+}
 
 .badge {
   display:inline-flex;
@@ -348,6 +390,25 @@ p { margin: 0; line-height: 1.62; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.slide.empty {
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  background: linear-gradient(135deg, rgba(31,86,194,.14), rgba(10,165,99,.14));
+}
+
+.slide.empty.active {
+  opacity: 1;
+}
+
+.empty-committee {
+  max-width: 380px;
+  text-align: center;
+  font-weight: 700;
+  color: #173d86;
+  padding: 1rem;
 }
 
 .slide-controls {
@@ -420,6 +481,26 @@ p { margin: 0; line-height: 1.62; }
   background: linear-gradient(90deg, #edf3ff 25%, #f9fbff 50%, #edf3ff 75%);
   background-size: 220% 100%;
   animation: shimmer 1.2s linear infinite;
+}
+
+.wing-event-list {
+  display: grid;
+  gap: .65rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wing-event-item {
+  text-decoration: none;
+}
+
+.wing-event-item h4 {
+  font-size: 1rem;
+}
+
+.wing-view-all {
+  margin-top: .5rem;
+  font-weight: 700;
+  color: var(--royal);
 }
 
 .vertical-dots { display:flex; gap:.4rem; justify-content:center; margin-top:.65rem; }
@@ -679,8 +760,18 @@ th { background:#f6f9ff; color:#1f478f; }
 
 .reveal.in-view { opacity: 1; transform: translateY(0); }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 @media (max-width: 1020px) {
   .grid-3, .grid-2, .event-grid, .footer-top { grid-template-columns: 1fr; }
+  .wing-event-list { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 820px) {

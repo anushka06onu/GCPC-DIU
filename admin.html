@@ -97,6 +97,24 @@
                   <div class="field"><label for="event-date">Date</label><input id="event-date" type="date" /></div>
                   <div class="field"><label for="event-deadline">Deadline</label><input id="event-deadline" type="date" /></div>
                   <div class="field full"><label for="event-venue">Venue</label><input id="event-venue" type="text" /></div>
+                  <div class="field">
+                    <label for="event-banner-select">Banner From /images/events/</label>
+                    <select id="event-banner-select">
+                      <option value="">Select banner file</option>
+                    </select>
+                    <p class="helper">Select a local banner image if available.</p>
+                  </div>
+                  <div class="field">
+                    <label for="event-banner">Banner Path / Filename</label>
+                    <input id="event-banner" type="text" placeholder="/images/events/workshop1.jpg or workshop1.jpg" />
+                    <p class="helper">Stored in Firestore as <code>bannerUrl</code>.</p>
+                  </div>
+                  <div class="field full">
+                    <p class="helper">Banner preview</p>
+                    <div class="event-banner-preview" id="event-banner-preview">
+                      <span>No banner selected</span>
+                    </div>
+                  </div>
                   <div class="field full"><label for="event-registration">Registration Link</label><input id="event-registration" type="url" /></div>
                   <div class="field full"><label for="event-description">Description</label><textarea id="event-description"></textarea></div>
                 </div>

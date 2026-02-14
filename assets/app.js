@@ -633,12 +633,26 @@ const initWingPage = async () => {
 const getAllowedAdminEmails = async () => {
   const snap = await getDoc(doc(db, 'admins', 'allowed'));
   const data = snap.exists() ? snap.data() : null;
-  const rawEmails = Array.isArray(data?.emails) ? data.emails : [];
+  const primaryRaw = data?.emails;
+  const secondaryRaw = data?.allowedEmails;
+  const sourceRaw = primaryRaw ?? secondaryRaw;
+
+  let rawEmails = [];
+  if (Array.isArray(sourceRaw)) {
+    rawEmails = sourceRaw;
+  } else if (typeof sourceRaw === 'string') {
+    rawEmails = [sourceRaw];
+  } else if (sourceRaw && typeof sourceRaw === 'object') {
+    rawEmails = Object.values(sourceRaw);
+  }
+
   return {
     docId: 'allowed',
-    fieldName: 'emails',
+    fieldName: primaryRaw != null ? 'emails' : 'allowedEmails',
     snap,
     data,
+    sourceRaw,
+    sourceType: typeof sourceRaw,
     rawEmails,
     normalizedEmails: rawEmails.map((e) => String(e).trim().toLowerCase())
   };
@@ -736,57 +750,99 @@ const renderAdminCertificates = async () => {
 const renderAdminMemberships = async () => {
   setSkeleton('#memberships-table-wrap');
   const wrap = document.getElementById('memberships-table-wrap');
-  const snap = await getDocs(query(collection(db, 'memberships'), orderBy('createdAt', 'desc')));
-  const rows = snap.docs.map((d) => d.data());
+  if (!wrap) return;
 
-  wrap.innerHTML = `
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Name</th><th>Email</th><th>Student ID</th><th>Department</th><th>Semester</th><th>Created</th></tr></thead>
-        <tbody>
-          ${rows.map((row) => `
-            <tr>
-              <td>${escapeHtml(row.name || '')}</td>
-              <td>${escapeHtml(row.email || '')}</td>
-              <td>${escapeHtml(row.studentId || '')}</td>
-              <td>${escapeHtml(row.department || '')}</td>
-              <td>${escapeHtml(row.semester || '')}</td>
-              <td>${escapeHtml(formatDate(row.createdAt))}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
+  try {
+    let rows = [];
+    try {
+      const orderedSnap = await getDocs(query(collection(db, 'memberships'), orderBy('createdAt', 'desc')));
+      rows = orderedSnap.docs.map((d) => d.data());
+    } catch (orderError) {
+      const fallbackSnap = await getDocs(collection(db, 'memberships'));
+      rows = fallbackSnap.docs.map((d) => d.data());
+      rows.sort((a, b) => parseMillis(b.createdAt) - parseMillis(a.createdAt));
+    }
 
-  clearSkeleton('#memberships-table-wrap');
+    if (!rows.length) {
+      wrap.innerHTML = '<p class="empty-state">No membership submissions yet.</p>';
+      return;
+    }
+
+    wrap.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Student ID</th><th>Semester</th><th>Created At</th></tr></thead>
+          <tbody>
+            ${rows.map((row) => `
+              <tr>
+                <td>${escapeHtml(row.name || '')}</td>
+                <td>${escapeHtml(row.email || '')}</td>
+                <td>${escapeHtml(row.studentId || '')}</td>
+                <td>${escapeHtml(row.semester || '')}</td>
+                <td>${escapeHtml(formatDate(row.createdAt))}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (error) {
+    console.error(error);
+    if (error?.code === 'permission-denied') {
+      wrap.innerHTML = '<p class="empty-state">Admin access required to view this data.</p>';
+    } else {
+      wrap.innerHTML = '<p class="empty-state">Unable to load membership submissions right now.</p>';
+    }
+  } finally {
+    clearSkeleton('#memberships-table-wrap');
+  }
 };
 
 const renderAdminMessages = async () => {
   setSkeleton('#messages-table-wrap');
   const wrap = document.getElementById('messages-table-wrap');
-  const snap = await getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc')));
-  const rows = snap.docs.map((d) => d.data());
+  if (!wrap) return;
 
-  wrap.innerHTML = `
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Email</th><th>Subject</th><th>Message</th><th>Created</th></tr></thead>
-        <tbody>
-          ${rows.map((row) => `
-            <tr>
-              <td>${escapeHtml(row.email || '')}</td>
-              <td>${escapeHtml(row.subject || '')}</td>
-              <td>${escapeHtml(row.message || '')}</td>
-              <td>${escapeHtml(formatDate(row.createdAt))}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
+  try {
+    const snap = await getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc')));
+    const rows = snap.docs.map((d) => d.data());
 
-  clearSkeleton('#messages-table-wrap');
+    if (!rows.length) {
+      wrap.innerHTML = '<p class="empty-state">No messages received yet.</p>';
+      return;
+    }
+
+    wrap.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Email</th><th>Subject</th><th>Message</th><th>Created At</th></tr></thead>
+          <tbody>
+            ${rows.map((row) => {
+              const fullMessage = String(row.message || '');
+              const preview = fullMessage.length > 120 ? `${fullMessage.slice(0, 117)}...` : fullMessage;
+              return `
+                <tr>
+                  <td>${escapeHtml(row.email || '')}</td>
+                  <td>${escapeHtml(row.subject || '')}</td>
+                  <td title="${escapeHtml(fullMessage)}">${escapeHtml(preview)}</td>
+                  <td>${escapeHtml(formatDate(row.createdAt))}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (error) {
+    console.error(error);
+    if (error?.code === 'permission-denied') {
+      wrap.innerHTML = '<p class="empty-state">Admin access required to view this data.</p>';
+    } else {
+      wrap.innerHTML = '<p class="empty-state">Unable to load messages right now.</p>';
+    }
+  } finally {
+    clearSkeleton('#messages-table-wrap');
+  }
 };
 
 const fillEventForm = async (id) => {
@@ -1037,6 +1093,7 @@ const initAdmin = () => {
       const allowDocPath = `admins/${allowlistMeta.docId}`;
       const allowDocSnap = allowlistMeta.snap;
       const allowDocData = allowlistMeta.data;
+      const allowDocKeys = allowDocData ? Object.keys(allowDocData) : [];
       const rawEmails = allowlistMeta.rawEmails;
       const allowlist = allowlistMeta.normalizedEmails;
       const allowed = allowlist.includes(userEmail);
@@ -1051,7 +1108,11 @@ const initAdmin = () => {
         firestoreDocPath: allowDocPath,
         allowlistReadStatus: 'success',
         snapExists: allowDocSnap.exists(),
+        snapKeys: allowDocKeys,
+        snapJson: JSON.stringify(allowDocData || {}),
         snapDataRaw: allowDocData,
+        extractedEmailsRaw: allowlistMeta.sourceRaw,
+        extractedEmailsType: allowlistMeta.sourceType,
         extractedEmailsArray: rawEmails,
         extractedEmailsLength: rawEmails.length,
         normalizedUserEmail: userEmail,

@@ -74,15 +74,15 @@
         <p class="section-kicker">About GCPC</p>
         <h2 class="reveal">Who We Are</h2>
         <div class="grid-3 top-gap">
-          <article class="card interactive-card reveal">
+          <article class="card gcpc-card interactive-card reveal">
             <h3>History</h3>
             <p>GCPC was founded to build an inclusive and high-impact technical ecosystem where female students can grow through practical learning and leadership.</p>
           </article>
-          <article class="card interactive-card reveal">
+          <article class="card gcpc-card interactive-card reveal">
             <h3>Mission</h3>
             <p>Encourage girls in programming and research, build confidence, and establish a strong problem-solving and innovation-driven culture.</p>
           </article>
-          <article class="card interactive-card reveal">
+          <article class="card gcpc-card interactive-card reveal">
             <h3>Vision</h3>
             <p>Create a strong community of women technologists who lead, innovate, and inspire across academia and industry.</p>
           </article>
@@ -95,17 +95,32 @@
         <p class="section-kicker">GCPC Wings</p>
         <h2 class="reveal">Structured Wings for Focused Impact</h2>
         <div class="grid-3 top-gap">
-          <a class="card interactive-card wing-card reveal" href="wing-acm.html">
+          <a class="card gcpc-card interactive-card wing-card reveal" href="wing-acm.html">
             <h3>ACM Wing</h3>
             <p>Competitive programming culture, algorithmic problem-solving, and contest-driven technical growth.</p>
+            <ul class="wing-points">
+              <li>Weekly problem-solving and contest preparation sessions</li>
+              <li>Hands-on coding workshops and practice contests</li>
+              <li>Join via GCPC member selection and wing onboarding</li>
+            </ul>
           </a>
-          <a class="card interactive-card wing-card reveal" href="wing-research.html">
+          <a class="card gcpc-card interactive-card wing-card reveal" href="wing-research.html">
             <h3>Research Wing</h3>
             <p>Research foundations, guided methodology, paper writing, publication readiness, and collaborative projects.</p>
+            <ul class="wing-points">
+              <li>Research methodology and paper writing workshops</li>
+              <li>Publication guidance and project mentoring support</li>
+              <li>Join through research orientation and skill screening</li>
+            </ul>
           </a>
-          <a class="card interactive-card wing-card reveal" href="wing-career.html">
+          <a class="card gcpc-card interactive-card wing-card reveal" href="wing-career.html">
             <h3>Career & Development Wing</h3>
             <p>Development training, professional skills, project practice, and career-oriented workshops.</p>
+            <ul class="wing-points">
+              <li>Career seminars, CV guidance, and development grooming</li>
+              <li>Technical workshops on tools used in industry</li>
+              <li>Join by registering interest in career wing activities</li>
+            </ul>
           </a>
         </div>
       </div>
@@ -117,10 +132,12 @@
         <h2 class="reveal">Student and Teacher Committees</h2>
 
         <div class="committee-wrap top-gap">
-          <article class="card reveal" data-slideshow data-auto="5200">
+          <article class="card gcpc-card reveal" data-slideshow data-auto="5200">
             <h3>Student Core Committee</h3>
             <div class="slide-frame top-gap-sm">
-              <div class="slide active"><img src="gcpc-2025 stu panel.png" alt="Student Committee 2026" /></div>
+              <div class="slide active empty">
+                <div class="empty-committee">Committee photos for 2026 will be updated soon.</div>
+              </div>
               <div class="slide"><img src="gcpc-2025 stu panel.png" alt="Student Committee 2025" /></div>
             </div>
             <div class="slide-controls">
@@ -131,10 +148,12 @@
             </div>
           </article>
 
-          <article class="card reveal" data-slideshow data-auto="5600">
+          <article class="card gcpc-card reveal" data-slideshow data-auto="5600">
             <h3>Teacher Committee</h3>
             <div class="slide-frame top-gap-sm">
-              <div class="slide active"><img src="teacher.png" alt="Teacher Committee 2026" /></div>
+              <div class="slide active empty">
+                <div class="empty-committee">Committee photos for 2026 will be updated soon.</div>
+              </div>
               <div class="slide"><img src="teacher.png" alt="Teacher Committee 2025" /></div>
             </div>
             <div class="slide-controls">
@@ -154,7 +173,7 @@
         <h2 class="reveal">Upcoming Activities by Wing</h2>
 
         <div class="grid-3 top-gap">
-          <article class="card wing-activity-card reveal" data-wing-card="acm">
+          <article class="card gcpc-card wing-activity-card reveal" data-wing-card="acm">
             <h3>ACM Wing Activities</h3>
             <div class="vertical-slider" id="acm-activity-slider">
               <div class="vertical-skeleton"></div>
@@ -162,7 +181,7 @@
             <div class="vertical-dots" id="acm-activity-dots"></div>
           </article>
 
-          <article class="card wing-activity-card reveal" data-wing-card="research">
+          <article class="card gcpc-card wing-activity-card reveal" data-wing-card="research">
             <h3>Research Wing Activities</h3>
             <div class="vertical-slider" id="research-activity-slider">
               <div class="vertical-skeleton"></div>
@@ -170,7 +189,7 @@
             <div class="vertical-dots" id="research-activity-dots"></div>
           </article>
 
-          <article class="card wing-activity-card reveal" data-wing-card="career">
+          <article class="card gcpc-card wing-activity-card reveal" data-wing-card="career">
             <h3>Career & Development Activities</h3>
             <div class="vertical-slider" id="career-activity-slider">
               <div class="vertical-skeleton"></div>
@@ -179,21 +198,16 @@
           </article>
         </div>
 
-        <div class="past-events-block reveal">
-          <h3>Past Events</h3>
-          <div class="grid-3">
-            <a class="card interactive-card" href="past-acm-sprint.html">
-              <h4>ACM Problem Solving Sprint</h4>
-              <p>Hands-on contest preparation and live mentoring for aspiring programmers.</p>
-            </a>
-            <a class="card interactive-card" href="past-research-seminar.html">
-              <h4>Research Methodology Seminar</h4>
-              <p>Research basics, topic selection, and publication process awareness session.</p>
-            </a>
-            <a class="card interactive-card" href="past-career-session.html">
-              <h4>Career Acceleration Session</h4>
-              <p>Professional roadmap guidance for internships, communication, and job readiness.</p>
-            </a>
+        <div class="events-split reveal">
+          <h3>Upcoming Activities</h3>
+          <div id="upcoming-events-grid" class="event-grid top-gap">
+            <article class="card gcpc-card skeleton-card"></article>
+            <article class="card gcpc-card skeleton-card"></article>
+          </div>
+          <h3 class="top-gap-lg">Past Events</h3>
+          <div id="past-events-grid" class="event-grid top-gap">
+            <article class="card gcpc-card skeleton-card"></article>
+            <article class="card gcpc-card skeleton-card"></article>
           </div>
         </div>
       </div>
@@ -204,7 +218,7 @@
         <p class="section-kicker">Gallery</p>
         <h2 class="reveal">Club Moments</h2>
         <div class="grid-3 top-gap">
-          <article class="card reveal" data-slideshow data-auto="4300">
+          <article class="card gcpc-card reveal" data-slideshow data-auto="4300">
             <h3>Workshops</h3>
             <div class="slide-frame top-gap-sm">
               <div class="slide active"><img src="work1.jpg" alt="Workshop 1" /></div>
@@ -220,7 +234,7 @@
             </div>
           </article>
 
-          <article class="card reveal" data-slideshow data-auto="4700">
+          <article class="card gcpc-card reveal" data-slideshow data-auto="4700">
             <h3>Seminars</h3>
             <div class="slide-frame top-gap-sm">
               <div class="slide active"><img src="seminar1.jpg" alt="Seminar 1" /></div>
@@ -236,7 +250,7 @@
             </div>
           </article>
 
-          <article class="card reveal" data-slideshow data-auto="5000">
+          <article class="card gcpc-card reveal" data-slideshow data-auto="5000">
             <h3>Meetups & Special Events</h3>
             <div class="slide-frame top-gap-sm">
               <div class="slide active"><img src="meetup1.jpg" alt="Meetup 1" /></div>
@@ -260,19 +274,19 @@
         <p class="section-kicker">Achievements</p>
         <h2 class="reveal">What We Have Achieved</h2>
         <div class="grid-2 top-gap">
-          <a class="card interactive-card reveal" href="achievement-contest-recognition.html">
+          <a class="card gcpc-card interactive-card reveal" href="achievement-contest-recognition.html">
             <h3>Contest Recognition</h3>
             <p>Members secured notable positions in internal and external programming competitions.</p>
           </a>
-          <a class="card interactive-card reveal" href="achievement-research-publications.html">
+          <a class="card gcpc-card interactive-card reveal" href="achievement-research-publications.html">
             <h3>Research Publications</h3>
             <p>Research-focused members contributed to papers and publication-oriented academic initiatives.</p>
           </a>
-          <a class="card interactive-card reveal" href="achievement-hackathon-participation.html">
+          <a class="card gcpc-card interactive-card reveal" href="achievement-hackathon-participation.html">
             <h3>Hackathon Participation</h3>
             <p>GCPC teams actively joined innovation and product-focused hackathons.</p>
           </a>
-          <a class="card interactive-card reveal" href="achievement-member-success-stories.html">
+          <a class="card gcpc-card interactive-card reveal" href="achievement-member-success-stories.html">
             <h3>Member Success Stories</h3>
             <p>Members advanced to internships, leadership opportunities, and impactful project roles.</p>
           </a>
@@ -285,11 +299,11 @@
         <p class="section-kicker">Extra Initiatives</p>
         <h2 class="reveal">Special Professional Features</h2>
         <div class="grid-2 top-gap">
-          <a class="card interactive-card reveal" href="women-in-tech-spotlight.html">
+          <a class="card gcpc-card interactive-card reveal" href="women-in-tech-spotlight.html">
             <h3>Women in Tech Spotlight</h3>
             <p>Monthly feature highlighting successful female alumni and members.</p>
           </a>
-          <a class="card interactive-card reveal" href="research-publication-tracker.html">
+          <a class="card gcpc-card interactive-card reveal" href="research-publication-tracker.html">
             <h3>Research Publication Tracker</h3>
             <p>Track ongoing projects, published papers, and collaboration invitations.</p>
           </a>

@@ -191,16 +191,34 @@ const initSimpleSlides = () => {
   });
 };
 
-const fetchUpcomingEvents = async () => {
-  const snap = await getDocs(query(
-    collection(db, 'events'),
-    where('status', '==', 'UPCOMING'),
-    orderBy('deadlineISO', 'asc')
-  ));
-
+const fetchAllEvents = async () => {
+  const snap = await getDocs(collection(db, 'events'));
   return snap.docs
     .map((d) => ({ id: d.id, ...d.data() }))
-    .sort((a, b) => parseMillis(a.deadlineISO) - parseMillis(b.deadlineISO));
+    .sort((a, b) => parseMillis(a.dateISO) - parseMillis(b.dateISO));
+};
+
+const splitEventsByDate = (events) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayMs = today.getTime();
+
+  const upcoming = [];
+  const past = [];
+
+  events.forEach((event) => {
+    const eventMs = parseMillis(event.dateISO);
+    if (!eventMs || eventMs >= todayMs) {
+      upcoming.push(event);
+    } else {
+      past.push(event);
+    }
+  });
+
+  upcoming.sort((a, b) => parseMillis(a.deadlineISO) - parseMillis(b.deadlineISO));
+  past.sort((a, b) => parseMillis(b.dateISO) - parseMillis(a.dateISO));
+
+  return { upcoming, past };
 };
 
 const renderTicker = (events) => {
@@ -220,62 +238,79 @@ const renderTicker = (events) => {
   track.innerHTML = `${row}${row}`;
 };
 
-const buildWingSlider = (containerId, dotsId, events) => {
+const buildWingCards = (containerId, events) => {
   const container = document.getElementById(containerId);
-  const dotsWrap = document.getElementById(dotsId);
-  if (!container || !dotsWrap) return;
+  if (!container) return;
 
   if (!events.length) {
     container.innerHTML = '<div class="vertical-empty">No upcoming events for this wing yet.</div>';
-    dotsWrap.innerHTML = '';
     return;
   }
 
-  container.innerHTML = events.map((event, idx) => `
-    <article class="vertical-slide ${idx === 0 ? 'active' : ''}">
-      <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
-      <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
+  const visible = events.slice(0, 2);
+  container.innerHTML = `
+    <div class="wing-event-list">
+      ${visible.map((event) => `
+        <a class="card gcpc-card interactive-card wing-event-item" href="event.html?id=${encodeURIComponent(event.id)}">
+          <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
+          <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
+          <p class="meta">Date: ${escapeHtml(formatDate(event.dateISO))}</p>
+          <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+        </a>
+      `).join('')}
+    </div>
+    ${events.length > 2 ? `<a class="wing-view-all" href="wing-${normalizeWing(events[0])}.html">View all ${events.length} activities</a>` : ''}
+  `;
+};
+
+const renderEventCollection = (hostId, events, emptyText) => {
+  const host = document.getElementById(hostId);
+  if (!host) return;
+  if (!events.length) {
+    host.innerHTML = `<article class="card gcpc-card"><p>${escapeHtml(emptyText)}</p></article>`;
+    return;
+  }
+
+  host.innerHTML = events.map((event) => `
+    <a class="card gcpc-card interactive-card" href="event.html?id=${encodeURIComponent(event.id)}">
+      <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
+      <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
+      <p>${escapeHtml(event.description || 'Event details coming soon.')}</p>
+      <p class="meta">Date: ${escapeHtml(formatDate(event.dateISO))}</p>
       <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
-      <a href="event.html?id=${encodeURIComponent(event.id)}">View Details</a>
-    </article>
+      <p class="meta">Venue: ${escapeHtml(event.venue || 'TBA')}</p>
+    </a>
   `).join('');
-
-  dotsWrap.innerHTML = events.map((_, idx) => `<button type="button" class="${idx === 0 ? 'active' : ''}" aria-label="Slide ${idx + 1}"></button>`).join('');
-
-  const slides = $$('.vertical-slide', container);
-  const dots = $$('button', dotsWrap);
-  let idx = 0;
-
-  const show = (next) => {
-    idx = (next + slides.length) % slides.length;
-    slides.forEach((slide, n) => slide.classList.toggle('active', n === idx));
-    dots.forEach((dot, n) => dot.classList.toggle('active', n === idx));
-  };
-
-  dots.forEach((dot, n) => dot.addEventListener('click', () => show(n)));
-  setInterval(() => show(idx + 1), 3600);
 };
 
 const initHome = async () => {
   initHeroBackground();
 
   try {
-    const upcoming = await fetchUpcomingEvents();
+    const all = await fetchAllEvents();
+    const { upcoming, past } = splitEventsByDate(all);
     renderTicker(upcoming);
 
     const acmEvents = upcoming.filter((event) => normalizeWing(event) === 'acm');
     const researchEvents = upcoming.filter((event) => normalizeWing(event) === 'research');
     const careerEvents = upcoming.filter((event) => normalizeWing(event) === 'career');
 
-    buildWingSlider('acm-activity-slider', 'acm-activity-dots', acmEvents);
-    buildWingSlider('research-activity-slider', 'research-activity-dots', researchEvents);
-    buildWingSlider('career-activity-slider', 'career-activity-dots', careerEvents);
+    buildWingCards('acm-activity-slider', acmEvents);
+    buildWingCards('research-activity-slider', researchEvents);
+    buildWingCards('career-activity-slider', careerEvents);
+
+    const pastEl = $('#past-events-grid');
+    const upEl = $('#upcoming-events-grid');
+    if (upEl) renderEventCollection('upcoming-events-grid', upcoming.slice(0, 6), 'No upcoming activities yet.');
+    if (pastEl) renderEventCollection('past-events-grid', past.slice(0, 6), 'No past events available yet.');
   } catch (error) {
     console.error(error);
     renderTicker([]);
-    buildWingSlider('acm-activity-slider', 'acm-activity-dots', []);
-    buildWingSlider('research-activity-slider', 'research-activity-dots', []);
-    buildWingSlider('career-activity-slider', 'career-activity-dots', []);
+    buildWingCards('acm-activity-slider', []);
+    buildWingCards('research-activity-slider', []);
+    buildWingCards('career-activity-slider', []);
+    renderEventCollection('upcoming-events-grid', [], 'No upcoming activities yet.');
+    renderEventCollection('past-events-grid', [], 'No past events available yet.');
     showToast('Could not load upcoming events.', 'error');
   }
 };
@@ -361,18 +396,17 @@ const initJoin = async () => {
       map.set(key, (map.get(key) || 0) + 1);
     });
 
-    const options = [...FIXED_SEMESTERS];
-    Array.from(map.keys()).forEach((item) => {
-      if (!options.includes(item)) options.push(item);
-    });
+    select.innerHTML = FIXED_SEMESTERS.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
 
-    select.innerHTML = options.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
-
-    animateCount(totalEl, memberships.length);
+    animateCount(totalEl, 4000);
+    setTimeout(() => {
+      totalEl.textContent = '4000+';
+    }, 950);
 
     const renderSemesterCount = () => {
       const selected = select.value;
-      const count = map.get(selected) || 0;
+      const real = map.get(selected) || 0;
+      const count = real > 0 ? real : 100;
       animateCount(semEl, count);
     };
 
@@ -380,7 +414,10 @@ const initJoin = async () => {
     renderSemesterCount();
   } catch (error) {
     console.error(error);
-    animateCount(totalEl, 0);
+    animateCount(totalEl, 4000);
+    setTimeout(() => {
+      totalEl.textContent = '4000+';
+    }, 950);
     animateCount(semEl, 0);
     showToast('Failed to load members count.', 'error');
   }
@@ -570,8 +607,9 @@ const initWingPage = async () => {
   if (!host) return;
 
   try {
-    const all = await fetchUpcomingEvents();
-    const list = all.filter((e) => normalizeWing(e) === wing);
+    const all = await fetchAllEvents();
+    const { upcoming } = splitEventsByDate(all);
+    const list = upcoming.filter((e) => normalizeWing(e) === wing);
 
     if (!list.length) {
       host.innerHTML = '<article class="card"><p>No upcoming events for this wing yet.</p></article>';
@@ -950,7 +988,7 @@ const initAdmin = () => {
       const allowed = allowlist.includes(String(user.email || '').toLowerCase());
 
       if (!allowed) {
-        showToast('This email is not allowlisted in admins/allowed.', 'error');
+        showToast('You do not have permission to access the admin dashboard.', 'error');
         await signOut(auth);
         return;
       }

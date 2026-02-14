@@ -78,7 +78,7 @@ Set Firebase config in:
 - `venue` (string)
 - `description` (string)
 - `registrationLink` (string)
-- `status` (string: `UPCOMING` | `ONGOING` | `COMPLETED`)
+- `status` (string: optional for UI split, because upcoming/past is computed from `dateISO`)
 - `createdAt` (timestamp)
 
 `memberships`

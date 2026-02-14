@@ -1,4 +1,4 @@
-import { auth, createdAt, db } from './firebase.js';
+import { auth, createdAt, db, firebaseConfig } from './firebase.js';
 import {
   addDoc,
   collection,
@@ -832,10 +832,19 @@ const initAdmin = () => {
   const logoutBtn = document.getElementById('admin-logout');
   const loginShell = document.getElementById('admin-login-shell');
   const loadingShell = document.getElementById('admin-auth-loading');
+  const debugShell = document.getElementById('admin-debug-shell');
+  const debugOutput = document.getElementById('admin-debug-output');
   const dashboard = document.getElementById('admin-dashboard');
   const who = document.getElementById('admin-who');
+  const debugMode = new URLSearchParams(window.location.search).get('debug') === '1';
 
   if (!loginForm || !logoutBtn || !loginShell || !loadingShell || !dashboard || !who) return;
+
+  const setDebug = (payload) => {
+    if (!debugMode || !debugShell || !debugOutput) return;
+    debugShell.classList.remove('hidden');
+    debugOutput.textContent = JSON.stringify(payload, null, 2);
+  };
 
   wireAdminTabs();
 
@@ -1005,6 +1014,7 @@ const initAdmin = () => {
     }
 
     try {
+      const allowDocPath = 'admins/allowed';
       const userEmail = String(user.email || '').trim().toLowerCase();
       const allowDocRef = doc(db, 'admins', 'allowed');
       const allowDocSnap = await getDoc(allowDocRef);
@@ -1012,6 +1022,20 @@ const initAdmin = () => {
       const rawEmails = Array.isArray(allowDocData?.emails) ? allowDocData.emails : [];
       const allowlist = rawEmails.map((e) => String(e).trim().toLowerCase());
       const allowed = allowlist.includes(userEmail);
+
+      setDebug({
+        projectId: firebaseConfig.projectId,
+        currentUserEmail: user.email ?? null,
+        firestoreDocPath: allowDocPath,
+        allowlistReadStatus: 'success',
+        snapExists: allowDocSnap.exists(),
+        snapDataRaw: allowDocData,
+        extractedEmailsArray: rawEmails,
+        extractedEmailsLength: rawEmails.length,
+        normalizedUserEmail: userEmail,
+        normalizedAllowedEmails: allowlist,
+        includesResult: allowed
+      });
 
       devLog('[Admin Guard] allowlist read success:', true);
       devLog('[Admin Guard] user email:', userEmail);
@@ -1024,7 +1048,9 @@ const initAdmin = () => {
         console.log('[Admin Guard] extracted emails array:', allowlist);
         showToast('You’re signed in, but your account is not authorized for admin access.', 'error');
         loadingShell.classList.add('hidden');
-        await signOut(auth);
+        if (!debugMode) {
+          await signOut(auth);
+        }
         return;
       }
 
@@ -1044,7 +1070,24 @@ const initAdmin = () => {
       devLog('[Admin Guard] allowlist read success:', false);
       showToast('You’re signed in, but your account is not authorized for admin access.', 'error');
       loadingShell.classList.add('hidden');
-      await signOut(auth);
+      setDebug({
+        projectId: firebaseConfig.projectId,
+        currentUserEmail: user?.email ?? null,
+        firestoreDocPath: 'admins/allowed',
+        allowlistReadStatus: 'error',
+        snapExists: null,
+        snapDataRaw: null,
+        extractedEmailsArray: [],
+        extractedEmailsLength: 0,
+        normalizedUserEmail: String(user?.email || '').trim().toLowerCase(),
+        normalizedAllowedEmails: [],
+        includesResult: false,
+        errorCode: error?.code || null,
+        errorMessage: error?.message || 'Unknown error'
+      });
+      if (!debugMode) {
+        await signOut(auth);
+      }
     }
   });
 };

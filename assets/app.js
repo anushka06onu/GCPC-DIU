@@ -145,11 +145,24 @@ const initReveal = () => {
   els.forEach((el) => obs.observe(el));
 };
 
+const initHeroBackground = () => {
+  const slides = $$('.hero-bg-slide');
+  if (!slides.length) return;
+
+  let idx = 0;
+  setInterval(() => {
+    slides[idx].classList.remove('active');
+    idx = (idx + 1) % slides.length;
+    slides[idx].classList.add('active');
+  }, 4700);
+};
+
 const initSimpleSlides = () => {
   const cards = $$('[data-slideshow]');
   cards.forEach((slider) => {
     const slides = $$('.slide', slider);
     if (slides.length <= 1) return;
+
     const dots = $$('.slide-dot', slider);
     const nextBtn = $('.slide-btn.next', slider);
     const prevBtn = $('.slide-btn.prev', slider);
@@ -168,7 +181,7 @@ const initSimpleSlides = () => {
     prevBtn?.addEventListener('click', () => show(idx - 1));
 
     const start = () => { timer = setInterval(() => show(idx + 1), auto); };
-    const stop = () => clearInterval(timer);
+    const stop = () => { if (timer) clearInterval(timer); };
 
     slider.addEventListener('mouseenter', stop);
     slider.addEventListener('mouseleave', start);
@@ -195,7 +208,7 @@ const renderTicker = (events) => {
   if (!track) return;
 
   if (!events.length) {
-    track.innerHTML = '<span class="ticker-item">No upcoming events yet - check back soon.</span>';
+    track.innerHTML = '<span class="ticker-item">No upcoming announcements yet — check back soon.</span>';
     return;
   }
 
@@ -213,7 +226,7 @@ const buildWingSlider = (containerId, dotsId, events) => {
   if (!container || !dotsWrap) return;
 
   if (!events.length) {
-    container.innerHTML = '<div class="vertical-empty">No upcoming events yet - check back soon.</div>';
+    container.innerHTML = '<div class="vertical-empty">No upcoming events for this wing yet.</div>';
     dotsWrap.innerHTML = '';
     return;
   }
@@ -244,6 +257,8 @@ const buildWingSlider = (containerId, dotsId, events) => {
 };
 
 const initHome = async () => {
+  initHeroBackground();
+
   try {
     const upcoming = await fetchUpcomingEvents();
     renderTicker(upcoming);
@@ -354,6 +369,7 @@ const initJoin = async () => {
     select.innerHTML = options.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
 
     animateCount(totalEl, memberships.length);
+
     const renderSemesterCount = () => {
       const selected = select.value;
       const count = map.get(selected) || 0;
@@ -364,6 +380,8 @@ const initJoin = async () => {
     renderSemesterCount();
   } catch (error) {
     console.error(error);
+    animateCount(totalEl, 0);
+    animateCount(semEl, 0);
     showToast('Failed to load members count.', 'error');
   }
 };
@@ -373,6 +391,13 @@ const renderVerifyResult = (type, html) => {
   if (!box) return;
   box.className = `status-box top-gap ${type || ''}`;
   box.innerHTML = html;
+};
+
+const certificateImageHtml = (url, alt = 'Certificate image') => {
+  if (!url) {
+    return '<div class="cert-image-wrap"><div class="cert-image-placeholder">Certificate image not available yet.</div></div>';
+  }
+  return `<div class="cert-image-wrap"><img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}" loading="lazy" /></div>`;
 };
 
 const verifyByCertId = async (certId) => {
@@ -391,19 +416,19 @@ const verifyByCertId = async (certId) => {
 
     const data = snap.data();
     const status = String(data.status || '').toUpperCase();
-    const html = `
+    const details = `
       <p><strong>Certificate ID:</strong> ${escapeHtml(normalized)}</p>
       <p><strong>Name:</strong> ${escapeHtml(data.name || 'N/A')}</p>
       <p><strong>Student ID:</strong> ${escapeHtml(data.student_id || 'N/A')}</p>
       <p><strong>Course:</strong> ${escapeHtml(data.course || 'N/A')}</p>
       <p><strong>Issue Date:</strong> ${escapeHtml(data.issue_date || 'N/A')}</p>
       <p><strong>Status:</strong> ${escapeHtml(status || 'N/A')}</p>
-    `;
+      ${certificateImageHtml(data.certImageUrl, `${data.name || 'Certificate'} image`)}`;
 
     if (status === 'VALID') {
-      renderVerifyResult('success', `<p><strong>Certificate is VALID</strong></p>${html}`);
+      renderVerifyResult('success', `<p><strong>✅ Certificate verified</strong></p>${details}`);
     } else {
-      renderVerifyResult('warning', `<p><strong>Warning:</strong> Certificate found but status is ${escapeHtml(status || 'UNKNOWN')}.</p>${html}`);
+      renderVerifyResult('warning', `<p><strong>Warning:</strong> Certificate found but status is ${escapeHtml(status || 'UNKNOWN')}.</p>${details}`);
     }
   } catch (error) {
     console.error(error);
@@ -430,7 +455,7 @@ const verifyByStudentId = async (studentId) => {
       return;
     }
 
-    renderVerifyResult('success', `<strong>Found ${snap.docs.length} certificate(s) for Student ID: ${escapeHtml(normalized)}</strong>`);
+    renderVerifyResult('success', `<strong>✅ Found ${snap.docs.length} certificate(s) for Student ID: ${escapeHtml(normalized)}</strong>`);
 
     list.innerHTML = `<div class="cert-list">${snap.docs.map((d) => {
       const data = d.data();
@@ -440,6 +465,7 @@ const verifyByStudentId = async (studentId) => {
         <p><strong>Course:</strong> ${escapeHtml(data.course || 'N/A')}</p>
         <p><strong>Issue Date:</strong> ${escapeHtml(data.issue_date || 'N/A')}</p>
         <p><strong>Status:</strong> ${escapeHtml(data.status || 'N/A')}</p>
+        ${certificateImageHtml(data.certImageUrl, `${data.name || 'Certificate'} image`)}
       </article>`;
     }).join('')}</div>`;
   } catch (error) {
@@ -548,7 +574,7 @@ const initWingPage = async () => {
     const list = all.filter((e) => normalizeWing(e) === wing);
 
     if (!list.length) {
-      host.innerHTML = '<article class="card"><p>No upcoming events yet - check back soon.</p></article>';
+      host.innerHTML = '<article class="card"><p>No upcoming events for this wing yet.</p></article>';
       return;
     }
 
@@ -562,7 +588,7 @@ const initWingPage = async () => {
     `).join('');
   } catch (error) {
     console.error(error);
-    host.innerHTML = '<article class="card"><p>Failed to load events.</p></article>';
+    host.innerHTML = '<article class="card"><p>No upcoming events for this wing yet.</p></article>';
   }
 };
 

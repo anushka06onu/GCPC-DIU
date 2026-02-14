@@ -3,518 +3,284 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GCPC-DIU | Girls' Computer Programming Club</title>
-  <meta name="description" content="Official website of Girls' Computer Programming Club (GCPC), Department of CSE, Daffodil International University." />
+  <title>DIU GCPC | Girls' Computer Programming Club</title>
+  <meta name="description" content="Official portal of DIU Girls' Computer Programming Club (GCPC), Department of CSE, Daffodil International University." />
   <link rel="icon" type="image/png" href="gcpc-logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
 </head>
-<body>
-  <div class="site-shell">
-    <header class="hero-wrap" id="top">
-      <div class="nav-shell">
-        <nav class="navbar container">
-          <a href="#top" class="brand" aria-label="GCPC Home">
-            <img src="gcpc-logo.png" alt="GCPC-DIU logo" class="brand-logo" onerror="this.onerror=null;this.src='gcpc-logo.jpg';" />
-          </a>
+<body data-page="home">
+  <header id="top" class="site-nav-wrap">
+    <nav class="site-nav container">
+      <a href="#top" class="brand" aria-label="Go to top">
+        <img src="gcpc-logo.png" alt="GCPC logo" />
+      </a>
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="#about"><span>About</span></a></li>
+        <li><a href="#wings"><span>Wings</span></a></li>
+        <li><a href="#committee"><span>Committee</span></a></li>
+        <li><a href="#events"><span>Events</span></a></li>
+        <li><a href="#gallery"><span>Gallery</span></a></li>
+        <li><a href="verify/"><span>Verify</span></a></li>
+        <li><a href="join.html"><span>Join</span></a></li>
+        <li><a href="contact.html"><span>Contact</span></a></li>
+        <li><a href="admin.html"><span>Admin</span></a></li>
+      </ul>
+    </nav>
+  </header>
 
-          <button class="menu-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation menu">
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-
-          <ul class="nav-links" id="nav-menu">
-            <li><a href="#about">About</a></li>
-            <li><a href="#wings">Wings</a></li>
-            <li><a href="#committee">Committee</a></li>
-            <li><a href="#events">Events</a></li>
-            <li><a href="#gallery">Gallery</a></li>
-            <li><a href="#join">Join</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-        </nav>
-      </div>
-
-      <section class="hero container reveal" id="home">
-        <div class="hero-content">
-          <p class="eyebrow">Departmental Club | Department of CSE, DIU</p>
-          <h1>Empowering Women in Tech. Building Future Leaders.</h1>
-          <p>
-            Girls Computer Programming Club (GCPC) is a student-led platform dedicated to empowering
-            female students in technology, programming, research, and innovation. We create opportunities
-            for learning, leadership, and growth.
-          </p>
-
-          <div class="button-row">
-            <a href="#join" class="btn btn-main">Join Now</a>
-            <a href="#wings" class="btn btn-ghost">Explore Wings</a>
-          </div>
-
-          <div class="event-banner">
-            <p>Upcoming Highlight: Fundamentals of Graphic Design Workshop (Spring 2026) | Last Registration: February 20, 2026</p>
+  <section class="hero">
+    <div class="container hero-grid">
+      <article class="hero-card">
+        <p class="hero-eyebrow">Departmental Club | Department of CSE, DIU</p>
+        <h1>Empowering Women in Tech. Building Future Leaders.</h1>
+        <p>
+          Girls Computer Programming Club (GCPC) is a student-led platform dedicated to empowering female students
+          in programming, research, development, and innovation through semester-based workshops, events, and
+          practical learning initiatives.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="join.html">Join Now</a>
+          <a class="btn btn-soft" href="#wings">Explore Wings</a>
+        </div>
+        <p id="upcoming-highlight" class="hero-highlight">Upcoming Highlight: Loading from Firebase...</p>
+        <div class="ticker-wrap">
+          <p class="ticker-label">Upcoming Announcements</p>
+          <div class="ticker-marquee">
+            <div id="announcement-track" class="ticker-track"></div>
           </div>
         </div>
-      </section>
-    </header>
+      </article>
+      <aside class="glass-card hero-side">
+        <h3>DIU GCPC Focus Areas</h3>
+        <ul class="quick-list">
+          <li>ACM Wing: Contest culture and problem-solving.</li>
+          <li>Research Wing: Research methods and publication readiness.</li>
+          <li>Career & Development Wing: Skills, projects, and career growth.</li>
+          <li>Semester-wise workshops, seminars, and mentoring.</li>
+          <li>Certificate verification and structured club operations.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
 
-    <main>
-      <section class="section about reveal" id="about">
-        <div class="container">
-          <p class="section-kicker">About GCPC</p>
-          <h2>Who We Are</h2>
-          <div class="about-grid">
-            <article class="about-block">
-              <h3>Our Story</h3>
-              <p>
-                GCPC was founded to create a dedicated and supportive ecosystem where female CSE students
-                can learn technology deeply, practice problem-solving, and build confidence through
-                leadership and collaboration.
-              </p>
-              <p>
-                Since its formation, the club has hosted regular contests, seminars, workshops, and
-                mentorship initiatives that have strengthened student impact across campus.
-              </p>
-            </article>
-            <article class="about-block">
-              <h3>Our Mission</h3>
-              <ul>
-                <li>Encourage girls in programming and research</li>
-                <li>Build leadership and confidence</li>
-                <li>Promote a strong problem-solving culture</li>
-                <li>Support academic and career excellence</li>
-              </ul>
-            </article>
-            <article class="about-block">
-              <h3>Our Vision</h3>
-              <p>
-                To create a strong community of women technologists who lead, innovate, and inspire.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section wings reveal" id="wings">
-        <div class="container">
-          <p class="section-kicker">GCPC Wings</p>
-          <h2>Structured Wings for Focused Impact</h2>
-
-          <div class="wing-grid">
-            <a href="wing-acm.html" class="wing-card wing-link-card">
-              <h3>ACM Wing</h3>
-              <p>
-                Builds problem-solving excellence through contests, structured coding tracks, and backend engineering workshops.
-              </p>
-              <ul>
-                <li>Competitive programming training</li>
-                <li>ICPC preparation and mock contests</li>
-                <li>Problem-solving and backend practice sessions</li>
-              </ul>
-            </a>
-            <a href="wing-research.html" class="wing-card wing-link-card">
-              <h3>Research Wing</h3>
-              <p>
-                Develops publication-focused research skills from beginner level to guided paper writing and submission.
-              </p>
-              <ul>
-                <li>NLP and AI mini projects</li>
-                <li>Machine learning workshops</li>
-                <li>Paper writing and publication guidance</li>
-              </ul>
-            </a>
-            <a href="wing-career.html" class="wing-card wing-link-card">
-              <h3>Career & Development Wing</h3>
-              <p>
-                Prepares members for industry through technical workshops, portfolio building, and career roadmap sessions.
-              </p>
-              <ul>
-                <li>Web and app development tracks</li>
-                <li>GitHub collaboration workflow</li>
-                <li>Real-world project building</li>
-              </ul>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section class="section committee reveal" id="committee">
-        <div class="container">
-          <p class="section-kicker">Executive Committee</p>
-          <h2>Student and Teacher Committees</h2>
-          <div class="committee-photo-stack">
-            <article class="student-slider committee-slideshow" data-slider data-auto="5200">
-              <h3>Student Core Committee</h3>
-              <div class="slider-stage">
-                <div class="year-slide active">
-                  <div class="year-media committee-empty" aria-label="Student Core Committee 2026 image placeholder"></div>
-                  <p class="year-title">Year: 2026</p>
-                </div>
-                <div class="year-slide">
-                  <div class="year-media">
-                    <img src="gcpc-2025 stu panel.png" alt="Student Core Committee 2025" />
-                  </div>
-                  <p class="year-title">Year: 2025</p>
-                </div>
-              </div>
-              <div class="slider-controls">
-                <button type="button" class="slider-btn prev" aria-label="Previous year">&#10094;</button>
-                <button type="button" class="year-dot active">2026</button>
-                <button type="button" class="year-dot">2025</button>
-                <button type="button" class="slider-btn next" aria-label="Next year">&#10095;</button>
-              </div>
-            </article>
-            <article class="student-slider committee-slideshow" data-slider data-auto="5600">
-              <h3>Teacher Committee</h3>
-              <div class="slider-stage">
-                <div class="year-slide active">
-                  <div class="year-media committee-empty" aria-label="Teacher Committee 2026 image placeholder"></div>
-                  <p class="year-title">Year: 2026</p>
-                </div>
-                <div class="year-slide">
-                  <div class="year-media">
-                    <img src="teacher.png" alt="Teacher Committee 2025" />
-                  </div>
-                  <p class="year-title">Year: 2025</p>
-                </div>
-              </div>
-              <div class="slider-controls">
-                <button type="button" class="slider-btn prev" aria-label="Previous year">&#10094;</button>
-                <button type="button" class="year-dot active">2026</button>
-                <button type="button" class="year-dot">2025</button>
-                <button type="button" class="slider-btn next" aria-label="Next year">&#10095;</button>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section events reveal" id="events">
-        <div class="container">
-          <p class="section-kicker">Events & Workshops</p>
-          <h2>Upcoming and Past Activities</h2>
-
-          <div class="event-wrap">
-            <article class="upcoming-block">
-              <h3>Upcoming Events</h3>
-              <div class="event-slider" data-slider>
-                <div class="slider-stage event-slider-stage">
-                  <a href="event-acm-sprint.html" class="year-slide active event-slide-card">
-                    <p class="event-date-tag">Spring 2026 | ACM Wing</p>
-                    <h4>Java Core to Java Career (3-Day Workshop)</h4>
-                    <p>Core Java, OOP, practical coding, and career-focused Java roadmap for DIU students.</p>
-                  </a>
-                  <a href="event-research-workshop.html" class="year-slide event-slide-card">
-                    <p class="event-date-tag">Spring 2026 | Research Wing</p>
-                    <h4>Introduction to Research & Complete Guideline</h4>
-                    <p>Beginner-focused seminar on topic selection, paper writing flow, tools, and publication basics.</p>
-                  </a>
-                  <a href="event-career-bootcamp.html" class="year-slide event-slide-card">
-                    <p class="event-date-tag">Spring 2026 | Career & Development</p>
-                    <h4>From Campus to Cloud: DevOps & Cloud Career Seminar</h4>
-                    <p>Industry session on DevOps workflows, cloud roadmap, certifications, and career preparation.</p>
-                  </a>
-                </div>
-                <div class="slider-controls">
-                  <button type="button" class="slider-btn prev" aria-label="Previous event">&#10094;</button>
-                  <button type="button" class="year-dot active">1</button>
-                  <button type="button" class="year-dot">2</button>
-                  <button type="button" class="year-dot">3</button>
-                  <button type="button" class="slider-btn next" aria-label="Next event">&#10095;</button>
-                </div>
-              </div>
-              <p id="countdown" class="countdown">Countdown loading...</p>
-            </article>
-
-            <article class="past-block">
-              <h3>Past Events</h3>
-              <div class="past-list">
-                <a href="past-acm-sprint.html" class="past-event-link">
-                  <h4>ACM Problem Solving Sprint</h4>
-                  <p>Hands-on contest training with live mentoring.</p>
-                  <p class="impact">Impact: 120 participants attended</p>
-                </a>
-                <a href="past-career-session.html" class="past-event-link">
-                  <h4>Career Acceleration Session</h4>
-                  <p>Portfolio, CV, and interview fundamentals workshop.</p>
-                  <p class="impact">Impact: 95 participants attended</p>
-                </a>
-                <a href="past-research-seminar.html" class="past-event-link">
-                  <h4>Research Methodology Seminar</h4>
-                  <p>Practical framework for high-quality undergraduate research.</p>
-                  <p class="impact">Impact: 80 participants attended</p>
-                </a>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section gallery reveal" id="gallery">
-        <div class="container">
-          <p class="section-kicker">Gallery</p>
-          <h2>Club Moments</h2>
-          <div class="gallery-grid">
-            <article class="gallery-item gallery-slider" data-slider data-auto="4200">
-              <h3>Workshops</h3>
-              <div class="slider-stage gallery-slider-stage">
-                <div class="year-slide active">
-                  <div class="gallery-media">
-                    <img src="work1.jpg" alt="Workshop moment 1" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-                <div class="year-slide">
-                  <div class="gallery-media">
-                    <img src="work2.jpg" alt="Workshop moment 2" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-                <div class="year-slide">
-                  <div class="gallery-media">
-                    <img src="meet.jpg" alt="Workshop moment 3" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-              </div>
-              <div class="slider-controls">
-                <button type="button" class="slider-btn prev" aria-label="Previous workshop image">&#10094;</button>
-                <button type="button" class="year-dot active">1</button>
-                <button type="button" class="year-dot">2</button>
-                <button type="button" class="year-dot">3</button>
-                <button type="button" class="slider-btn next" aria-label="Next workshop image">&#10095;</button>
-              </div>
-            </article>
-
-            <article class="gallery-item gallery-slider" data-slider data-auto="4500">
-              <h3>Programming Contests</h3>
-              <div class="slider-stage gallery-slider-stage">
-                <div class="year-slide active">
-                  <div class="gallery-media empty" aria-label="Programming contest image slot 1"></div>
-                </div>
-                <div class="year-slide">
-                  <div class="gallery-media empty" aria-label="Programming contest image slot 2"></div>
-                </div>
-                <div class="year-slide">
-                  <div class="gallery-media empty" aria-label="Programming contest image slot 3"></div>
-                </div>
-              </div>
-              <div class="slider-controls">
-                <button type="button" class="slider-btn prev" aria-label="Previous contest image">&#10094;</button>
-                <button type="button" class="year-dot active">1</button>
-                <button type="button" class="year-dot">2</button>
-                <button type="button" class="year-dot">3</button>
-                <button type="button" class="slider-btn next" aria-label="Next contest image">&#10095;</button>
-              </div>
-            </article>
-
-            <article class="gallery-item gallery-slider" data-slider data-auto="4800">
-              <h3>Meetups</h3>
-              <div class="slider-stage gallery-slider-stage">
-                <div class="year-slide active">
-                  <div class="gallery-media">
-                    <img src="visit.jpg" alt="Meetup moment 1" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-                <div class="year-slide">
-                  <div class="gallery-media">
-                    <img src="meet1.jpg" alt="Meetup moment 2" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-                <div class="year-slide">
-                  <div class="gallery-media">
-                    <img src="meetup1.jpg" alt="Meetup moment 3" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-              </div>
-              <div class="slider-controls">
-                <button type="button" class="slider-btn prev" aria-label="Previous meetup image">&#10094;</button>
-                <button type="button" class="year-dot active">1</button>
-                <button type="button" class="year-dot">2</button>
-                <button type="button" class="year-dot">3</button>
-                <button type="button" class="slider-btn next" aria-label="Next meetup image">&#10095;</button>
-              </div>
-            </article>
-
-            <article class="gallery-item gallery-slider" data-slider data-auto="4300">
-              <h3>Seminars</h3>
-              <div class="slider-stage gallery-slider-stage">
-                <div class="year-slide active">
-                  <div class="gallery-media">
-                    <img src="seminar1.jpg" alt="Seminar moment 1" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-                <div class="year-slide">
-                  <div class="gallery-media">
-                    <img src="seminar2.jpg" alt="Seminar moment 2" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-                <div class="year-slide">
-                  <div class="gallery-media">
-                    <img src="seminar3.jpg" alt="Seminar moment 3" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-              </div>
-              <div class="slider-controls">
-                <button type="button" class="slider-btn prev" aria-label="Previous seminar image">&#10094;</button>
-                <button type="button" class="year-dot active">1</button>
-                <button type="button" class="year-dot">2</button>
-                <button type="button" class="year-dot">3</button>
-                <button type="button" class="slider-btn next" aria-label="Next seminar image">&#10095;</button>
-              </div>
-            </article>
-
-            <article class="gallery-item gallery-slider" data-slider data-auto="5000">
-              <h3>Special Events</h3>
-              <div class="slider-stage gallery-slider-stage">
-                <div class="year-slide active">
-                  <div class="gallery-media">
-                    <img src="special1.jpg" alt="Special event moment 1" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-                <div class="year-slide">
-                  <div class="gallery-media">
-                    <img src="special2.jpg" alt="Special event moment 2" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-                <div class="year-slide">
-                  <div class="gallery-media">
-                    <img src="special3.jpg" alt="Special event moment 3" onerror="this.parentElement.classList.add('empty');this.remove();" />
-                  </div>
-                </div>
-              </div>
-              <div class="slider-controls">
-                <button type="button" class="slider-btn prev" aria-label="Previous special event image">&#10094;</button>
-                <button type="button" class="year-dot active">1</button>
-                <button type="button" class="year-dot">2</button>
-                <button type="button" class="year-dot">3</button>
-                <button type="button" class="slider-btn next" aria-label="Next special event image">&#10095;</button>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section achievements reveal" id="achievements">
-        <div class="container">
-          <p class="section-kicker">Achievements</p>
-          <h2>What We Have Achieved</h2>
-          <div class="achievement-list">
-            <a href="achievement-contest-recognition.html" class="achievement-card">
-              <h3>Contest Recognition</h3>
-              <p>Members achieved top rankings in internal and external competitive contests.</p>
-            </a>
-            <a href="achievement-research-publications.html" class="achievement-card">
-              <h3>Research Publications</h3>
-              <p>Research wing members contributed to conference and journal publication efforts.</p>
-            </a>
-            <a href="achievement-hackathon-participation.html" class="achievement-card">
-              <h3>Hackathon Participation</h3>
-              <p>GCPC teams participated in innovation-focused hackathons and development competitions.</p>
-            </a>
-            <a href="achievement-member-success-stories.html" class="achievement-card">
-              <h3>Member Success Stories</h3>
-              <p>Members secured internships, leadership positions, and project-based opportunities.</p>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section class="section join reveal" id="join">
-        <div class="container join-wrap">
-          <div>
-            <p class="section-kicker">Membership</p>
-            <h2>Join GCPC</h2>
+  <main>
+    <section id="about" class="section">
+      <div class="container">
+        <p class="section-kicker">About GCPC</p>
+        <h2>Who We Are</h2>
+        <div class="grid-3" style="margin-top:1rem;">
+          <article class="card">
+            <h3>History</h3>
             <p>
-              GCPC is open to all passionate female students who are eager to learn, grow, and lead.
-              Members gain mentorship, project opportunities, leadership exposure, and access to a strong
-              learning community.
+              GCPC was founded to build a dedicated environment where female students can develop technical depth,
+              leadership capability, and professional confidence.
             </p>
+          </article>
+          <article class="card">
+            <h3>Mission</h3>
+            <p>Encourage girls in programming and research, build leadership, and strengthen academic excellence.</p>
+          </article>
+          <article class="card">
+            <h3>Vision</h3>
+            <p>Build a strong community of women technologists who lead, innovate, and inspire.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="wings" class="section section-soft">
+      <div class="container">
+        <p class="section-kicker">GCPC Wings</p>
+        <h2>Structured Wings for Focused Impact</h2>
+        <div class="grid-3" style="margin-top:1rem;">
+          <a class="card wing-card" href="wing-acm.html">
+            <h3>ACM Wing</h3>
+            <p>Competitive programming growth, contests, algorithmic thinking, and technical intensity.</p>
             <ul>
-              <li>Why join: skill growth, network, confidence</li>
-              <li>Eligibility: interested female students of DIU</li>
-              <li>What you gain: technical, research, and career development</li>
+              <li>Programming contest training</li>
+              <li>ICPC preparation support</li>
+              <li>Backend skill workshops</li>
             </ul>
-            <div class="button-row">
-              <a href="#" class="btn btn-main">Join Form</a>
-              <a href="#contact" class="btn btn-ghost">Contact for Queries</a>
+          </a>
+          <a class="card wing-card" href="wing-research.html">
+            <h3>Research Wing</h3>
+            <p>Research fundamentals to publication pipeline with guided mentorship and review sessions.</p>
+            <ul>
+              <li>Research seminar series</li>
+              <li>Paper writing guidance</li>
+              <li>Project-to-publication roadmap</li>
+            </ul>
+          </a>
+          <a class="card wing-card" href="wing-career.html">
+            <h3>Career & Development Wing</h3>
+            <p>Career-focused technical and soft-skill development through practical workshops and guidance.</p>
+            <ul>
+              <li>Development training</li>
+              <li>Career seminars</li>
+              <li>Professional grooming</li>
+            </ul>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="committee" class="section">
+      <div class="container">
+        <p class="section-kicker">Executive Committee</p>
+        <h2>Student and Teacher Committees</h2>
+        <div class="committee-wrap" style="margin-top:1rem;">
+          <article class="card slideshow-card" data-slideshow data-auto="5200">
+            <h3 class="slideshow-title">Student Core Committee</h3>
+            <div class="slide-frame">
+              <div class="slide active empty"><span>Student Core Committee 2026 (Upload Pending)</span></div>
+              <div class="slide"><img src="gcpc-2025 stu panel.png" alt="Student Core Committee 2025" /></div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section extras reveal" id="extras">
-        <div class="container">
-          <p class="section-kicker">Extra Initiatives</p>
-          <h2>Special Professional Features</h2>
-          <div class="extra-grid">
-            <article class="extra-card">
-              <a href="women-in-tech-spotlight.html" class="extra-link">
-                <h3>Women in Tech Spotlight</h3>
-                <p>Monthly feature highlighting successful female alumni and members.</p>
-              </a>
-            </article>
-            <article class="extra-card">
-              <a href="research-publication-tracker.html" class="extra-link">
-                <h3>Research Publication Tracker</h3>
-                <p>Track ongoing projects, published papers, and collaboration invitations.</p>
-              </a>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section verify reveal" id="verify">
-        <div class="container">
-          <p class="section-kicker">Verification Desk</p>
-          <h2>Certification Verification</h2>
-          <p class="verify-intro">Search by student ID to view all valid certificates.</p>
-          <form id="verify-form" class="verify-form">
-            <label for="student-id">Student ID</label>
-            <div class="verify-row">
-              <input id="student-id" name="studentId" type="text" placeholder="Student ID (e.g. 221-15-0000)" required />
-              <button type="submit" class="btn btn-main">Search Certifications</button>
+            <p class="slide-caption">Year-wise student panel showcase</p>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">2026</button>
+              <button class="slide-dot" type="button">2025</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
             </div>
-          </form>
-          <div id="verify-result" class="verify-result" aria-live="polite"></div>
-        </div>
-      </section>
-    </main>
+          </article>
 
-    <footer class="site-footer" id="contact">
-      <div class="container footer-wrap">
-        <div>
-          <h3>DIU GCPC</h3>
-          <p>Girls' Computer Programming Club, Department of CSE, Daffodil International University.</p>
-          <p>Email: gcpc@diu.edu.bd</p>
-          <p>Office: Department of CSE, Daffodil Smart City, Ashulia</p>
-        </div>
-
-        <div>
-          <h4>Official Socials</h4>
-          <div class="social-icons">
-            <a href="https://www.facebook.com/DIUGCPC" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="social-link"><svg viewBox="0 0 24 24"><path d="M13.5 21v-8.1h2.7l.4-3.2h-3.1V7.7c0-.9.3-1.6 1.6-1.6h1.7V3.2c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4.1v2.5H8v3.2h2.3V21h3.2z"/></svg></a>
-            <a href="https://www.instagram.com/diu_gcpc/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-link"><svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2zm0 1.9C5.7 3.9 3.9 5.7 3.9 7.8v8.4c0 2.1 1.8 3.9 3.9 3.9h8.4c2.1 0 3.9-1.8 3.9-3.9V7.8c0-2.1-1.8-3.9-3.9-3.9H7.8z"/></svg></a>
-            <a href="https://www.linkedin.com/company/106392305/admin/dashboard/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="social-link"><svg viewBox="0 0 24 24"><path d="M4.7 3.5a1.9 1.9 0 110 3.8 1.9 1.9 0 010-3.8zM3 8.9h3.4V21H3V8.9zm5.4 0h3.3v1.7h.1c.5-.9 1.6-2 3.4-2 3.6 0 4.3 2.4 4.3 5.5V21H16v-5.9c0-1.4 0-3.2-2-3.2s-2.3 1.5-2.3 3.1V21H8.4V8.9z"/></svg></a>
-            <a href="https://t.me/diugcpc" target="_blank" rel="noopener noreferrer" aria-label="Telegram" class="social-link"><svg viewBox="0 0 24 24"><path d="M21.9 4.6l-3.1 14.6c-.2 1-1 1.2-1.8.8l-4.1-3-2 1.9c-.2.2-.4.4-.9.4l.3-4.3 7.9-7.1c.3-.3-.1-.5-.5-.2L8 14.6l-4.1-1.3c-.9-.3-.9-.9.2-1.3L20.4 4c.8-.3 1.6.2 1.5.6z"/></svg></a>
-          </div>
-          <ul class="footer-mini-links">
-            <li><a href="verify/">Certificate Verification</a></li>
-            <li><a href="#events">Events & Workshops</a></li>
-          </ul>
+          <article class="card slideshow-card" data-slideshow data-auto="5600">
+            <h3 class="slideshow-title">Teacher Committee</h3>
+            <div class="slide-frame">
+              <div class="slide active empty"><span>Teacher Committee 2026 (Upload Pending)</span></div>
+              <div class="slide"><img src="teacher.png" alt="Teacher Committee 2025" /></div>
+            </div>
+            <p class="slide-caption">Year-wise teacher panel showcase</p>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">2026</button>
+              <button class="slide-dot" type="button">2025</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
         </div>
       </div>
+    </section>
 
-      <div class="container footer-corner-logo-wrap">
-        <img src="university-logo.png" alt="Daffodil International University logo" class="footer-corner-logo" />
+    <section id="events" class="section section-soft">
+      <div class="container">
+        <p class="section-kicker">Events & Workshops</p>
+        <h2>Upcoming Activities</h2>
+        <div id="events-grid" class="event-grid" style="margin-top:1rem;">
+          <article class="card"><p class="loading">Loading events from Firebase...</p></article>
+        </div>
       </div>
+    </section>
 
-      <div class="credit-line">
-        <p>&copy; 2026 Girls' Computer Programming Club. All Rights Reserved.</p>
-        <p>Developed by Fateha Hossain Anushka</p>
+    <section id="gallery" class="section">
+      <div class="container">
+        <p class="section-kicker">Gallery</p>
+        <h2>Club Moments</h2>
+        <div class="gallery-grid" style="margin-top:1rem;">
+          <article class="card gallery-card" data-slideshow data-auto="4200">
+            <h3>Workshops</h3>
+            <div class="slide-frame">
+              <div class="slide active"><img src="work1.jpg" alt="Workshop photo 1" /></div>
+              <div class="slide"><img src="work2.jpg" alt="Workshop photo 2" /></div>
+              <div class="slide"><img src="meet.jpg" alt="Workshop photo 3" /></div>
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">1</button>
+              <button class="slide-dot" type="button">2</button>
+              <button class="slide-dot" type="button">3</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+
+          <article class="card gallery-card" data-slideshow data-auto="4500">
+            <h3>Seminars</h3>
+            <div class="slide-frame">
+              <div class="slide active"><img src="seminar1.jpg" alt="Seminar photo 1" /></div>
+              <div class="slide"><img src="seminar2.jpg" alt="Seminar photo 2" /></div>
+              <div class="slide"><img src="seminar3.jpg" alt="Seminar photo 3" /></div>
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">1</button>
+              <button class="slide-dot" type="button">2</button>
+              <button class="slide-dot" type="button">3</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+
+          <article class="card gallery-card" data-slideshow data-auto="4800">
+            <h3>Meetups & Special Events</h3>
+            <div class="slide-frame">
+              <div class="slide active"><img src="meetup1.jpg" alt="Meetup photo 1" /></div>
+              <div class="slide"><img src="visit.jpg" alt="Meetup photo 2" /></div>
+              <div class="slide"><img src="special1.jpg" alt="Meetup photo 3" /></div>
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">1</button>
+              <button class="slide-dot" type="button">2</button>
+              <button class="slide-dot" type="button">3</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+        </div>
       </div>
-    </footer>
-  </div>
+    </section>
 
-  <script src="script.js"></script>
+    <section class="section section-soft">
+      <div class="container">
+        <p class="section-kicker">Extra Initiatives</p>
+        <h2>Special Professional Features</h2>
+        <div class="feature-grid" style="margin-top:1rem;">
+          <a class="card feature-card" href="women-in-tech-spotlight.html">
+            <h3>Women in Tech Spotlight</h3>
+            <p>Monthly feature highlighting successful female alumni and members.</p>
+          </a>
+          <a class="card feature-card" href="research-publication-tracker.html">
+            <h3>Research Publication Tracker</h3>
+            <p>Track ongoing projects, published papers, and collaboration invitations.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer-top">
+      <div>
+        <h3>DIU GCPC</h3>
+        <p>Girls' Computer Programming Club, Department of CSE, Daffodil International University.</p>
+        <p>Email: gcpc@diu.edu.bd</p>
+        <p>Office: Department of CSE, Daffodil Smart City, Ashulia.</p>
+        <div class="footer-logo-row">
+          <img class="footer-logo" src="gcpc-logo.png" alt="GCPC Logo" />
+          <img class="footer-logo" src="cse-logo.jpeg" alt="Department of CSE Logo" />
+          <img class="footer-logo" src="university-logo.png" alt="Daffodil International University Logo" />
+        </div>
+      </div>
+      <div>
+        <h4>Official Socials</h4>
+        <div class="socials">
+          <a href="https://www.facebook.com/DIUGCPC" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M13.5 21v-8.1h2.7l.4-3.2h-3.1V7.7c0-.9.3-1.6 1.6-1.6h1.7V3.2c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4.1v2.5H8v3.2h2.3V21h3.2z"/></svg></a>
+          <a href="https://www.instagram.com/diu_gcpc/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2zm0 1.9C5.7 3.9 3.9 5.7 3.9 7.8v8.4c0 2.1 1.8 3.9 3.9 3.9h8.4c2.1 0 3.9-1.8 3.9-3.9V7.8c0-2.1-1.8-3.9-3.9-3.9H7.8z"/><path d="M12 7.3A4.7 4.7 0 1 1 12 16.7 4.7 4.7 0 0 1 12 7.3zm0 1.9A2.8 2.8 0 1 0 12 14.8 2.8 2.8 0 0 0 12 9.2z"/></svg></a>
+          <a href="https://www.linkedin.com/company/106392305/admin/dashboard/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.7 3.5a1.9 1.9 0 110 3.8 1.9 1.9 0 010-3.8zM3 8.9h3.4V21H3V8.9zm5.4 0h3.3v1.7h.1c.5-.9 1.6-2 3.4-2 3.6 0 4.3 2.4 4.3 5.5V21H16v-5.9c0-1.4 0-3.2-2-3.2s-2.3 1.5-2.3 3.1V21H8.4V8.9z"/></svg></a>
+          <a href="https://t.me/diugcpc" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><svg viewBox="0 0 24 24"><path d="M21.9 4.6l-3.1 14.6c-.2 1-1 1.2-1.8.8l-4.1-3-2 1.9c-.2.2-.4.4-.9.4l.3-4.3 7.9-7.1c.3-.3-.1-.5-.5-.2L8 14.6l-4.1-1.3c-.9-.3-.9-.9.2-1.3L20.4 4c.8-.3 1.6.2 1.5.6z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Girls' Computer Programming Club. All Rights Reserved.</p>
+      <p>&copy; Fateha Hossain Anushka</p>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/app.js"></script>
 </body>
 </html>

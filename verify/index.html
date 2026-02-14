@@ -4,31 +4,52 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Certificate Verification | DIU GCPC</title>
-  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" type="image/png" href="../gcpc-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/styles.css" />
 </head>
-<body>
-  <main class="section verify">
-    <div class="container">
+<body data-page="verify">
+  <header class="site-nav-wrap">
+    <nav class="site-nav container">
+      <a href="../index.html#top" class="brand" aria-label="GCPC home"><img src="../gcpc-logo.png" alt="GCPC logo" /></a>
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="../index.html"><span>Home</span></a></li>
+        <li><a href="../join.html"><span>Join</span></a></li>
+        <li><a href="../contact.html"><span>Contact</span></a></li>
+        <li><a href="../admin.html"><span>Admin</span></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section" style="padding-top:8rem;">
+    <div class="container" style="max-width:860px;">
       <p class="section-kicker">Verification Desk</p>
       <h2>Certificate Verification</h2>
-      <p class="verify-intro">Enter certificate ID to verify authenticity.</p>
+      <p style="margin-top:.6rem;">Enter certificate ID to verify authenticity. This page also supports <code>?cert_id=...</code> for QR scanning.</p>
 
-      <form id="verify-cert-form" class="verify-form">
-        <label for="cert-id">Certificate ID</label>
-        <div class="verify-row">
-          <input id="cert-id" name="certId" type="text" placeholder="Certificate ID (e.g. GCPC-2026-ACM-017)" required />
-          <button type="submit" class="btn btn-main">Verify</button>
-        </div>
-      </form>
-
-      <div id="cert-result" class="verify-result" aria-live="polite"></div>
-
-      <div class="detail-actions">
-        <a href="../index.html" class="btn btn-ghost">Back to Home</a>
+      <div class="form-shell" style="margin-top:1rem;">
+        <form id="verify-form" novalidate>
+          <div class="field-grid">
+            <div class="field full">
+              <label for="cert-id">Certificate ID</label>
+              <input id="cert-id" type="text" placeholder="GCPC-2026-ACM-001" />
+              <p class="error"></p>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Verify</button>
+            <a class="btn btn-soft" href="../index.html">Back to Home</a>
+          </div>
+        </form>
       </div>
+
+      <div id="verify-result" class="status-box" style="margin-top:1rem;">Verification result will appear here.</div>
     </div>
   </main>
 
-  <script type="module" src="./verify.js"></script>
+  <script type="module" src="../assets/app.js"></script>
 </body>
 </html>

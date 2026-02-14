@@ -4,49 +4,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Career & Development Wing | DIU GCPC</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="gcpc-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
 </head>
-<body>
-  <main class="section">
+<body data-page="wing" data-wing="career">
+  <header class="site-nav-wrap">
+    <nav class="site-nav container">
+      <a href="index.html#top" class="brand"><img src="gcpc-logo.png" alt="GCPC logo" /></a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="index.html"><span>Home</span></a></li>
+        <li><a href="wing-acm.html"><span>ACM</span></a></li>
+        <li><a href="wing-research.html"><span>Research</span></a></li>
+        <li><a href="wing-career.html"><span>Career & Dev</span></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section" style="padding-top:8rem;">
     <div class="container">
       <p class="section-kicker">GCPC Wing</p>
       <h2>Career & Development Wing</h2>
-
-      <article class="about-block">
-        <h3>What This Wing Is About</h3>
-        <p>
-          Career & Development Wing bridges campus learning and professional industry expectations through seminars,
-          skill workshops, and long-term development grooming.
-        </p>
-        <h3>How This Wing Helps</h3>
-        <ul>
-          <li>Builds career clarity in modern tech roles and pathways</li>
-          <li>Strengthens practical software and creative skillsets</li>
-          <li>Prepares members for internships, interviews, and portfolio-based opportunities</li>
-        </ul>
-      </article>
+      <div class="grid-2" style="margin-top:1rem;">
+        <article class="card">
+          <h3>What This Wing Does</h3>
+          <p>This wing organizes career-focused workshops and development practice sessions covering software development, communication, and professional readiness.</p>
+        </article>
+        <article class="card">
+          <h3>How This Helps Members</h3>
+          <p>Members prepare for internships and jobs by building practical portfolios, technical confidence, and essential soft skills for industry expectations.</p>
+        </article>
+      </div>
 
       <section class="section" style="padding:2rem 0 0;">
         <p class="section-kicker">Upcoming Events</p>
-        <h3>Spring 2026 Event Lineup</h3>
-        <div class="achievement-list">
-          <a class="achievement-card" href="event-career-bootcamp.html">
-            <h3>From Campus to Cloud</h3>
-            <p>Industry seminar on DevOps/cloud career roadmap, certifications, and real-world workflows.</p>
-          </a>
-          <a class="achievement-card" href="event-career-graphic-design.html">
-            <h3>Fundamentals of Graphic Design</h3>
-            <p>7-day practical workshop covering design basics, tools, and portfolio-ready projects.</p>
-          </a>
-          <a class="achievement-card" href="event-career-development-grooming.html">
-            <h3>Development Practice & Grooming Session</h3>
-            <p>Ongoing hands-on development mentoring to form strong project teams and coding habits.</p>
-          </a>
+        <h3>Career/Development Firebase Events</h3>
+        <div id="wing-events" class="event-grid" style="margin-top:1rem;">
+          <article class="card"><p class="loading">Loading wing events...</p></article>
         </div>
       </section>
-
-      <p style="margin-top:1rem;"><a class="btn btn-ghost" href="index.html#wings">Back to Website</a></p>
     </div>
   </main>
+
+  <script type="module" src="assets/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GCPC Admin Panel</title>
+  <link rel="icon" type="image/png" href="gcpc-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="admin">
+  <header class="site-nav-wrap">
+    <nav class="site-nav container">
+      <a href="index.html#top" class="brand" aria-label="GCPC home"><img src="gcpc-logo.png" alt="GCPC logo" /></a>
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="index.html"><span>Home</span></a></li>
+        <li><a href="verify/"><span>Verify</span></a></li>
+        <li><a href="join.html"><span>Join</span></a></li>
+        <li><a href="contact.html"><span>Contact</span></a></li>
+        <li><a href="admin.html"><span>Admin</span></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section" style="padding-top:8rem;">
+    <div class="container admin-shell">
+      <div class="admin-head">
+        <div>
+          <p class="section-kicker">Admin Panel</p>
+          <h2>GCPC Management Console</h2>
+          <p>Signed in as: <strong id="admin-who">Not signed in</strong></p>
+        </div>
+        <button id="admin-logout" class="btn btn-soft" type="button">Logout</button>
+      </div>
+
+      <section id="admin-login-shell" class="form-shell">
+        <h3>Admin Login</h3>
+        <form id="admin-login-form" novalidate style="margin-top:.7rem;">
+          <div class="field-grid">
+            <div class="field">
+              <label for="admin-email">Email</label>
+              <input id="admin-email" type="email" />
+              <p class="error"></p>
+            </div>
+            <div class="field">
+              <label for="admin-password">Password</label>
+              <input id="admin-password" type="password" />
+              <p class="error"></p>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button id="admin-login-btn" class="btn btn-primary" type="submit">Login</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="admin-dashboard" class="hidden">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="pane-events" type="button">Events</button>
+          <button class="tab-btn" data-tab="pane-certificates" type="button">Certificates</button>
+          <button class="tab-btn" data-tab="pane-memberships" type="button">Memberships</button>
+          <button class="tab-btn" data-tab="pane-messages" type="button">Messages</button>
+        </div>
+
+        <div id="pane-events" class="admin-pane">
+          <div class="grid-2" style="margin-top:1rem;">
+            <article class="form-shell">
+              <h3>Create / Update Event</h3>
+              <form id="admin-event-form" novalidate>
+                <input id="event-id" type="hidden" />
+                <div class="field-grid">
+                  <div class="field full"><label for="event-title">Title</label><input id="event-title" type="text" /></div>
+                  <div class="field"><label for="event-semester">Semester</label><input id="event-semester" type="text" /></div>
+                  <div class="field"><label for="event-status">Status</label><select id="event-status"><option value="UPCOMING">UPCOMING</option><option value="ONGOING">ONGOING</option><option value="COMPLETED">COMPLETED</option></select></div>
+                  <div class="field"><label for="event-date">Date (ISO)</label><input id="event-date" type="date" /></div>
+                  <div class="field"><label for="event-deadline">Deadline (ISO)</label><input id="event-deadline" type="date" /></div>
+                  <div class="field full"><label for="event-venue">Venue</label><input id="event-venue" type="text" /></div>
+                  <div class="field full"><label for="event-registration">Registration Link</label><input id="event-registration" type="url" /></div>
+                  <div class="field full"><label for="event-description">Description</label><textarea id="event-description"></textarea></div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Save Event</button>
+                  <button id="admin-event-clear" class="btn btn-soft" type="button">Clear</button>
+                </div>
+              </form>
+            </article>
+            <article id="events-table-wrap" class="card"><p class="loading">Loading events...</p></article>
+          </div>
+        </div>
+
+        <div id="pane-certificates" class="admin-pane hidden">
+          <div class="grid-2" style="margin-top:1rem;">
+            <article class="form-shell">
+              <h3>Create / Update Certificate</h3>
+              <form id="admin-cert-form" novalidate>
+                <div class="field-grid">
+                  <div class="field"><label for="cert-id">Certificate ID (doc ID)</label><input id="cert-id" type="text" /></div>
+                  <div class="field"><label for="cert-status">Status</label><select id="cert-status"><option value="VALID">VALID</option><option value="REVOKED">REVOKED</option><option value="EXPIRED">EXPIRED</option></select></div>
+                  <div class="field full"><label for="cert-name">Name</label><input id="cert-name" type="text" /></div>
+                  <div class="field"><label for="cert-student-id">Student ID</label><input id="cert-student-id" type="text" /></div>
+                  <div class="field"><label for="cert-issue-date">Issue Date</label><input id="cert-issue-date" type="date" /></div>
+                  <div class="field full"><label for="cert-course">Course / Event</label><input id="cert-course" type="text" /></div>
+                  <div class="field full"><label for="cert-issued-by">Issued By</label><input id="cert-issued-by" type="text" value="DIU GCPC" /></div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">Save Certificate</button>
+                  <button id="admin-cert-clear" class="btn btn-soft" type="button">Clear</button>
+                </div>
+              </form>
+            </article>
+            <article id="cert-table-wrap" class="card"><p class="loading">Loading certificates...</p></article>
+          </div>
+        </div>
+
+        <div id="pane-memberships" class="admin-pane hidden">
+          <article id="memberships-table-wrap" class="card"><p class="loading">Loading memberships...</p></article>
+        </div>
+
+        <div id="pane-messages" class="admin-pane hidden">
+          <article id="messages-table-wrap" class="card"><p class="loading">Loading messages...</p></article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

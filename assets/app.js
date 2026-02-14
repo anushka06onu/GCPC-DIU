@@ -31,6 +31,15 @@ const FIXED_SEMESTERS = [
   'Fall 2026'
 ];
 
+const LOCAL_EVENT_BANNERS = [
+  'workshop1.jpg',
+  'workshop2.jpg',
+  'seminar1.jpg',
+  'seminar2.jpg',
+  'career1.jpg',
+  'research1.jpg'
+];
+
 const escapeHtml = (value) => String(value ?? '')
   .replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;')
@@ -89,6 +98,47 @@ const parseMillis = (value) => {
   }
   if (value.toDate) return value.toDate().getTime();
   return 0;
+};
+
+const normalizeBannerUrl = (value) => {
+  const input = String(value || '').trim();
+  if (!input) return '';
+  if (input.startsWith('http://') || input.startsWith('https://')) return input;
+  if (input.startsWith('/images/events/')) return input;
+  if (input.startsWith('images/events/')) return `/${input}`;
+  return `/images/events/${input.replace(/^\/+/, '')}`;
+};
+
+const eventBannerHtml = (bannerUrl, alt = 'Event banner') => {
+  const normalized = normalizeBannerUrl(bannerUrl);
+  if (!normalized) {
+    return '<div class="event-banner-placeholder">Banner image coming soon</div>';
+  }
+  return `<div class="event-banner-thumb"><img src="${escapeHtml(normalized)}" alt="${escapeHtml(alt)}" loading="lazy" onerror="this.closest('.event-banner-thumb').outerHTML='<div class=&quot;event-banner-placeholder&quot;>Banner image not found</div>'" /></div>`;
+};
+
+const resolveEventBannerUrl = (event) => {
+  const explicit = normalizeBannerUrl(event?.bannerUrl || '');
+  if (explicit) return explicit;
+
+  const title = String(event?.title || '').toLowerCase();
+  if (title.includes('fundamentals of graphic design') || title.includes('graphic design')) {
+    return '/images/events/graphic-design-spring26.png';
+  }
+  return '';
+};
+
+const loadLocalEventBanners = async () => {
+  try {
+    const response = await fetch('/images/events/manifest.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Manifest request failed: ${response.status}`);
+    const data = await response.json();
+    const files = Array.isArray(data?.files) ? data.files : [];
+    return files.filter((item) => typeof item === 'string' && item.trim().length > 0);
+  } catch (error) {
+    devLog('[Banner Manifest] fallback to local list', error);
+    return [...LOCAL_EVENT_BANNERS];
+  }
 };
 
 const normalizeWing = (event) => {
@@ -252,6 +302,7 @@ const buildWingCards = (containerId, events) => {
     <div class="wing-event-list">
       ${visible.map((event) => `
         <a class="card gcpc-card interactive-card wing-event-item" href="event.html?id=${encodeURIComponent(event.id)}">
+          ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
           <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
           <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
           <p class="meta">Date: ${escapeHtml(formatDate(event.dateISO))}</p>
@@ -273,6 +324,7 @@ const renderEventCollection = (hostId, events, emptyText) => {
 
   host.innerHTML = events.map((event) => `
     <a class="card gcpc-card interactive-card" href="event.html?id=${encodeURIComponent(event.id)}">
+      ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
       <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
       <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
       <p>${escapeHtml(event.description || 'Event details coming soon.')}</p>
@@ -582,6 +634,7 @@ const initEventPage = async () => {
     const e = snap.data();
     host.innerHTML = `
       <article class="card reveal in-view">
+        ${eventBannerHtml(resolveEventBannerUrl(e), `${e.title || 'Event'} banner`)}
         <span class="badge">${escapeHtml(e.semester || 'GCPC')}</span>
         <h2>${escapeHtml(e.title || 'Untitled Event')}</h2>
         <p>${escapeHtml(e.description || 'No description provided.')}</p>
@@ -618,6 +671,7 @@ const initWingPage = async () => {
 
     host.innerHTML = list.slice(0, 8).map((event) => `
       <a class="card interactive-card" href="event.html?id=${encodeURIComponent(event.id)}">
+        ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
         <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
         <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
         <p>${escapeHtml(event.description || 'Event details coming soon.')}</p>
@@ -835,6 +889,23 @@ const fillEventForm = async (id) => {
   document.getElementById('event-date').value = formatDate(data.dateISO) === 'TBA' ? '' : formatDate(data.dateISO);
   document.getElementById('event-deadline').value = formatDate(data.deadlineISO) === 'TBA' ? '' : formatDate(data.deadlineISO);
   document.getElementById('event-venue').value = data.venue || '';
+  const normalizedBanner = normalizeBannerUrl(data.bannerUrl || '');
+  const bannerInput = document.getElementById('event-banner');
+  const bannerSelect = document.getElementById('event-banner-select');
+  const bannerPreview = document.getElementById('event-banner-preview');
+  if (bannerInput) bannerInput.value = normalizedBanner;
+  if (bannerSelect) {
+    const fileName = normalizedBanner.startsWith('/images/events/')
+      ? normalizedBanner.replace('/images/events/', '')
+      : normalizedBanner;
+    const availableValues = Array.from(bannerSelect.options).map((option) => option.value);
+    bannerSelect.value = availableValues.includes(fileName) ? fileName : '';
+  }
+  if (bannerPreview) {
+    bannerPreview.innerHTML = normalizedBanner
+      ? `<img src="${escapeHtml(normalizedBanner)}" alt="Event banner preview" loading="lazy" onerror="this.outerHTML='<span>Banner file not found</span>'" />`
+      : '<span>No banner selected</span>';
+  }
   document.getElementById('event-registration').value = data.registrationLink || '';
   document.getElementById('event-description').value = data.description || '';
   document.getElementById('event-status').value = data.status || 'UPCOMING';
@@ -867,7 +938,7 @@ const wireAdminTabs = () => {
   });
 };
 
-const initAdmin = () => {
+const initAdmin = async () => {
   const loginForm = document.getElementById('admin-login-form');
   const logoutBtn = document.getElementById('admin-logout');
   const loginShell = document.getElementById('admin-login-shell');
@@ -879,6 +950,9 @@ const initAdmin = () => {
   const dashboard = document.getElementById('admin-dashboard');
   const who = document.getElementById('admin-who');
   const debugMode = new URLSearchParams(window.location.search).get('debug') === '1';
+  const bannerInput = document.getElementById('event-banner');
+  const bannerSelect = document.getElementById('event-banner-select');
+  const bannerPreview = document.getElementById('event-banner-preview');
 
   if (!loginForm || !logoutBtn || !loginShell || !loadingShell || !dashboard || !who || !deniedShell || !deniedSignoutBtn) return;
 
@@ -889,6 +963,33 @@ const initAdmin = () => {
   };
 
   wireAdminTabs();
+
+  const setBannerPreview = (value) => {
+    if (!bannerPreview) return;
+    const normalized = normalizeBannerUrl(value);
+    if (!normalized) {
+      bannerPreview.innerHTML = '<span>No banner selected</span>';
+      return;
+    }
+    bannerPreview.innerHTML = `<img src="${escapeHtml(normalized)}" alt="Event banner preview" loading="lazy" onerror="this.outerHTML='<span>Banner file not found</span>'" />`;
+  };
+
+  if (bannerSelect) {
+    const bannerFiles = await loadLocalEventBanners();
+    bannerSelect.innerHTML = '<option value="">Select banner file</option>' +
+      bannerFiles.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+    bannerSelect.addEventListener('change', () => {
+      if (!bannerInput) return;
+      bannerInput.value = bannerSelect.value;
+      setBannerPreview(bannerInput.value);
+    });
+  }
+
+  bannerInput?.addEventListener('input', () => {
+    setBannerPreview(bannerInput.value);
+  });
+
+  setBannerPreview('');
 
   // Start in a strict loading state until onAuthStateChanged resolves.
   loadingShell.classList.remove('hidden');
@@ -947,6 +1048,7 @@ const initAdmin = () => {
       dateISO: document.getElementById('event-date').value,
       deadlineISO: document.getElementById('event-deadline').value,
       venue: document.getElementById('event-venue').value.trim(),
+      bannerUrl: normalizeBannerUrl(document.getElementById('event-banner')?.value || ''),
       description: document.getElementById('event-description').value.trim(),
       registrationLink: document.getElementById('event-registration').value.trim(),
       status: document.getElementById('event-status').value,
@@ -968,6 +1070,8 @@ const initAdmin = () => {
       }
       event.target.reset();
       document.getElementById('event-id').value = '';
+      if (bannerSelect) bannerSelect.value = '';
+      setBannerPreview('');
       await renderAdminEvents();
     } catch (error) {
       console.error(error);
@@ -1012,6 +1116,8 @@ const initAdmin = () => {
   document.getElementById('admin-event-clear')?.addEventListener('click', () => {
     document.getElementById('admin-event-form')?.reset();
     document.getElementById('event-id').value = '';
+    if (bannerSelect) bannerSelect.value = '';
+    setBannerPreview('');
   });
 
   document.getElementById('admin-cert-clear')?.addEventListener('click', () => {
@@ -1161,7 +1267,7 @@ const initPage = async () => {
   if (page === 'verify') initVerify();
   if (page === 'event') await initEventPage();
   if (page === 'wing') await initWingPage();
-  if (page === 'admin') initAdmin();
+  if (page === 'admin') await initAdmin();
 };
 
 initPage();

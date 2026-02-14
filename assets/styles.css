@@ -487,6 +487,57 @@ p { margin: 0; line-height: 1.62; }
   animation: shimmer 1.2s linear infinite;
 }
 
+.event-banner-thumb {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(31, 86, 194, 0.2);
+  background: #eef4ff;
+  aspect-ratio: 16 / 9;
+}
+
+.event-banner-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-banner-placeholder {
+  width: 100%;
+  min-height: 120px;
+  border-radius: 12px;
+  border: 1px dashed rgba(31, 86, 194, 0.34);
+  background: linear-gradient(135deg, rgba(31, 86, 194, 0.08), rgba(10, 165, 99, 0.08));
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 0.7rem;
+}
+
+.event-banner-preview {
+  border: 1px solid rgba(31, 86, 194, 0.24);
+  border-radius: 12px;
+  min-height: 160px;
+  background: #f7faff;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.event-banner-preview img {
+  width: 100%;
+  height: 100%;
+  max-height: 260px;
+  object-fit: cover;
+}
+
+.event-banner-preview span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .wing-event-list {
   display: grid;
   gap: .65rem;

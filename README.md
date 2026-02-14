@@ -77,6 +77,7 @@ Set Firebase config in:
 - `venue` (string)
 - `description` (string)
 - `registrationLink` (string)
+- `bannerUrl` (string, relative path like `/images/events/workshop1.jpg`)
 - `status` (string: optional for UI split, because upcoming/past is computed from `dateISO`)
 - `createdAt` (timestamp)
 
@@ -178,6 +179,12 @@ service cloud.firestore {
 ```bash
 python3 -m http.server 8000 --bind 127.0.0.1
 ```
+
+## Event Banner Images (No Firebase Storage)
+- Store event banners in `images/events/` (and optionally `public/images/events/` for static host compatibility).
+- In Firestore `events` docs, set `bannerUrl` to a relative path like:
+  - `/images/events/workshop1.jpg`
+- Admin panel uses local filename/path input + preview and does not upload to Firebase Storage.
 
 ## Deploy
 Push to GitHub and deploy with Vercel as static site.

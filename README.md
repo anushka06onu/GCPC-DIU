@@ -1,227 +1,151 @@
-# DIU GCPC Portal (Firebase Edition)
+# DIU GCPC Portal (HTML/CSS/JS + Firebase)
 
-Official website portal for **DIU Girls' Computer Programming Club (GCPC)**, Department of CSE, Daffodil International University.
+Official website portal for Girls' Computer Programming Club (GCPC), Department of CSE, Daffodil International University.
 
-This version is rebuilt as a dynamic Firebase-powered portal using **HTML + CSS + Vanilla JS** and is ready for static deployment on **Vercel**.
+## Project Highlights
+- Full-screen hero section (`min-height: 100vh`) with animated upcoming-events ticker.
+- Firestore-driven upcoming activities (ACM / Research / Career & Development).
+- Certification validity page with:
+  - Search by Certificate ID
+  - Search by Student ID
+  - QR-friendly `?cert_id=...` support
+- Join page using DIU Student Hub registration link.
+- Animated member count cards from Firestore `memberships`.
+- Contact forms (contact page + footer compact form) writing to Firestore `messages`.
+- Admin panel with Firebase Auth + allowlist check from `admins/allowed`.
 
-## What Was Built
+## Pages
+- `index.html` - Home
+- `join.html` - Join + members count
+- `contact.html` - Query form
+- `verify/index.html` - Certification validity
+- `event.html` - Event details
+- `admin.html` - Admin CRUD panel
+- `wing-acm.html`, `wing-research.html`, `wing-career.html` - Wing pages
 
-### 1) Dynamic events from Firestore
-- Home page now loads events from `events` collection.
-- Upcoming highlight is auto-generated from Firestore.
-- Hero ticker is animated and fetches upcoming events.
-- Event cards are clickable and open `event.html?id=...`.
-- Wing pages (`wing-acm.html`, `wing-research.html`, `wing-career.html`) show wing-matching events from Firestore.
-
-### 2) Contact for queries page
-- `contact.html` has a validated form:
-  - Email, subject, message
-- Submissions are saved in Firestore `messages`.
-- Success/error toasts are shown.
-
-### 3) Join page with Firestore + member stats
-- `join.html` has validated form:
-  - name, email, studentId, department, semester
-- Submissions are saved in Firestore `memberships`.
-- Members count section shows:
-  - Total members
-  - Members by selected semester
-
-### 4) Certificate verification page
-- `verify/index.html` supports:
-  - Certificate ID input + verify button
-  - Auto-verify with `?cert_id=...`
-- Firestore lookup:
-  - Collection: `certificates`
-  - Doc ID = `cert_id`
-- Behaviors:
-  - If exists and `status == "VALID"` => valid details shown
-  - If not exists => `Invalid Certificate`
-  - If status is not VALID => warning shown
-
-### 5) Admin panel with Firebase Auth
-- `admin.html` includes:
-  - Email/password login
-  - Admin check via `admins/{uid}` document (secure approach)
-  - CRUD for events
-  - CRUD for certificates
-  - Read views for messages and memberships
-
-### 6) UI/UX overhaul
-- Shared modular architecture:
-  - `assets/styles.css`
-  - `assets/app.js`
-  - `assets/firebase.js`
-- Full-screen hero (`100vh`) with animated ticker.
-- Responsive navbar + hamburger menu.
-- Toast feedback, loading states, inline validation.
-- Scroll reset on refresh (page always starts at top).
-
-## Current File Structure
-
-- `index.html` -> dynamic home page
-- `join.html` -> membership form + counts
-- `contact.html` -> query form
-- `event.html` -> event details
-- `admin.html` -> admin console
-- `verify/index.html` -> certificate verification
-- `verify.html` -> redirect helper to `/verify/`
-- `wing-acm.html`, `wing-research.html`, `wing-career.html`
-- `assets/firebase.js` -> Firebase config/init
-- `assets/app.js` -> app logic (all page controllers)
-- `assets/styles.css` -> shared design system
-
-## Firebase Setup
-
-### 1. Paste Firebase config
-Update config in:
+## Firebase Config
+Set Firebase config in:
 - `assets/firebase.js`
 
-```js
-export const firebaseConfig = {
-  apiKey: '... ',
-  authDomain: '... ',
-  projectId: '... ',
-  storageBucket: '... ',
-  messagingSenderId: '... ',
-  appId: '... '
-};
-```
+## Firebase Manual Steps
 
-### 2. Collections used
+1. Create Firestore collections:
+- `events`
+- `memberships`
+- `messages`
+- `certificates`
+- `admins`
 
-#### `events`
+2. Enable Authentication:
+- Firebase Console -> Authentication -> Sign-in method -> Enable **Email/Password**.
+
+3. Create admin allowlist document:
+- Collection: `admins`
+- Document ID: `allowed`
+- Field:
 ```json
 {
-  "title": "...",
-  "semester": "Spring 26",
+  "emails": [
+    "anushka2305101844@diu.edu.bd"
+  ]
+}
+```
+
+4. Add sample `events` documents:
+```json
+{
+  "title": "Fundamentals of Graphic Design Workshop",
+  "wing": "career",
+  "semester": "Spring 2026",
   "dateISO": "2026-03-10",
   "deadlineISO": "2026-02-20",
-  "venue": "...",
-  "description": "...",
-  "registrationLink": "https://...",
+  "venue": "DIU Campus",
+  "description": "Hands-on beginner to practical design workshop.",
+  "registrationLink": "https://example.com/register",
   "status": "UPCOMING",
   "createdAt": "serverTimestamp"
 }
 ```
 
-#### `memberships`
 ```json
 {
-  "name": "...",
-  "email": "...",
-  "studentId": "221-15-0000",
-  "department": "CSE",
-  "semester": "Spring 26",
+  "title": "Introduction to Research & Complete Guideline",
+  "wing": "research",
+  "semester": "Spring 2026",
+  "dateISO": "2026-04-20",
+  "deadlineISO": "2026-04-15",
+  "venue": "DIU Campus",
+  "description": "Beginner-friendly research seminar.",
+  "registrationLink": "",
+  "status": "UPCOMING",
   "createdAt": "serverTimestamp"
 }
 ```
 
-#### `messages`
 ```json
 {
-  "email": "...",
-  "subject": "...",
-  "message": "...",
+  "title": "Java Core to Java Career",
+  "wing": "acm",
+  "semester": "Spring 2026",
+  "dateISO": "2026-03-22",
+  "deadlineISO": "2026-03-18",
+  "venue": "CSE Lab",
+  "description": "Core Java fundamentals with practical roadmap.",
+  "registrationLink": "",
+  "status": "UPCOMING",
   "createdAt": "serverTimestamp"
 }
 ```
 
-#### `certificates` (doc id = cert_id)
-```json
-{
-  "name": "...",
-  "student_id": "...",
-  "course": "...",
-  "issue_date": "2026-04-20",
-  "status": "VALID",
-  "issued_by": "DIU GCPC"
-}
-```
-
-#### `admins` (secure admin check)
-- Document path: `admins/{uid}`
-- Example:
-```json
-{
-  "email": "admin@diu.edu.bd",
-  "role": "superadmin"
-}
-```
-
-## Create First Admin User
-
-1. Firebase Console -> Authentication -> add user (email/password).
-2. Copy that user `uid`.
-3. Firestore -> create document at `admins/{uid}`.
-4. Now this account can access `admin.html` dashboard.
-
-## Recommended Firestore Rules
-
-> This rule set keeps events/certificates public, allows public submissions, and restricts admin operations with `admins/{uid}` check.
-
+## Firestore Rules (Recommended)
 ```txt
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isAdmin() {
+    function isAllowedAdmin() {
       return request.auth != null
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+        && exists(/databases/$(database)/documents/admins/allowed)
+        && request.auth.token.email in get(/databases/$(database)/documents/admins/allowed).data.emails;
     }
 
-    match /events/{eventId} {
+    match /events/{id} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
+      allow create, update, delete: if isAllowedAdmin();
     }
 
-    match /certificates/{certId} {
+    match /certificates/{id} {
       allow read: if true;
-      allow create, update, delete: if isAdmin();
+      allow create, update, delete: if isAllowedAdmin();
     }
 
-    match /memberships/{docId} {
+    match /memberships/{id} {
+      allow read: if isAllowedAdmin();
       allow create: if true;
-      allow read: if true;
-      allow update, delete: if isAdmin();
+      allow update, delete: if isAllowedAdmin();
     }
 
-    match /messages/{docId} {
+    match /messages/{id} {
+      allow read: if isAllowedAdmin();
       allow create: if true;
-      allow read, update, delete: if isAdmin();
+      allow update, delete: if isAllowedAdmin();
     }
 
-    match /admins/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if isAdmin();
+    match /admins/{id} {
+      allow read: if isAllowedAdmin();
+      allow write: if isAllowedAdmin();
     }
   }
 }
 ```
 
-## Run Locally
-
+## Local Run
 ```bash
 python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
-Open:
-- `http://127.0.0.1:8000/`
-- `http://127.0.0.1:8000/verify/`
-- `http://127.0.0.1:8000/admin.html`
-
-## Deploy on Vercel
-
-1. Push repo to GitHub.
-2. Import repo into Vercel.
-3. Framework preset: **Other** (static).
-4. Deploy.
-
-No build command is required for this static setup.
-
-## Note on Firebase config and Vercel env vars
-- For pure static HTML/JS, easiest is keeping config inside `assets/firebase.js`.
-- If you want env-driven injection on Vercel, you need a build step/script to replace placeholders before deploy.
+## Deploy
+Push to GitHub and deploy with Vercel as static site.
 
 ## Credits
 © Fateha Hossain Anushka

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Certificate Verification | DIU GCPC</title>
+  <title>Certification Validity | DIU GCPC</title>
   <link rel="icon" type="image/png" href="../gcpc-logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,36 +17,54 @@
       <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
       <ul class="nav-links" id="nav-menu">
         <li><a href="../index.html"><span>Home</span></a></li>
+        <li><a href="../verify/"><span>Certification Validity</span></a></li>
         <li><a href="../join.html"><span>Join</span></a></li>
         <li><a href="../contact.html"><span>Contact</span></a></li>
-        <li><a href="../admin.html"><span>Admin</span></a></li>
       </ul>
     </nav>
   </header>
 
-  <main class="section" style="padding-top:8rem;">
-    <div class="container" style="max-width:860px;">
+  <main class="section page-top-space">
+    <div class="container verify-shell">
       <p class="section-kicker">Verification Desk</p>
-      <h2>Certificate Verification</h2>
-      <p style="margin-top:.6rem;">Enter certificate ID to verify authenticity. This page also supports <code>?cert_id=...</code> for QR scanning.</p>
+      <h2 class="reveal">Certification Validity</h2>
+      <p class="top-gap-sm">Verify by Certificate ID directly or search by Student ID to list all issued certificates.</p>
 
-      <div class="form-shell" style="margin-top:1rem;">
-        <form id="verify-form" novalidate>
-          <div class="field-grid">
-            <div class="field full">
-              <label for="cert-id">Certificate ID</label>
-              <input id="cert-id" type="text" placeholder="GCPC-2026-ACM-001" />
-              <p class="error"></p>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button class="btn btn-primary" type="submit">Verify</button>
-            <a class="btn btn-soft" href="../index.html">Back to Home</a>
-          </div>
-        </form>
+      <div class="verify-tabs top-gap reveal">
+        <button type="button" class="tab-btn active" data-verify-tab="cert">Search by Certificate ID</button>
+        <button type="button" class="tab-btn" data-verify-tab="student">Search by Student ID</button>
       </div>
 
-      <div id="verify-result" class="status-box" style="margin-top:1rem;">Verification result will appear here.</div>
+      <section id="verify-tab-cert" class="form-shell top-gap-sm reveal">
+        <form id="verify-form" novalidate>
+          <div class="field">
+            <label for="cert-id">Certificate ID</label>
+            <input id="cert-id" type="text" placeholder="GCPC-2026-ACM-001" />
+            <p class="helper">Use this for QR-based and direct certificate validation.</p>
+            <p class="error"></p>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Verify Certificate</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="verify-tab-student" class="form-shell top-gap-sm reveal hidden">
+        <form id="student-verify-form" novalidate>
+          <div class="field">
+            <label for="student-id">Student ID</label>
+            <input id="student-id" type="text" placeholder="221-15-0000" />
+            <p class="helper">Shows all certificates found for this student ID.</p>
+            <p class="error"></p>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Search Certificates</button>
+          </div>
+        </form>
+      </section>
+
+      <div id="verify-result" class="status-box top-gap"></div>
+      <div id="student-cert-list" class="top-gap"></div>
     </div>
   </main>
 

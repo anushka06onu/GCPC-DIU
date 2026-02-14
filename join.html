@@ -17,7 +17,7 @@
       <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
       <ul class="nav-links" id="nav-menu">
         <li><a href="index.html"><span>Home</span></a></li>
-        <li><a href="verify/"><span>Verify</span></a></li>
+        <li><a href="verify/"><span>Certification Validity</span></a></li>
         <li><a href="join.html"><span>Join</span></a></li>
         <li><a href="contact.html"><span>Contact</span></a></li>
         <li><a href="admin.html"><span>Admin</span></a></li>
@@ -25,60 +25,37 @@
     </nav>
   </header>
 
-  <main class="section" style="padding-top:8rem;">
+  <main class="section page-top-space">
     <div class="container">
-      <p class="section-kicker">Membership Portal</p>
-      <h2>Join DIU GCPC</h2>
-      <p style="margin-top:.6rem;">Submit your membership application to become part of the official GCPC learning and leadership community.</p>
+      <p class="section-kicker">Join GCPC</p>
+      <h2 class="reveal">Official Membership Registration</h2>
+      <article class="card reveal">
+        <p>Use the official DIU Student Hub portal to register for GCPC membership.</p>
+        <div class="hero-actions top-gap">
+          <a class="btn btn-primary" href="https://studentshub.daffodilvarsity.edu.bd/clubs/registration/19" target="_blank" rel="noopener noreferrer">Join Now</a>
+          <a class="btn btn-soft" href="contact.html">Contact for Queries</a>
+        </div>
+      </article>
 
-      <div class="form-shell" style="margin-top:1rem;">
-        <form id="join-form" novalidate>
-          <div class="field-grid">
-            <div class="field">
-              <label for="join-name">Full Name</label>
-              <input id="join-name" type="text" placeholder="Your full name" />
-              <p class="error"></p>
-            </div>
-            <div class="field">
-              <label for="join-email">Email</label>
-              <input id="join-email" type="email" placeholder="you@diu.edu.bd" />
-              <p class="error"></p>
-            </div>
-            <div class="field">
-              <label for="join-student-id">Student ID</label>
-              <input id="join-student-id" type="text" placeholder="221-15-0000" />
-              <p class="error"></p>
-            </div>
-            <div class="field">
-              <label for="join-department">Department</label>
-              <input id="join-department" type="text" value="CSE" />
-              <p class="error"></p>
-            </div>
-            <div class="field full">
-              <label for="join-semester">Semester</label>
-              <input id="join-semester" type="text" placeholder="Spring 26 / Fall 25" />
-              <p class="error"></p>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button id="join-submit" class="btn btn-primary" type="submit">Submit Application</button>
-            <a class="btn btn-soft" href="index.html">Back to Home</a>
-          </div>
-        </form>
-      </div>
+      <section class="top-gap-lg reveal">
+        <p class="section-kicker">Members Count</p>
+        <h3>Membership Statistics</h3>
+        <div class="semester-filter-wrap">
+          <label for="semester-filter">Select Semester</label>
+          <select id="semester-filter"></select>
+        </div>
 
-      <div class="stats-shell">
-        <article class="stat-card">
-          <p>Total Members</p>
-          <p id="members-total" class="stat-value">-</p>
-        </article>
-        <article class="stat-card">
-          <label for="semester-filter" style="font-weight:700;color:#102a72;">Filter by Semester</label>
-          <select id="semester-filter" style="margin-top:.5rem;"></select>
-          <p style="margin-top:.5rem;">Members in selected semester</p>
-          <p id="members-semester" class="stat-value">-</p>
-        </article>
-      </div>
+        <div class="stats-shell top-gap">
+          <article class="stat-card">
+            <p>Total Members (All Time)</p>
+            <p id="members-total" class="stat-value">0</p>
+          </article>
+          <article class="stat-card">
+            <p>Members Joined (Selected Semester)</p>
+            <p id="members-semester" class="stat-value">0</p>
+          </article>
+        </div>
+      </section>
     </div>
   </main>
 

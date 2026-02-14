@@ -141,6 +141,18 @@
                   <div class="field"><label for="cert-issue-date">Issue Date</label><input id="cert-issue-date" type="date" /></div>
                   <div class="field full"><label for="cert-course">Course / Event</label><input id="cert-course" type="text" /></div>
                   <div class="field full"><label for="cert-issued-by">Issued By</label><input id="cert-issued-by" type="text" value="DIU GCPC" /></div>
+                  <div class="field full">
+                    <label for="cert-image-url">Certificate Image Path</label>
+                    <input id="cert-image-url" type="text" placeholder="/images/certificates/&lt;certId&gt;.jpg" />
+                    <p class="helper">Upload the image file to /public/images/certificates/ in the repo, then paste the path here.</p>
+                    <p class="error"></p>
+                  </div>
+                  <div class="field full">
+                    <p class="helper">Certificate preview</p>
+                    <div id="cert-image-preview" class="event-banner-preview">
+                      <span>No certificate image selected</span>
+                    </div>
+                  </div>
                 </div>
                 <div class="form-actions">
                   <button class="btn btn-primary" type="submit">Save Certificate</button>

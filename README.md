@@ -103,6 +103,7 @@ Set Firebase config in:
 - `status` (string)
 - `issued_by` (string)
 - `certImageUrl` (string, optional but recommended for verification image display)
+  Example: `/images/certificates/gcpc2026ws001.jpg`
 
 ```json
 {
@@ -185,6 +186,12 @@ python3 -m http.server 8000 --bind 127.0.0.1
 - In Firestore `events` docs, set `bannerUrl` to a relative path like:
   - `/images/events/workshop1.jpg`
 - Admin panel uses local filename/path input + preview and does not upload to Firebase Storage.
+
+## Certificate Images (No Firebase Storage)
+- Store certificate images in `public/images/certificates/`.
+- Save relative path in Firestore `certificates.certImageUrl`, for example:
+  - `/images/certificates/gcpc2026ws001.jpg`
+- Verification page renders this image when certificate status is `VALID`.
 
 ## Deploy
 Push to GitHub and deploy with Vercel as static site.

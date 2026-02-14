@@ -1006,8 +1006,11 @@ const initAdmin = () => {
 
     try {
       const userEmail = String(user.email || '').trim().toLowerCase();
-      const allowlistRaw = await getAllowedAdminEmails();
-      const allowlist = allowlistRaw.map((e) => String(e).trim().toLowerCase());
+      const allowDocRef = doc(db, 'admins', 'allowed');
+      const allowDocSnap = await getDoc(allowDocRef);
+      const allowDocData = allowDocSnap.exists() ? allowDocSnap.data() : null;
+      const rawEmails = Array.isArray(allowDocData?.emails) ? allowDocData.emails : [];
+      const allowlist = rawEmails.map((e) => String(e).trim().toLowerCase());
       const allowed = allowlist.includes(userEmail);
 
       devLog('[Admin Guard] allowlist read success:', true);
@@ -1015,6 +1018,10 @@ const initAdmin = () => {
       devLog('[Admin Guard] allowlist length:', allowlist.length);
 
       if (!allowed) {
+        console.log('[Admin Guard] userEmail:', userEmail);
+        console.log('[Admin Guard] doc exists?:', allowDocSnap.exists());
+        console.log('[Admin Guard] doc.data() raw:', allowDocData);
+        console.log('[Admin Guard] extracted emails array:', allowlist);
         showToast('You’re signed in, but your account is not authorized for admin access.', 'error');
         loadingShell.classList.add('hidden');
         await signOut(auth);

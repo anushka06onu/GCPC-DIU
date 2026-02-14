@@ -638,6 +638,17 @@ const getAllowedAdminEmails = async () => {
   return data.emails.map((e) => String(e).toLowerCase().trim());
 };
 
+const isDevEnv = () => {
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1';
+};
+
+const devLog = (...args) => {
+  if (isDevEnv()) {
+    console.log(...args);
+  }
+};
+
 const setSkeleton = (selector) => {
   const target = document.querySelector(selector);
   if (target) target.classList.add('skeleton-card');
@@ -820,12 +831,18 @@ const initAdmin = () => {
   const loginForm = document.getElementById('admin-login-form');
   const logoutBtn = document.getElementById('admin-logout');
   const loginShell = document.getElementById('admin-login-shell');
+  const loadingShell = document.getElementById('admin-auth-loading');
   const dashboard = document.getElementById('admin-dashboard');
   const who = document.getElementById('admin-who');
 
-  if (!loginForm || !logoutBtn || !loginShell || !dashboard || !who) return;
+  if (!loginForm || !logoutBtn || !loginShell || !loadingShell || !dashboard || !who) return;
 
   wireAdminTabs();
+
+  // Start in a strict loading state until onAuthStateChanged resolves.
+  loadingShell.classList.remove('hidden');
+  loginShell.classList.add('hidden');
+  dashboard.classList.add('hidden');
 
   loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -976,24 +993,36 @@ const initAdmin = () => {
   });
 
   onAuthStateChanged(auth, async (user) => {
+    loadingShell.classList.remove('hidden');
+    loginShell.classList.add('hidden');
+    dashboard.classList.add('hidden');
+
     if (!user) {
       who.textContent = 'Not signed in';
+      loadingShell.classList.add('hidden');
       loginShell.classList.remove('hidden');
-      dashboard.classList.add('hidden');
       return;
     }
 
     try {
-      const allowlist = await getAllowedAdminEmails();
-      const allowed = allowlist.includes(String(user.email || '').toLowerCase());
+      const userEmail = String(user.email || '').trim().toLowerCase();
+      const allowlistRaw = await getAllowedAdminEmails();
+      const allowlist = allowlistRaw.map((e) => String(e).trim().toLowerCase());
+      const allowed = allowlist.includes(userEmail);
+
+      devLog('[Admin Guard] allowlist read success:', true);
+      devLog('[Admin Guard] user email:', userEmail);
+      devLog('[Admin Guard] allowlist length:', allowlist.length);
 
       if (!allowed) {
-        showToast('You do not have permission to access the admin dashboard.', 'error');
+        showToast('You’re signed in, but your account is not authorized for admin access.', 'error');
+        loadingShell.classList.add('hidden');
         await signOut(auth);
         return;
       }
 
       who.textContent = user.email || 'Admin';
+      loadingShell.classList.add('hidden');
       loginShell.classList.add('hidden');
       dashboard.classList.remove('hidden');
 
@@ -1005,7 +1034,9 @@ const initAdmin = () => {
       ]);
     } catch (error) {
       console.error(error);
-      showToast('Failed to validate admin access.', 'error');
+      devLog('[Admin Guard] allowlist read success:', false);
+      showToast('You’re signed in, but your account is not authorized for admin access.', 'error');
+      loadingShell.classList.add('hidden');
       await signOut(auth);
     }
   });

@@ -631,11 +631,48 @@ const initWingPage = async () => {
 };
 
 const getAllowedAdminEmails = async () => {
-  const snap = await getDoc(doc(db, 'admins', 'allowed'));
-  if (!snap.exists()) return [];
-  const data = snap.data();
-  if (!Array.isArray(data.emails)) return [];
-  return data.emails.map((e) => String(e).toLowerCase().trim());
+  const candidateDocIds = ['allowed', 'allowlist'];
+  const candidateFields = ['emails', 'allowedEmails'];
+
+  let foundDocId = null;
+  let foundSnap = null;
+  let foundData = null;
+  let fieldUsed = null;
+  let rawEmails = null;
+
+  for (const id of candidateDocIds) {
+    const snap = await getDoc(doc(db, 'admins', id));
+    if (!snap.exists()) continue;
+
+    const data = snap.data() || {};
+    for (const field of candidateFields) {
+      if (Array.isArray(data[field])) {
+        foundDocId = id;
+        foundSnap = snap;
+        foundData = data;
+        fieldUsed = field;
+        rawEmails = data[field];
+        break;
+      }
+    }
+
+    if (rawEmails) break;
+  }
+
+  if (!rawEmails) {
+    throw new Error(
+      "Admin allowlist not found. Expected admins/allowed or admins/allowlist with field emails or allowedEmails."
+    );
+  }
+
+  return {
+    docId: foundDocId,
+    fieldName: fieldUsed,
+    snap: foundSnap,
+    data: foundData,
+    rawEmails,
+    normalizedEmails: rawEmails.map((e) => String(e).trim().toLowerCase())
+  };
 };
 
 const isDevEnv = () => {
@@ -1014,18 +1051,19 @@ const initAdmin = () => {
     }
 
     try {
-      const allowDocPath = 'admins/allowed';
+      const userEmailRaw = user.email || '';
       const userEmail = String(user.email || '').trim().toLowerCase();
-      const allowDocRef = doc(db, 'admins', 'allowed');
-      const allowDocSnap = await getDoc(allowDocRef);
-      const allowDocData = allowDocSnap.exists() ? allowDocSnap.data() : null;
-      const rawEmails = Array.isArray(allowDocData?.emails) ? allowDocData.emails : [];
-      const allowlist = rawEmails.map((e) => String(e).trim().toLowerCase());
+      const allowlistMeta = await getAllowedAdminEmails();
+      const allowDocPath = `admins/${allowlistMeta.docId}`;
+      const allowDocSnap = allowlistMeta.snap;
+      const allowDocData = allowlistMeta.data;
+      const rawEmails = allowlistMeta.rawEmails;
+      const allowlist = allowlistMeta.normalizedEmails;
       const allowed = allowlist.includes(userEmail);
 
       setDebug({
         projectId: firebaseConfig.projectId,
-        currentUserEmail: user.email ?? null,
+        currentUserEmail: userEmailRaw,
         firestoreDocPath: allowDocPath,
         allowlistReadStatus: 'success',
         snapExists: allowDocSnap.exists(),
@@ -1040,6 +1078,8 @@ const initAdmin = () => {
       devLog('[Admin Guard] allowlist read success:', true);
       devLog('[Admin Guard] user email:', userEmail);
       devLog('[Admin Guard] allowlist length:', allowlist.length);
+      devLog('[Admin Guard] doc used:', allowDocPath);
+      devLog('[Admin Guard] field used:', allowlistMeta.fieldName);
 
       if (!allowed) {
         console.log('[Admin Guard] userEmail:', userEmail);
@@ -1068,12 +1108,17 @@ const initAdmin = () => {
     } catch (error) {
       console.error(error);
       devLog('[Admin Guard] allowlist read success:', false);
-      showToast('You’re signed in, but your account is not authorized for admin access.', 'error');
+      showToast(
+        error?.message?.includes('Admin allowlist not found')
+          ? 'Admin allowlist is missing. Please configure admins/allowed or admins/allowlist.'
+          : 'You’re signed in, but your account is not authorized for admin access.',
+        'error'
+      );
       loadingShell.classList.add('hidden');
       setDebug({
         projectId: firebaseConfig.projectId,
         currentUserEmail: user?.email ?? null,
-        firestoreDocPath: 'admins/allowed',
+        firestoreDocPath: 'admins/allowed | admins/allowlist',
         allowlistReadStatus: 'error',
         snapExists: null,
         snapDataRaw: null,

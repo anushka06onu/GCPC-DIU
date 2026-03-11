@@ -107,6 +107,8 @@ const normalizeBannerUrl = (value) => {
   const input = String(value || '').trim();
   if (!input) return '';
   if (input.startsWith('http://') || input.startsWith('https://')) return input;
+  // support protocol-relative URLs (e.g. //res.cloudinary.com/...) by forcing https
+  if (input.startsWith('//')) return `https:${input}`;
   if (input.startsWith('/images/events/')) return input;
   if (input.startsWith('images/events/')) return `/${input}`;
   return `/images/events/${input.replace(/^\/+/, '')}`;

@@ -31,14 +31,6 @@ const FIXED_SEMESTERS = [
   'Fall 2026'
 ];
 
-const LOCAL_EVENT_BANNERS = [
-  'workshop1.jpg',
-  'workshop2.jpg',
-  'seminar1.jpg',
-  'seminar2.jpg',
-  'career1.jpg',
-  'research1.jpg'
-];
 
 const escapeHtml = (value) => String(value ?? '')
   .replaceAll('&', '&amp;')
@@ -120,12 +112,30 @@ const normalizeBannerUrl = (value) => {
   return `/images/events/${input.replace(/^\/+/, '')}`;
 };
 
+// upload image file to Cloudinary and return secure_url
+async function uploadImage(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'gcpc-events');
+
+  const response = await fetch(
+    'https://api.cloudinary.com/v1_1/dh6iivfsd/image/upload',
+    {
+      method: 'POST',
+      body: formData
+    }
+  );
+
+  const data = await response.json();
+  return data.secure_url;
+}
+
 const eventBannerHtml = (bannerUrl, alt = 'Event banner') => {
   const normalized = normalizeBannerUrl(bannerUrl);
   if (!normalized) {
     return '<div class="event-banner-placeholder">Banner image coming soon</div>';
   }
-  return `<div class="event-banner-thumb"><img src="${escapeHtml(normalized)}" alt="${escapeHtml(alt)}" loading="lazy" onerror="this.closest('.event-banner-thumb').outerHTML='<div class=&quot;event-banner-placeholder&quot;>Banner image not found</div>'" /></div>`;
+  return `<div class="event-banner-thumb"><img class="event-banner" src="${escapeHtml(normalized)}" alt="${escapeHtml(alt)}" loading="lazy" onerror="this.closest('.event-banner-thumb').outerHTML='<div class=&quot;event-banner-placeholder&quot;>Banner image not found</div>'" /></div>`;
 };
 
 const resolveEventBannerUrl = (event) => {
@@ -139,18 +149,6 @@ const resolveEventBannerUrl = (event) => {
   return '';
 };
 
-const loadLocalEventBanners = async () => {
-  try {
-    const response = await fetch('/images/events/manifest.json', { cache: 'no-store' });
-    if (!response.ok) throw new Error(`Manifest request failed: ${response.status}`);
-    const data = await response.json();
-    const files = Array.isArray(data?.files) ? data.files : [];
-    return files.filter((item) => typeof item === 'string' && item.trim().length > 0);
-  } catch (error) {
-    devLog('[Banner Manifest] fallback to local list', error);
-    return [...LOCAL_EVENT_BANNERS];
-  }
-};
 
 const normalizeWing = (event) => {
   const explicit = String(event.wing || '').toLowerCase();
@@ -926,22 +924,18 @@ const fillEventForm = async (id) => {
   document.getElementById('event-deadline').value = formatDate(data.deadlineISO) === 'TBA' ? '' : formatDate(data.deadlineISO);
   document.getElementById('event-venue').value = data.venue || '';
   const normalizedBanner = normalizeBannerUrl(data.bannerUrl || '');
-  const bannerInput = document.getElementById('event-banner');
-  const bannerSelect = document.getElementById('event-banner-select');
   const bannerPreview = document.getElementById('event-banner-preview');
-  if (bannerInput) bannerInput.value = normalizedBanner;
-  if (bannerSelect) {
-    const fileName = normalizedBanner.startsWith('/images/events/')
-      ? normalizedBanner.replace('/images/events/', '')
-      : normalizedBanner;
-    const availableValues = Array.from(bannerSelect.options).map((option) => option.value);
-    bannerSelect.value = availableValues.includes(fileName) ? fileName : '';
-  }
+  const existingBannerUrlInputLocal = document.getElementById('event-banner-url');
+  const bannerFileInputLocal = document.getElementById('eventBanner');
+  // store existing banner url so submit logic can fall back to it
+  if (existingBannerUrlInputLocal) existingBannerUrlInputLocal.value = data.bannerUrl || '';
   if (bannerPreview) {
     bannerPreview.innerHTML = normalizedBanner
       ? `<img src="${escapeHtml(normalizedBanner)}" alt="Event banner preview" loading="lazy" onerror="this.outerHTML='<span>Banner file not found</span>'" />`
       : '<span>No banner selected</span>';
   }
+  // clear file input so it does not accidentally upload old file
+  if (bannerFileInputLocal) bannerFileInputLocal.value = '';
   document.getElementById('event-registration').value = data.registrationLink || '';
   document.getElementById('event-description').value = data.description || '';
   document.getElementById('event-status').value = data.status || 'UPCOMING';
@@ -995,9 +989,9 @@ const initAdmin = async () => {
   const dashboard = document.getElementById('admin-dashboard');
   const who = document.getElementById('admin-who');
   const debugMode = new URLSearchParams(window.location.search).get('debug') === '1';
-  const bannerInput = document.getElementById('event-banner');
-  const bannerSelect = document.getElementById('event-banner-select');
   const bannerPreview = document.getElementById('event-banner-preview');
+  const bannerFileInput = document.getElementById('eventBanner');
+  const existingBannerUrlInput = document.getElementById('event-banner-url');
   const certImageInput = document.getElementById('cert-image-url');
   const certImagePreview = document.getElementById('cert-image-preview');
 
@@ -1013,6 +1007,7 @@ const initAdmin = async () => {
 
   const setBannerPreview = (value) => {
     if (!bannerPreview) return;
+    // value may be a URL string or empty
     const normalized = normalizeBannerUrl(value);
     if (!normalized) {
       bannerPreview.innerHTML = '<span>No banner selected</span>';
@@ -1031,19 +1026,22 @@ const initAdmin = async () => {
     certImagePreview.innerHTML = `<img src="${escapeHtml(normalized)}" alt="Certificate preview" loading="lazy" onerror="this.outerHTML='<span>Certificate image file not found</span>'" />`;
   };
 
-  if (bannerSelect) {
-    const bannerFiles = await loadLocalEventBanners();
-    bannerSelect.innerHTML = '<option value="">Select banner file</option>' +
-      bannerFiles.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
-    bannerSelect.addEventListener('change', () => {
-      if (!bannerInput) return;
-      bannerInput.value = bannerSelect.value;
-      setBannerPreview(bannerInput.value);
-    });
-  }
-
-  bannerInput?.addEventListener('input', () => {
-    setBannerPreview(bannerInput.value);
+  // when admin selects a file, show preview and clear stored URL
+  bannerFileInput?.addEventListener('change', () => {
+    const file = bannerFileInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (!bannerPreview) return;
+        bannerPreview.innerHTML = `<img src="${reader.result}" alt="Event banner preview" loading="lazy" />`;
+      };
+      reader.readAsDataURL(file);
+      // clear hidden url since a new upload will replace it
+      if (existingBannerUrlInput) existingBannerUrlInput.value = '';
+    } else {
+      // no file selected, revert to existing URL if any
+      if (existingBannerUrlInput) setBannerPreview(existingBannerUrlInput.value);
+    }
   });
   certImageInput?.addEventListener('input', () => {
     validateCertImagePath(certImageInput);
@@ -1131,17 +1129,40 @@ const initAdmin = async () => {
     event.preventDefault();
 
     const id = document.getElementById('event-id').value.trim();
+    const title = document.getElementById('event-title').value.trim();
+    const wing = document.getElementById('event-wing').value;
+    const semester = document.getElementById('event-semester').value.trim();
+    const dateISO = document.getElementById('event-date').value;
+    const deadlineISO = document.getElementById('event-deadline').value;
+    const venue = document.getElementById('event-venue').value.trim();
+    const description = document.getElementById('event-description').value.trim();
+    const registrationLink = document.getElementById('event-registration').value.trim();
+    const statusVal = document.getElementById('event-status').value;
+
+    // determine banner URL: use existing hidden value unless a new file was selected
+    let bannerUrl = existingBannerUrlInput?.value || '';
+    const bannerFile = bannerFileInput?.files[0];
+    if (bannerFile) {
+      try {
+        bannerUrl = await uploadImage(bannerFile);
+      } catch (err) {
+        console.error('Banner upload failed', err);
+        showToast('Failed to upload banner image.', 'error');
+        return;
+      }
+    }
+
     const payload = {
-      title: document.getElementById('event-title').value.trim(),
-      wing: document.getElementById('event-wing').value,
-      semester: document.getElementById('event-semester').value.trim(),
-      dateISO: document.getElementById('event-date').value,
-      deadlineISO: document.getElementById('event-deadline').value,
-      venue: document.getElementById('event-venue').value.trim(),
-      bannerUrl: normalizeBannerUrl(document.getElementById('event-banner')?.value || ''),
-      description: document.getElementById('event-description').value.trim(),
-      registrationLink: document.getElementById('event-registration').value.trim(),
-      status: document.getElementById('event-status').value,
+      title,
+      wing,
+      semester,
+      dateISO,
+      deadlineISO,
+      venue,
+      bannerUrl: bannerUrl || '',
+      description,
+      registrationLink,
+      status: statusVal,
       createdAt: createdAt()
     };
 
@@ -1160,7 +1181,8 @@ const initAdmin = async () => {
       }
       event.target.reset();
       document.getElementById('event-id').value = '';
-      if (bannerSelect) bannerSelect.value = '';
+      if (bannerFileInput) bannerFileInput.value = '';
+      if (existingBannerUrlInput) existingBannerUrlInput.value = '';
       setBannerPreview('');
       await renderAdminEvents();
     } catch (error) {
@@ -1208,7 +1230,8 @@ const initAdmin = async () => {
   document.getElementById('admin-event-clear')?.addEventListener('click', () => {
     document.getElementById('admin-event-form')?.reset();
     document.getElementById('event-id').value = '';
-    if (bannerSelect) bannerSelect.value = '';
+    if (bannerFileInput) bannerFileInput.value = '';
+    if (existingBannerUrlInput) existingBannerUrlInput.value = '';
     setBannerPreview('');
   });
 

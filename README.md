@@ -70,14 +70,14 @@ Set Firebase config in:
 
 `events`
 - `title` (string)
-- `wing` (string: `acm` | `research` | `career`)
+- `wing` (string: `acm` | `research` | `career` | `development`)
 - `semester` (string)
 - `dateISO` (string, `YYYY-MM-DD`)
 - `deadlineISO` (string, `YYYY-MM-DD`)
 - `venue` (string)
 - `description` (string)
 - `registrationLink` (string)
-- `bannerUrl` (string, full image URL; new uploads are hosted on Cloudinary via admin panel)
+- `bannerUrl` (string, full image URL; when creating an event admins can either upload a file through the form or paste a Cloudinary link manually)
 - `status` (string: optional for UI split, because upcoming/past is computed from `dateISO`)
 - `createdAt` (timestamp)
 

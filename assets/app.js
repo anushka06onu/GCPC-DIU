@@ -925,10 +925,10 @@ const fillEventForm = async (id) => {
   document.getElementById('event-venue').value = data.venue || '';
   const normalizedBanner = normalizeBannerUrl(data.bannerUrl || '');
   const bannerPreview = document.getElementById('event-banner-preview');
-  const existingBannerUrlInputLocal = document.getElementById('event-banner-url');
+  const bannerUrlInputLocal = document.getElementById('eventBannerUrl');
   const bannerFileInputLocal = document.getElementById('eventBanner');
   // store existing banner url so submit logic can fall back to it
-  if (existingBannerUrlInputLocal) existingBannerUrlInputLocal.value = data.bannerUrl || '';
+  if (bannerUrlInputLocal) bannerUrlInputLocal.value = data.bannerUrl || '';
   if (bannerPreview) {
     bannerPreview.innerHTML = normalizedBanner
       ? `<img src="${escapeHtml(normalizedBanner)}" alt="Event banner preview" loading="lazy" onerror="this.outerHTML='<span>Banner file not found</span>'" />`
@@ -991,7 +991,7 @@ const initAdmin = async () => {
   const debugMode = new URLSearchParams(window.location.search).get('debug') === '1';
   const bannerPreview = document.getElementById('event-banner-preview');
   const bannerFileInput = document.getElementById('eventBanner');
-  const existingBannerUrlInput = document.getElementById('event-banner-url');
+  const bannerUrlInput = document.getElementById('eventBannerUrl');
   const certImageInput = document.getElementById('cert-image-url');
   const certImagePreview = document.getElementById('cert-image-preview');
 
@@ -1007,7 +1007,16 @@ const initAdmin = async () => {
 
   const setBannerPreview = (value) => {
     if (!bannerPreview) return;
-    // value may be a URL string or empty
+    // value may be a URL string, data URL, or empty
+    if (!value) {
+      bannerPreview.innerHTML = '<span>No banner selected</span>';
+      return;
+    }
+    // data URLs should be used directly
+    if (String(value).startsWith('data:')) {
+      bannerPreview.innerHTML = `<img src="${value}" alt="Event banner preview" loading="lazy" />`;
+      return;
+    }
     const normalized = normalizeBannerUrl(value);
     if (!normalized) {
       bannerPreview.innerHTML = '<span>No banner selected</span>';
@@ -1036,13 +1045,18 @@ const initAdmin = async () => {
         bannerPreview.innerHTML = `<img src="${reader.result}" alt="Event banner preview" loading="lazy" />`;
       };
       reader.readAsDataURL(file);
-      // clear hidden url since a new upload will replace it
-      if (existingBannerUrlInput) existingBannerUrlInput.value = '';
+      // clear manual URL since a new upload will replace it
+      if (bannerUrlInput) bannerUrlInput.value = '';
     } else {
-      // no file selected, revert to existing URL if any
-      if (existingBannerUrlInput) setBannerPreview(existingBannerUrlInput.value);
+      // no file selected, show whatever URL was entered
+      if (bannerUrlInput) setBannerPreview(bannerUrlInput.value);
     }
   });
+
+  bannerUrlInput?.addEventListener('input', () => {
+    setBannerPreview(bannerUrlInput.value);
+  });
+
   certImageInput?.addEventListener('input', () => {
     validateCertImagePath(certImageInput);
     setCertImagePreview(certImageInput.value);
@@ -1139,8 +1153,8 @@ const initAdmin = async () => {
     const registrationLink = document.getElementById('event-registration').value.trim();
     const statusVal = document.getElementById('event-status').value;
 
-    // determine banner URL: use existing hidden value unless a new file was selected
-    let bannerUrl = existingBannerUrlInput?.value || '';
+    // determine banner URL: manual URL field or file upload
+    let bannerUrl = bannerUrlInput?.value.trim() || '';
     const bannerFile = bannerFileInput?.files[0];
     if (bannerFile) {
       try {
@@ -1182,7 +1196,7 @@ const initAdmin = async () => {
       event.target.reset();
       document.getElementById('event-id').value = '';
       if (bannerFileInput) bannerFileInput.value = '';
-      if (existingBannerUrlInput) existingBannerUrlInput.value = '';
+      if (bannerUrlInput) bannerUrlInput.value = '';
       setBannerPreview('');
       await renderAdminEvents();
     } catch (error) {
@@ -1231,7 +1245,7 @@ const initAdmin = async () => {
     document.getElementById('admin-event-form')?.reset();
     document.getElementById('event-id').value = '';
     if (bannerFileInput) bannerFileInput.value = '';
-    if (existingBannerUrlInput) existingBannerUrlInput.value = '';
+    if (bannerUrlInput) bannerUrlInput.value = '';
     setBannerPreview('');
   });
 

@@ -104,7 +104,11 @@
                     <input type="file" id="eventBanner" accept="image/jpeg,image/png,image/webp" />
                     <p class="helper">Upload a JPG/PNG/WEBP banner. Preview appears below.</p>
                   </div>
-                  <input type="hidden" id="event-banner-url" />
+                  <div class="field full">
+                    <label for="eventBannerUrl">Or paste Cloudinary link</label>
+                    <input type="url" id="eventBannerUrl" placeholder="https://res.cloudinary.com/…/image/upload/v12345/…" />
+                    <p class="helper">If you already uploaded the image manually to Cloudinary, paste its secure URL here.</p>
+                  </div>
                   <div class="field full">
                     <p class="helper">Banner preview</p>
                     <div class="event-banner-preview" id="event-banner-preview">

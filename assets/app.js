@@ -1056,6 +1056,8 @@ const initAdmin = async () => {
   });
 
   bannerUrlInput?.addEventListener('input', () => {
+    // clear any selected file so the URL is used instead
+    if (bannerFileInput) bannerFileInput.value = '';
     setBannerPreview(bannerUrlInput.value);
   });
 
@@ -1155,10 +1157,10 @@ const initAdmin = async () => {
     const registrationLink = document.getElementById('event-registration').value.trim();
     const statusVal = document.getElementById('event-status').value;
 
-    // determine banner URL: manual URL field or file upload
+    // determine banner URL: manual URL field takes precedence; otherwise file upload
     let bannerUrl = bannerUrlInput?.value.trim() || '';
     const bannerFile = bannerFileInput?.files[0];
-    if (bannerFile) {
+    if (!bannerUrl && bannerFile) {
       try {
         bannerUrl = await uploadImage(bannerFile);
       } catch (err) {

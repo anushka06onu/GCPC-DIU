@@ -95,9 +95,18 @@
                     <div class="field"><label for="event-wing">Wing</label><select id="event-wing"><option value="acm">ACM</option><option value="research">Research</option><option value="career">Career & PR</option><option value="development">Development</option></select></div>
                   <div class="field"><label for="event-semester">Semester</label><input id="event-semester" type="text" /></div>
                   <div class="field"><label for="event-status">Status</label><select id="event-status"><option value="UPCOMING">UPCOMING</option><option value="ONGOING">ONGOING</option><option value="COMPLETED">COMPLETED</option></select></div>
-                  <div class="field"><label for="event-date">Date</label><input id="event-date" type="date" /></div>
-                  <div class="field"><label for="event-deadline">Deadline</label><input id="event-deadline" type="date" /></div>
+                  <div class="field"><label for="event-type">Format</label>
+                    <select id="event-type">
+                      <option value="workshop">Workshop</option>
+                      <option value="seminar">Seminar</option>
+                      <option value="contest">Contest</option>
+                      <option value="meetup">Meetup</option>
+                    </select>
+                  </div>
+                  <div class="field"><label for="event-date">Start Date</label><input id="event-date" type="date" /></div>
+                  <div class="field"><label for="event-deadline">End Date</label><input id="event-deadline" type="date" /></div>
                   <div class="field full"><label for="event-venue">Venue</label><input id="event-venue" type="text" /></div>
+                  <div class="field full"><label for="event-instructor">Instructor / Facilitator</label><input id="event-instructor" type="text" placeholder="Name, designation" /></div>
                   <!-- event banner upload (Cloudinary) -->
                   <div class="field full">
                     <label for="eventBanner">Event Banner</label>

@@ -31,6 +31,55 @@ const FIXED_SEMESTERS = [
   'Fall 2026'
 ];
 
+const DEFAULT_SUCCESS_STORIES = [
+  {
+    src: 'images/success-stories/story1.jpg',
+    caption: 'Anika Rahman — Software Engineer, Brain Station 23'
+  },
+  {
+    src: 'images/success-stories/story2.jpg',
+    caption: 'Sadia Amin — Research Associate, DIU Advanced Lab'
+  },
+  {
+    src: 'images/success-stories/story3.jpg',
+    caption: 'Maisha Khan — Product Designer, RiseUp Tech'
+  },
+  {
+    src: 'images/success-stories/story4.jpg',
+    caption: 'Tasnia Ahmed — National ICT Award Winner'
+  },
+  {
+    src: 'images/success-stories/story5.jpg',
+    caption: 'Farhana Rahim — Community Lead, Women in Tech'
+  }
+];
+
+const STORY_PLACEHOLDER = 'gcpc-logo.png';
+
+const EVENT_TYPE_LABELS = {
+  workshop: 'Workshop',
+  seminar: 'Seminar',
+  contest: 'Contest',
+  meetup: 'Meetup'
+};
+
+const formatEventTypeLabel = (value) => {
+  const key = String(value || '').toLowerCase();
+  if (EVENT_TYPE_LABELS[key]) return EVENT_TYPE_LABELS[key];
+  if (!value) return 'Program';
+  return String(value);
+};
+
+const preloadImages = (sources = []) => {
+  const seen = new Set();
+  sources.forEach((src) => {
+    if (!src || seen.has(src)) return;
+    seen.add(src);
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = src;
+  });
+};
 
 const escapeHtml = (value) => String(value ?? '')
   .replaceAll('&', '&amp;')
@@ -252,6 +301,75 @@ const initSimpleSlides = () => {
   });
 };
 
+const readStoredSuccessStories = () => {
+  if (typeof localStorage === 'undefined') return [];
+  try {
+    const saved = JSON.parse(localStorage.getItem('successStories') || '[]');
+    if (!Array.isArray(saved)) return [];
+    return saved
+      .filter((src) => typeof src === 'string' && src.trim().length > 0)
+      .slice(0, 5)
+      .map((src) => ({ src }));
+  } catch (error) {
+    console.warn('[Success Stories] Could not parse stored data', error);
+    return [];
+  }
+};
+
+const buildSuccessStoryList = () => {
+  const stored = readStoredSuccessStories();
+  if (stored.length >= 5) return stored.slice(0, 5);
+
+  const list = [...stored];
+  DEFAULT_SUCCESS_STORIES.forEach((story) => {
+    if (list.length < 5) list.push(story);
+  });
+
+  return list.slice(0, 5);
+};
+
+const initSuccessStories = () => {
+  const grid = document.getElementById('success-stories-grid');
+  if (!grid) return;
+
+  const stories = buildSuccessStoryList();
+  if (!stories.length) {
+    grid.innerHTML = '<p class="vertical-empty">Add success stories from the admin panel to display them here.</p>';
+    return;
+  }
+
+  grid.innerHTML = stories.map((story, idx) => {
+    const caption = story.caption && story.caption.trim() ? story.caption.trim() : '';
+    const captionHtml = caption
+      ? `<div class="overlay-caption">${escapeHtml(caption)}</div>`
+      : '';
+    return `
+      <article class="poster-card">
+        <div class="poster-frame">
+          <img
+            class="success-poster"
+            src="${escapeHtml(story.src)}"
+            alt="${escapeHtml(caption || `GCPC success story poster ${idx + 1}`)}"
+            loading="lazy"
+            data-story-index="${idx}"
+          />
+          ${captionHtml}
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  grid.querySelectorAll('.success-poster').forEach((img) => {
+    img.addEventListener('error', () => {
+      if (img.dataset.fallback === '1') return;
+      img.dataset.fallback = '1';
+      img.src = STORY_PLACEHOLDER;
+    });
+  });
+
+  preloadImages(stories.map((story) => story.src));
+};
+
 const fetchAllEvents = async () => {
   const snap = await getDocs(collection(db, 'events'));
   return snap.docs
@@ -292,7 +410,7 @@ const renderTicker = (events) => {
   }
 
   const row = events.map((event) => {
-    const txt = `${event.title} | ${event.semester || 'GCPC'} | Deadline: ${formatDate(event.deadlineISO)}`;
+    const txt = `${event.title} | ${event.semester || 'GCPC'} | ${formatEventTypeLabel(event.eventType)} | ${formatDate(event.dateISO)} → ${formatDate(event.deadlineISO)}`;
     return `<a class="ticker-item" href="event.html?id=${encodeURIComponent(event.id)}">${escapeHtml(txt)}</a>`;
   }).join('');
 
@@ -316,8 +434,10 @@ const buildWingCards = (containerId, events) => {
         ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
         <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
         <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
-        <p class="meta">Date: ${escapeHtml(formatDate(event.dateISO))}</p>
-        <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+        <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
+        <p class="meta">Starts: ${escapeHtml(formatDate(event.dateISO))}</p>
+        <p class="meta">Ends: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+        ${event.instructor ? `<p class="meta">Instructor: ${escapeHtml(event.instructor)}</p>` : ''}
       </a>
     `;
     return;
@@ -329,8 +449,10 @@ const buildWingCards = (containerId, events) => {
       ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
       <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
       <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
-      <p class="meta">Date: ${escapeHtml(formatDate(event.dateISO))}</p>
-      <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+      <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
+      <p class="meta">Starts: ${escapeHtml(formatDate(event.dateISO))}</p>
+      <p class="meta">Ends: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+      ${event.instructor ? `<p class="meta">Instructor: ${escapeHtml(event.instructor)}</p>` : ''}
     </a>
   `).join('');
 
@@ -397,8 +519,10 @@ const renderEventCollection = (hostId, events, emptyText) => {
       <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
       <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
       <p>${escapeHtml(event.description || 'Event details coming soon.')}</p>
-      <p class="meta">Date: ${escapeHtml(formatDate(event.dateISO))}</p>
-      <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+      <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
+      <p class="meta">Starts: ${escapeHtml(formatDate(event.dateISO))}</p>
+      <p class="meta">Ends: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+      ${event.instructor ? `<p class="meta">Instructor: ${escapeHtml(event.instructor)}</p>` : ''}
       <p class="meta">Venue: ${escapeHtml(event.venue || 'TBA')}</p>
     </a>
   `).join('');
@@ -735,9 +859,11 @@ const initEventPage = async () => {
         <span class="badge">${escapeHtml(e.semester || 'GCPC')}</span>
         <h2>${escapeHtml(e.title || 'Untitled Event')}</h2>
         <p>${escapeHtml(e.description || 'No description provided.')}</p>
-        <p><strong>Date:</strong> ${escapeHtml(formatDate(e.dateISO))}</p>
-        <p><strong>Deadline:</strong> ${escapeHtml(formatDate(e.deadlineISO))}</p>
+        <p><strong>Format:</strong> ${escapeHtml(formatEventTypeLabel(e.eventType))}</p>
+        <p><strong>Starts:</strong> ${escapeHtml(formatDate(e.dateISO))}</p>
+        <p><strong>Ends:</strong> ${escapeHtml(formatDate(e.deadlineISO))}</p>
         <p><strong>Venue:</strong> ${escapeHtml(e.venue || 'TBA')}</p>
+        ${e.instructor ? `<p><strong>Instructor:</strong> ${escapeHtml(e.instructor)}</p>` : ''}
         <p><strong>Status:</strong> ${escapeHtml(e.status || 'N/A')}</p>
         ${e.registrationLink ? `<a class="btn btn-primary" href="${escapeHtml(e.registrationLink)}" target="_blank" rel="noopener noreferrer">Registration Link</a>` : ''}
       </article>
@@ -772,7 +898,10 @@ const initWingPage = async () => {
         <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
         <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
         <p>${escapeHtml(event.description || 'Event details coming soon.')}</p>
-        <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+        <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
+        <p class="meta">Starts: ${escapeHtml(formatDate(event.dateISO))}</p>
+        <p class="meta">Ends: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+        ${event.instructor ? `<p class="meta">Instructor: ${escapeHtml(event.instructor)}</p>` : ''}
       </a>
     `).join('');
   } catch (error) {
@@ -817,13 +946,15 @@ const renderAdminEvents = async () => {
   wrap.innerHTML = `
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Title</th><th>Wing</th><th>Semester</th><th>Deadline</th><th>Status</th><th>Action</th></tr></thead>
+        <thead><tr><th>Title</th><th>Wing</th><th>Semester</th><th>Format</th><th>Start</th><th>End</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>
           ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(row.title || '')}</td>
               <td>${escapeHtml(row.wing || normalizeWing(row))}</td>
               <td>${escapeHtml(row.semester || '')}</td>
+              <td>${escapeHtml(formatEventTypeLabel(row.eventType))}</td>
+              <td>${escapeHtml(formatDate(row.dateISO))}</td>
               <td>${escapeHtml(formatDate(row.deadlineISO))}</td>
               <td>${escapeHtml(row.status || '')}</td>
               <td>
@@ -983,9 +1114,11 @@ const fillEventForm = async (id) => {
   document.getElementById('event-title').value = data.title || '';
   document.getElementById('event-wing').value = data.wing || normalizeWing(data);
   document.getElementById('event-semester').value = data.semester || '';
+  document.getElementById('event-type').value = data.eventType || 'workshop';
   document.getElementById('event-date').value = formatDate(data.dateISO) === 'TBA' ? '' : formatDate(data.dateISO);
   document.getElementById('event-deadline').value = formatDate(data.deadlineISO) === 'TBA' ? '' : formatDate(data.deadlineISO);
   document.getElementById('event-venue').value = data.venue || '';
+  document.getElementById('event-instructor').value = data.instructor || '';
   const normalizedBanner = normalizeBannerUrl(data.bannerUrl || '');
   const bannerPreview = document.getElementById('event-banner-preview');
   const bannerUrlInputLocal = document.getElementById('eventBannerUrl');
@@ -1211,9 +1344,11 @@ const initAdmin = async () => {
     const title = document.getElementById('event-title').value.trim();
     const wing = document.getElementById('event-wing').value;
     const semester = document.getElementById('event-semester').value.trim();
+    const eventType = document.getElementById('event-type').value;
     const dateISO = document.getElementById('event-date').value;
     const deadlineISO = document.getElementById('event-deadline').value;
     const venue = document.getElementById('event-venue').value.trim();
+    const instructor = document.getElementById('event-instructor').value.trim();
     const description = document.getElementById('event-description').value.trim();
     const registrationLink = document.getElementById('event-registration').value.trim();
     const statusVal = document.getElementById('event-status').value;
@@ -1235,9 +1370,11 @@ const initAdmin = async () => {
       title,
       wing,
       semester,
+      eventType,
       dateISO,
       deadlineISO,
       venue,
+      instructor,
       bannerUrl: bannerUrl || '',
       description,
       registrationLink,
@@ -1457,7 +1594,10 @@ const initPage = async () => {
   });
 
   const page = document.body.dataset.page;
-  if (page === 'home') await initHome();
+  if (page === 'home') {
+    await initHome();
+    initSuccessStories();
+  }
   if (page === 'join') await initJoin();
   if (page === 'verify') initVerify();
   if (page === 'event') await initEventPage();

@@ -152,7 +152,7 @@ const resolveEventBannerUrl = (event) => {
 
 const normalizeWing = (event) => {
   const explicit = String(event.wing || '').toLowerCase();
-  if (['acm', 'research', 'career'].includes(explicit)) return explicit;
+  if (['acm', 'research', 'career', 'development'].includes(explicit)) return explicit;
 
   const text = `${event.title || ''} ${event.description || ''}`.toLowerCase();
   if (text.includes('research')) return 'research';

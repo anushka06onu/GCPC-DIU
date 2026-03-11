@@ -308,21 +308,66 @@ const buildWingCards = (containerId, events) => {
     return;
   }
 
-  const visible = events.slice(0, 2);
+  // Build horizontal carousel for all events
+  const eventCards = events.map((event) => `
+    <a class="card gcpc-card interactive-card wing-event-item" href="event.html?id=${encodeURIComponent(event.id)}">
+      ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
+      <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
+      <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
+      <p class="meta">Date: ${escapeHtml(formatDate(event.dateISO))}</p>
+      <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+    </a>
+  `).join('');
+
   container.innerHTML = `
-    <div class="wing-event-list">
-      ${visible.map((event) => `
-        <a class="card gcpc-card interactive-card wing-event-item" href="event.html?id=${encodeURIComponent(event.id)}">
-          ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
-          <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
-          <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
-          <p class="meta">Date: ${escapeHtml(formatDate(event.dateISO))}</p>
-          <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
-        </a>
-      `).join('')}
+    <div class="wing-carousel-wrapper">
+      <button class="carousel-arrow carousel-prev" type="button">&#10094;</button>
+      <div class="wing-carousel-track">
+        ${eventCards}
+      </div>
+      <button class="carousel-arrow carousel-next" type="button">&#10095;</button>
     </div>
-    ${events.length > 2 ? `<a class="wing-view-all" href="wing-${normalizeWing(events[0])}.html">View all ${events.length} activities</a>` : ''}
   `;
+
+  // Attach carousel logic
+  const track = container.querySelector('.wing-carousel-track');
+  const prevBtn = container.querySelector('.carousel-prev');
+  const nextBtn = container.querySelector('.carousel-next');
+
+  if (track && prevBtn && nextBtn) {
+    let scrollPos = 0;
+    const cardWidth = 320; // width of each event card + gap
+    const autoScrollInterval = 5000; // ms between auto-scrolls
+    const scrollAmount = cardWidth;
+
+    const scrollToPos = () => {
+      track.style.scrollBehavior = 'smooth';
+      track.scrollLeft = scrollPos;
+    };
+
+    const scrollRight = () => {
+      scrollPos += scrollAmount;
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      if (scrollPos > maxScroll) scrollPos = 0; // wrap around
+      scrollToPos();
+    };
+
+    const scrollLeft = () => {
+      scrollPos -= scrollAmount;
+      if (scrollPos < 0) scrollPos = track.scrollWidth - track.clientWidth; // wrap backward
+      scrollToPos();
+    };
+
+    prevBtn.addEventListener('click', scrollLeft);
+    nextBtn.addEventListener('click', scrollRight);
+
+    // Auto-scroll
+    let autoScroll = setInterval(scrollRight, autoScrollInterval);
+    track.addEventListener('mouseenter', () => clearInterval(autoScroll));
+    track.addEventListener('mouseleave', () => {
+      autoScroll = setInterval(scrollRight, autoScrollInterval);
+    });
+  }
 };
 
 const renderEventCollection = (hostId, events, emptyText) => {

@@ -455,6 +455,8 @@ p { margin: 0; }
 .past-list h4 { font-size: 1.06rem; }
 .past-list p { color: var(--muted); }
 .impact { font-weight: 700; color: var(--navy); }
+.past-list p { color: var(--muted); }
+.impact { font-weight: 700; color: var(--navy); }
 
 .gallery { background: linear-gradient(130deg, rgba(15, 47, 141, 0.03), rgba(14, 164, 93, 0.03)); }
 .gallery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; }

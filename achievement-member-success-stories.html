@@ -14,44 +14,171 @@
       <p>GCPC members secured internships, team lead roles, and project opportunities through consistent participation in training, events, and collaborative projects.</p>
       <p>The club environment helps members grow both technically and professionally.</p>
       <!-- success stories slideshow, populated from admin uploads -->
-      <section class="top-gap-lg">
-        <h2 class="reveal">Alumni Success Stories</h2>
-        <div id="stories-slideshow" class="slide-frame top-gap-sm">
-          <!-- slides injected by script -->
+      <section class="section top-gap-lg" id="success-stories">
+        <h2 class="reveal">Member Success Stories</h2>
+        <div class="committee-wrap top-gap">
+          <article class="card gcpc-card reveal" data-slideshow id="story-card-1">
+            <h3>Success Story 1</h3>
+            <div class="slide-frame top-gap-sm">
+              <!-- slides injected by script -->
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <span class="slide-indicators"></span>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+
+          <article class="card gcpc-card reveal" data-slideshow id="story-card-2">
+            <h3>Success Story 2</h3>
+            <div class="slide-frame top-gap-sm">
+              <!-- slides injected by script -->
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <span class="slide-indicators"></span>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+
+          <article class="card gcpc-card reveal" data-slideshow id="story-card-3">
+            <h3>Success Story 3</h3>
+            <div class="slide-frame top-gap-sm">
+              <!-- slides injected by script -->
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <span class="slide-indicators"></span>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+
+          <article class="card gcpc-card reveal" data-slideshow id="story-card-4">
+            <h3>Success Story 4</h3>
+            <div class="slide-frame top-gap-sm">
+              <!-- slides injected by script -->
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <span class="slide-indicators"></span>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+
+          <article class="card gcpc-card reveal" data-slideshow id="story-card-5">
+            <h3>Success Story 5</h3>
+            <div class="slide-frame top-gap-sm">
+              <!-- slides injected by script -->
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <span class="slide-indicators"></span>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
         </div>
-        <div class="slide-controls" id="stories-controls"></div>
       </section>
       <p><a href="index.html#achievements" class="btn btn-main">Back to Achievements</a></p>
     </div>
   </main>
 
   <script>
-    // load stored success story image URLs and build slideshow
+    // Load stored success story image URLs and distribute across 5 cards
     const stored = JSON.parse(localStorage.getItem('successStories') || '[]');
-    const slideshow = document.getElementById('stories-slideshow');
-    const controls = document.getElementById('stories-controls');
-    if (slideshow && controls) {
-      stored.forEach((url, i) => {
-        const slide = document.createElement('div');
-        slide.className = 'slide';
-        if (i === 0) slide.classList.add('active');
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = `Success story ${i+1}`;
-        slide.appendChild(img);
-        slideshow.appendChild(slide);
-        const dot = document.createElement('button');
-        dot.className = i === 0 ? 'slide-dot active' : 'slide-dot';
-        dot.type = 'button';
-        dot.textContent = i+1;
-        dot.addEventListener('click', () => {
-          document.querySelectorAll('#stories-slideshow .slide').forEach(s => s.classList.remove('active'));
-          document.querySelectorAll('#stories-controls .slide-dot').forEach(d => d.classList.remove('active'));
-          slide.classList.add('active');
-          dot.classList.add('active');
+    
+    if (stored.length > 0) {
+      // Distribute images: each card gets one image or cycles through them
+      for (let cardNum = 1; cardNum <= 5; cardNum++) {
+        const cardId = `story-card-${cardNum}`;
+        const card = document.getElementById(cardId);
+        if (!card) continue;
+        
+        const slideFrame = card.querySelector('.slide-frame');
+        const indicators = card.querySelector('.slide-indicators');
+        const prevBtn = card.querySelector('.slide-btn.prev');
+        const nextBtn = card.querySelector('.slide-btn.next');
+        
+        if (!slideFrame) continue;
+        
+        // Get images for this card (cycle through stored images)
+        const cardImages = [];
+        for (let i = cardNum - 1; i < stored.length; i += 5) {
+          cardImages.push(stored[i]);
+        }
+        
+        // If card has no images, skip
+        if (cardImages.length === 0) continue;
+        
+        let currentIndex = 0;
+        let autoSlide;
+
+        // Create slides
+        cardImages.forEach((url, i) => {
+          const slide = document.createElement('div');
+          slide.className = i === 0 ? 'slide active' : 'slide';
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = `Success story ${cardNum}-${i+1}`;
+          slide.appendChild(img);
+          slideFrame.appendChild(slide);
         });
-        controls.appendChild(dot);
-      });
+
+        // Create dot indicators
+        if (indicators && cardImages.length > 1) {
+          cardImages.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = i === 0 ? 'slide-dot active' : 'slide-dot';
+            dot.type = 'button';
+            dot.textContent = i + 1;
+            dot.addEventListener('click', () => goToSlide(i));
+            indicators.appendChild(dot);
+          });
+        }
+
+        // Go to specific slide
+        const goToSlide = (index) => {
+          const slides = slideFrame.querySelectorAll('.slide');
+          if (slides.length === 0) return;
+          
+          currentIndex = (index + slides.length) % slides.length;
+          
+          // Update slides
+          slides.forEach((s, i) => s.classList.toggle('active', i === currentIndex));
+          
+          // Update dots
+          indicators?.querySelectorAll('.slide-dot').forEach((d, i) => {
+            d.classList.toggle('active', i === currentIndex);
+          });
+        };
+
+        // Navigate with arrows
+        if (prevBtn) {
+          prevBtn.addEventListener('click', () => {
+            clearInterval(autoSlide);
+            goToSlide(currentIndex - 1);
+            autoSlide = setInterval(() => goToSlide(currentIndex + 1), 5000);
+          });
+        }
+
+        if (nextBtn) {
+          nextBtn.addEventListener('click', () => {
+            clearInterval(autoSlide);
+            goToSlide(currentIndex + 1);
+            autoSlide = setInterval(() => goToSlide(currentIndex + 1), 5000);
+          });
+        }
+
+        // Auto-advance every 5 seconds
+        if (cardImages.length > 1) {
+          autoSlide = setInterval(() => goToSlide(currentIndex + 1), 5000);
+
+          // Pause on hover
+          slideFrame.addEventListener('mouseenter', () => clearInterval(autoSlide));
+          slideFrame.addEventListener('mouseleave', () => {
+            autoSlide = setInterval(() => goToSlide(currentIndex + 1), 5000);
+          });
+        }
+      }
     }
   </script>
 </body>

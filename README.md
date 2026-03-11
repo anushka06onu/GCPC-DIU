@@ -77,7 +77,7 @@ Set Firebase config in:
 - `venue` (string)
 - `description` (string)
 - `registrationLink` (string)
-- `bannerUrl` (string, relative path like `/images/events/workshop1.jpg`)
+- `bannerUrl` (string, full image URL; new uploads are hosted on Cloudinary via admin panel)
 - `status` (string: optional for UI split, because upcoming/past is computed from `dateISO`)
 - `createdAt` (timestamp)
 

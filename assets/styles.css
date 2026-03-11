@@ -504,6 +504,14 @@ p { margin: 0; line-height: 1.62; }
   object-fit: cover;
 }
 
+/* new class for banner images, used on event cards and previews */
+.event-banner {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
 .event-banner-placeholder {
   width: 100%;
   min-height: 120px;

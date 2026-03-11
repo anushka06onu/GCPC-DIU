@@ -308,7 +308,22 @@ const buildWingCards = (containerId, events) => {
     return;
   }
 
-  // Build horizontal carousel for all events
+  // For single event, just show it
+  if (events.length === 1) {
+    const event = events[0];
+    container.innerHTML = `
+      <a class="card gcpc-card interactive-card wing-event-item" href="event.html?id=${encodeURIComponent(event.id)}">
+        ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
+        <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
+        <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
+        <p class="meta">Date: ${escapeHtml(formatDate(event.dateISO))}</p>
+        <p class="meta">Deadline: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+      </a>
+    `;
+    return;
+  }
+
+  // For multiple events, create horizontal carousel inside the card
   const eventCards = events.map((event) => `
     <a class="card gcpc-card interactive-card wing-event-item" href="event.html?id=${encodeURIComponent(event.id)}">
       ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
@@ -320,53 +335,51 @@ const buildWingCards = (containerId, events) => {
   `).join('');
 
   container.innerHTML = `
-    <div class="wing-carousel-wrapper">
-      <button class="carousel-arrow carousel-prev" type="button">&#10094;</button>
+    <div class="wing-carousel-container">
+      <button class="carousel-arrow carousel-prev" type="button" aria-label="Previous">&#10094;</button>
       <div class="wing-carousel-track">
         ${eventCards}
       </div>
-      <button class="carousel-arrow carousel-next" type="button">&#10095;</button>
+      <button class="carousel-arrow carousel-next" type="button" aria-label="Next">&#10095;</button>
     </div>
   `;
 
-  // Attach carousel logic
+  // Carousel logic
   const track = container.querySelector('.wing-carousel-track');
   const prevBtn = container.querySelector('.carousel-prev');
   const nextBtn = container.querySelector('.carousel-next');
 
   if (track && prevBtn && nextBtn) {
-    let scrollPos = 0;
-    const cardWidth = 320; // width of each event card + gap
-    const autoScrollInterval = 5000; // ms between auto-scrolls
-    const scrollAmount = cardWidth;
+    let currentIndex = 0;
+    const autoScrollInterval = 5000;
 
-    const scrollToPos = () => {
-      track.style.scrollBehavior = 'smooth';
-      track.scrollLeft = scrollPos;
+    const showSlide = (index) => {
+      const items = track.querySelectorAll('.wing-event-item');
+      if (items.length === 0) return;
+      
+      currentIndex = (index + items.length) % items.length;
+      const offset = -currentIndex * (300 + 16); // card width (300px) + gap (16px)
+      track.style.transform = `translateX(${offset}px)`;
     };
 
-    const scrollRight = () => {
-      scrollPos += scrollAmount;
-      const maxScroll = track.scrollWidth - track.clientWidth;
-      if (scrollPos > maxScroll) scrollPos = 0; // wrap around
-      scrollToPos();
-    };
+    prevBtn.addEventListener('click', () => {
+      clearInterval(autoScroll);
+      showSlide(currentIndex - 1);
+      autoScroll = setInterval(() => showSlide(currentIndex + 1), autoScrollInterval);
+    });
 
-    const scrollLeft = () => {
-      scrollPos -= scrollAmount;
-      if (scrollPos < 0) scrollPos = track.scrollWidth - track.clientWidth; // wrap backward
-      scrollToPos();
-    };
+    nextBtn.addEventListener('click', () => {
+      clearInterval(autoScroll);
+      showSlide(currentIndex + 1);
+      autoScroll = setInterval(() => showSlide(currentIndex + 1), autoScrollInterval);
+    });
 
-    prevBtn.addEventListener('click', scrollLeft);
-    nextBtn.addEventListener('click', scrollRight);
-
-    // Auto-scroll
-    let autoScroll = setInterval(scrollRight, autoScrollInterval);
     track.addEventListener('mouseenter', () => clearInterval(autoScroll));
     track.addEventListener('mouseleave', () => {
-      autoScroll = setInterval(scrollRight, autoScrollInterval);
+      autoScroll = setInterval(() => showSlide(currentIndex + 1), autoScrollInterval);
     });
+
+    let autoScroll = setInterval(() => showSlide(currentIndex + 1), autoScrollInterval);
   }
 };
 

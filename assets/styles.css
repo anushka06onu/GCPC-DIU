@@ -173,7 +173,7 @@ p { margin: 0; line-height: 1.62; }
 }
 
 .hero-bg-slide.active { opacity: 1; }
-.hero-bg-1 { background-image: url('../meet.jpg'); }
+.hero-bg-1 { background-image: url('../gcpc committe handover.JPG'); }
 .hero-bg-2 { background-image: url('../work1.jpg'); }
 .hero-bg-3 { background-image: url('../seminar1.jpg'); }
 .hero-bg-4 { background-image: url('../visit.jpg'); }
@@ -266,6 +266,7 @@ p { margin: 0; line-height: 1.62; }
 @keyframes shimmer { from { background-position: 200% 0;} to { background-position: -200% 0;} }
 
 .grid-3 { display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:1rem; }
+.grid-4 { display:grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap:1rem; }
 .grid-2 { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:1rem; }
 .event-grid { display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:1rem; }
 
@@ -393,7 +394,8 @@ p { margin: 0; line-height: 1.62; }
 .slide img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: #fff;
 }
 
 .slide.empty {
@@ -872,6 +874,7 @@ th { background:#f6f9ff; color:#1f478f; }
 
 @media (max-width: 1020px) {
   .grid-3,
+  .grid-4,
   .event-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -934,6 +937,7 @@ th { background:#f6f9ff; color:#1f478f; }
 
 @media (max-width: 640px) {
   .grid-3,
+  .grid-4,
   .grid-2,
   .event-grid {
     grid-template-columns: 1fr;

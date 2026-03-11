@@ -1053,6 +1053,34 @@ const initAdmin = async () => {
   setBannerPreview('');
   setCertImagePreview('');
 
+  // success stories upload handling
+  const loadStories = () => JSON.parse(localStorage.getItem('successStories') || '[]');
+  const saveStories = (arr) => localStorage.setItem('successStories', JSON.stringify(arr));
+  const storyInputs = [1,2,3,4,5].map(i => document.getElementById(`story-file-${i}`));
+  const gatherAndStore = () => {
+    const urls = [];
+    storyInputs.forEach(input => {
+      if (input && input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = evt => {
+          urls.push(evt.target.result);
+          if (urls.length === storyInputs.filter(i=>i&&i.files&&i.files[0]).length) {
+            saveStories(urls);
+            showToast('Success stories saved');
+          }
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    });
+    if (urls.length === 0) { saveStories([]); showToast('Cleared success stories'); }
+  };
+  document.getElementById('save-stories')?.addEventListener('click', gatherAndStore);
+  document.getElementById('clear-stories')?.addEventListener('click', () => {
+    storyInputs.forEach(i=>{ if(i) i.value=''; });
+    saveStories([]);
+    showToast('Cleared success stories');
+  });
+
   // Start in a strict loading state until onAuthStateChanged resolves.
   loadingShell.classList.remove('hidden');
   loginShell.classList.add('hidden');

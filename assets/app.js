@@ -415,10 +415,12 @@ const initHome = async () => {
     const acmEvents = upcoming.filter((event) => normalizeWing(event) === 'acm');
     const researchEvents = upcoming.filter((event) => normalizeWing(event) === 'research');
     const careerEvents = upcoming.filter((event) => normalizeWing(event) === 'career');
+    const developmentEvents = upcoming.filter((event) => normalizeWing(event) === 'development');
 
     buildWingCards('acm-activity-slider', acmEvents);
     buildWingCards('research-activity-slider', researchEvents);
     buildWingCards('career-activity-slider', careerEvents);
+    buildWingCards('development-activity-slider', developmentEvents);
 
     const pastEl = $('#past-events-grid');
     const upEl = $('#upcoming-events-grid');
@@ -430,6 +432,7 @@ const initHome = async () => {
     buildWingCards('acm-activity-slider', []);
     buildWingCards('research-activity-slider', []);
     buildWingCards('career-activity-slider', []);
+    buildWingCards('development-activity-slider', []);
     renderEventCollection('upcoming-events-grid', [], 'No upcoming activities yet.');
     renderEventCollection('past-events-grid', [], 'No past events available yet.');
     showToast('Could not load upcoming events.', 'error');

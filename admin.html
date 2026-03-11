@@ -81,6 +81,7 @@
           <button class="tab-btn" data-tab="pane-certificates" type="button">Certificates</button>
           <button class="tab-btn" data-tab="pane-memberships" type="button">Memberships</button>
           <button class="tab-btn" data-tab="pane-messages" type="button">Messages</button>
+            <button class="tab-btn" data-tab="pane-stories" type="button">Success Stories</button>
         </div>
 
         <div id="pane-events" class="admin-pane top-gap">
@@ -170,6 +171,38 @@
 
         <div id="pane-messages" class="admin-pane top-gap hidden">
           <article id="messages-table-wrap" class="card skeleton-card"></article>
+        </div>
+        <div id="pane-stories" class="admin-pane top-gap hidden">
+          <article class="form-shell">
+            <h3>Upload Success Story Images</h3>
+            <p class="helper">Choose up to five alumni photos. These will show on the Member Success Stories page.</p>
+            <div class="field-grid">
+              <div class="field">
+                <label>Photo 1</label>
+                <input type="file" accept="image/*" id="story-file-1" />
+              </div>
+              <div class="field">
+                <label>Photo 2</label>
+                <input type="file" accept="image/*" id="story-file-2" />
+              </div>
+              <div class="field">
+                <label>Photo 3</label>
+                <input type="file" accept="image/*" id="story-file-3" />
+              </div>
+              <div class="field">
+                <label>Photo 4</label>
+                <input type="file" accept="image/*" id="story-file-4" />
+              </div>
+              <div class="field">
+                <label>Photo 5</label>
+                <input type="file" accept="image/*" id="story-file-5" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button id="save-stories" class="btn btn-primary" type="button">Save</button>
+              <button id="clear-stories" class="btn btn-soft" type="button">Clear</button>
+            </div>
+          </article>
         </div>
       </section>
     </div>

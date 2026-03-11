@@ -13,8 +13,46 @@
       <h1>Member Success Stories</h1>
       <p>GCPC members secured internships, team lead roles, and project opportunities through consistent participation in training, events, and collaborative projects.</p>
       <p>The club environment helps members grow both technically and professionally.</p>
+      <!-- success stories slideshow, populated from admin uploads -->
+      <section class="top-gap-lg">
+        <h2 class="reveal">Alumni Success Stories</h2>
+        <div id="stories-slideshow" class="slide-frame top-gap-sm">
+          <!-- slides injected by script -->
+        </div>
+        <div class="slide-controls" id="stories-controls"></div>
+      </section>
       <p><a href="index.html#achievements" class="btn btn-main">Back to Achievements</a></p>
     </div>
   </main>
+
+  <script>
+    // load stored success story image URLs and build slideshow
+    const stored = JSON.parse(localStorage.getItem('successStories') || '[]');
+    const slideshow = document.getElementById('stories-slideshow');
+    const controls = document.getElementById('stories-controls');
+    if (slideshow && controls) {
+      stored.forEach((url, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'slide';
+        if (i === 0) slide.classList.add('active');
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = `Success story ${i+1}`;
+        slide.appendChild(img);
+        slideshow.appendChild(slide);
+        const dot = document.createElement('button');
+        dot.className = i === 0 ? 'slide-dot active' : 'slide-dot';
+        dot.type = 'button';
+        dot.textContent = i+1;
+        dot.addEventListener('click', () => {
+          document.querySelectorAll('#stories-slideshow .slide').forEach(s => s.classList.remove('active'));
+          document.querySelectorAll('#stories-controls .slide-dot').forEach(d => d.classList.remove('active'));
+          slide.classList.add('active');
+          dot.classList.add('active');
+        });
+        controls.appendChild(dot);
+      });
+    }
+  </script>
 </body>
 </html>

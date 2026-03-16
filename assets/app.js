@@ -411,7 +411,7 @@ const renderTicker = (events) => {
 
   const row = events.map((event) => {
     const txt = `${event.title} | ${event.semester || 'GCPC'} | ${formatEventTypeLabel(event.eventType)} | ${formatDate(event.dateISO)} → ${formatDate(event.deadlineISO)}`;
-    return `<a class="ticker-item" href="event.html?id=${encodeURIComponent(event.id)}">${escapeHtml(txt)}</a>`;
+    return `<a class="ticker-item" href="/event?id=${encodeURIComponent(event.id)}">${escapeHtml(txt)}</a>`;
   }).join('');
 
   track.innerHTML = `${row}${row}`;
@@ -430,7 +430,7 @@ const buildWingCards = (containerId, events) => {
   if (events.length === 1) {
     const event = events[0];
     container.innerHTML = `
-      <a class="card gcpc-card interactive-card wing-event-item" href="event.html?id=${encodeURIComponent(event.id)}">
+      <a class="card gcpc-card interactive-card wing-event-item" href="/event?id=${encodeURIComponent(event.id)}">
         ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
         <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
         <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
@@ -445,7 +445,7 @@ const buildWingCards = (containerId, events) => {
 
   // For multiple events, create horizontal carousel inside the card
   const eventCards = events.map((event) => `
-    <a class="card gcpc-card interactive-card wing-event-item" href="event.html?id=${encodeURIComponent(event.id)}">
+    <a class="card gcpc-card interactive-card wing-event-item" href="/event?id=${encodeURIComponent(event.id)}">
       ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
       <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
       <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
@@ -514,7 +514,7 @@ const renderEventCollection = (hostId, events, emptyText) => {
   }
 
   host.innerHTML = events.map((event) => `
-    <a class="card gcpc-card interactive-card" href="event.html?id=${encodeURIComponent(event.id)}">
+    <a class="card gcpc-card interactive-card" href="/event?id=${encodeURIComponent(event.id)}">
       ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
       <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
       <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
@@ -576,8 +576,26 @@ const bindMessageForm = (formId, map) => {
   const form = document.getElementById(formId);
   if (!form) return;
 
+  const status = form.querySelector('.form-status') || (() => {
+    const node = document.createElement('p');
+    node.className = 'form-status';
+    node.setAttribute('role', 'status');
+    node.setAttribute('aria-live', 'polite');
+    node.hidden = true;
+    form.appendChild(node);
+    return node;
+  })();
+
+  const setStatus = (text, tone = '') => {
+    status.textContent = text;
+    status.hidden = !text;
+    status.classList.remove('is-success', 'is-error', 'is-muted');
+    if (tone) status.classList.add(`is-${tone}`);
+  };
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    setStatus('', '');
 
     const email = document.getElementById(map.email);
     const subject = document.getElementById(map.subject);
@@ -590,26 +608,33 @@ const bindMessageForm = (formId, map) => {
       validateRequired(message, 'Message')
     ].every(Boolean);
 
-    if (!valid) return;
+    if (!valid) {
+      setStatus('Please fix the highlighted fields.', 'error');
+      return;
+    }
 
     const submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending...';
     }
+    setStatus('Sending...', 'muted');
 
     try {
       await submitMessage(email.value, subject.value, message.value);
       form.reset();
+      setStatus('Message sent successfully!', 'success');
       showToast('Message sent successfully.', 'success');
     } catch (error) {
       console.error(error);
+      setStatus('Failed to send message. Please try again.', 'error');
       showToast('Failed to send message.', 'error');
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = map.buttonText;
       }
+      setTimeout(() => setStatus('', ''), 4000);
     }
   });
 };
@@ -893,7 +918,7 @@ const initWingPage = async () => {
     }
 
     host.innerHTML = list.slice(0, 8).map((event) => `
-      <a class="card interactive-card" href="event.html?id=${encodeURIComponent(event.id)}">
+      <a class="card interactive-card" href="/event?id=${encodeURIComponent(event.id)}">
         ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
         <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
         <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>

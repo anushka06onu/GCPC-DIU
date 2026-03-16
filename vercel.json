@@ -1,0 +1,32 @@
+{
+  "rewrites": [
+    { "source": "/join", "destination": "/join.html" },
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/event", "destination": "/event.html" },
+    { "source": "/wing-acm", "destination": "/wing-acm.html" },
+    { "source": "/wing-research", "destination": "/wing-research.html" },
+    { "source": "/wing-career", "destination": "/wing-career.html" },
+    { "source": "/wing-pr", "destination": "/wing-pr.html" },
+    { "source": "/achievement-contest-recognition", "destination": "/achievement-contest-recognition.html" },
+    { "source": "/achievement-hackathon-participation", "destination": "/achievement-hackathon-participation.html" },
+    { "source": "/achievement-member-success-stories", "destination": "/achievement-member-success-stories.html" },
+    { "source": "/achievement-research-publications", "destination": "/achievement-research-publications.html" },
+    { "source": "/past-acm-sprint", "destination": "/past-acm-sprint.html" },
+    { "source": "/past-career-session", "destination": "/past-career-session.html" },
+    { "source": "/past-research-seminar", "destination": "/past-research-seminar.html" },
+    { "source": "/event-acm-backend-workshop", "destination": "/event-acm-backend-workshop.html" },
+    { "source": "/event-acm-sprint", "destination": "/event-acm-sprint.html" },
+    { "source": "/event-career-bootcamp", "destination": "/event-career-bootcamp.html" },
+    { "source": "/event-career-development-grooming", "destination": "/event-career-development-grooming.html" },
+    { "source": "/event-career-graphic-design", "destination": "/event-career-graphic-design.html" },
+    { "source": "/event-research-workshop", "destination": "/event-research-workshop.html" },
+    { "source": "/event-research-zero-to-published", "destination": "/event-research-zero-to-published.html" },
+    { "source": "/research-publication-tracker", "destination": "/research-publication-tracker.html" },
+    { "source": "/women-in-tech-spotlight", "destination": "/women-in-tech-spotlight.html" },
+    { "source": "/verify", "destination": "/verify/" }
+  ],
+  "redirects": [
+    { "source": "/admin.html", "destination": "/admin", "permanent": true }
+  ]
+}

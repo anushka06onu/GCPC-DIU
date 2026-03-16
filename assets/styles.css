@@ -713,6 +713,15 @@ p { margin: 0; line-height: 1.62; }
 .field .helper { font-size: .82rem; color: var(--muted); }
 .invalid { border-color: var(--danger) !important; }
 
+.form-status {
+  margin-top: .35rem;
+  font-size: .9rem;
+  color: var(--muted);
+}
+.form-status.is-success { color: var(--success); }
+.form-status.is-error { color: var(--danger); }
+.form-status.is-muted { color: var(--muted); }
+
 .form-actions { margin-top:.8rem; display:flex; gap:.65rem; flex-wrap: wrap; }
 
 .verify-tabs { display:flex; gap:.55rem; flex-wrap: wrap; }

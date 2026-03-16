@@ -1,0 +1,129 @@
+[build]
+  publish = "."
+
+# Clean URLs: serve extensionless paths while keeping existing .html files intact
+
+[[redirects]]
+  from = "/join"
+  to = "/join.html"
+  status = 200
+
+[[redirects]]
+  from = "/contact"
+  to = "/contact.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/event"
+  to = "/event.html"
+  status = 200
+
+[[redirects]]
+  from = "/wing-acm"
+  to = "/wing-acm.html"
+  status = 200
+
+[[redirects]]
+  from = "/wing-research"
+  to = "/wing-research.html"
+  status = 200
+
+[[redirects]]
+  from = "/wing-career"
+  to = "/wing-career.html"
+  status = 200
+
+[[redirects]]
+  from = "/wing-pr"
+  to = "/wing-pr.html"
+  status = 200
+
+[[redirects]]
+  from = "/achievement-contest-recognition"
+  to = "/achievement-contest-recognition.html"
+  status = 200
+
+[[redirects]]
+  from = "/achievement-hackathon-participation"
+  to = "/achievement-hackathon-participation.html"
+  status = 200
+
+[[redirects]]
+  from = "/achievement-member-success-stories"
+  to = "/achievement-member-success-stories.html"
+  status = 200
+
+[[redirects]]
+  from = "/achievement-research-publications"
+  to = "/achievement-research-publications.html"
+  status = 200
+
+[[redirects]]
+  from = "/past-acm-sprint"
+  to = "/past-acm-sprint.html"
+  status = 200
+
+[[redirects]]
+  from = "/past-career-session"
+  to = "/past-career-session.html"
+  status = 200
+
+[[redirects]]
+  from = "/past-research-seminar"
+  to = "/past-research-seminar.html"
+  status = 200
+
+[[redirects]]
+  from = "/event-acm-backend-workshop"
+  to = "/event-acm-backend-workshop.html"
+  status = 200
+
+[[redirects]]
+  from = "/event-acm-sprint"
+  to = "/event-acm-sprint.html"
+  status = 200
+
+[[redirects]]
+  from = "/event-career-bootcamp"
+  to = "/event-career-bootcamp.html"
+  status = 200
+
+[[redirects]]
+  from = "/event-career-development-grooming"
+  to = "/event-career-development-grooming.html"
+  status = 200
+
+[[redirects]]
+  from = "/event-career-graphic-design"
+  to = "/event-career-graphic-design.html"
+  status = 200
+
+[[redirects]]
+  from = "/event-research-workshop"
+  to = "/event-research-workshop.html"
+  status = 200
+
+[[redirects]]
+  from = "/event-research-zero-to-published"
+  to = "/event-research-zero-to-published.html"
+  status = 200
+
+[[redirects]]
+  from = "/research-publication-tracker"
+  to = "/research-publication-tracker.html"
+  status = 200
+
+[[redirects]]
+  from = "/women-in-tech-spotlight"
+  to = "/women-in-tech-spotlight.html"
+  status = 200
+
+[[redirects]]
+  from = "/verify"
+  to = "/verify/"
+  status = 200

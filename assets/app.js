@@ -226,21 +226,40 @@ const normalizeBannerUrl = (value) => {
   return `/images/events/${input.replace(/^\/+/, '')}`;
 };
 
-// upload image file to Cloudinary and return secure_url
+const CLOUDINARY_SIGN_ENDPOINT = window.CLOUDINARY_SIGN_ENDPOINT || '/api/cloudinary-sign';
+
+// Upload image to Cloudinary using a signed request issued by a serverless endpoint.
+// The sign endpoint must return JSON: { uploadUrl, fields } where fields contain the signed params.
 async function uploadImage(file) {
+  if (!CLOUDINARY_SIGN_ENDPOINT) throw new Error('Cloudinary sign endpoint not configured');
+
+  const signRes = await fetch(CLOUDINARY_SIGN_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fileName: file.name, fileType: file.type })
+  });
+
+  if (!signRes.ok) {
+    throw new Error('Could not obtain upload signature');
+  }
+
+  const { uploadUrl, fields } = await signRes.json();
+  if (!uploadUrl || !fields) {
+    throw new Error('Invalid signature response');
+  }
+
   const formData = new FormData();
+  Object.entries(fields).forEach(([key, value]) => formData.append(key, value));
   formData.append('file', file);
-  formData.append('upload_preset', 'gcpc-events');
 
-  const response = await fetch(
-    'https://api.cloudinary.com/v1_1/dh6iivfsd/image/upload',
-    {
-      method: 'POST',
-      body: formData
-    }
-  );
+  const uploadRes = await fetch(uploadUrl, { method: 'POST', body: formData });
+  const data = await uploadRes.json();
 
-  const data = await response.json();
+  if (!uploadRes.ok) {
+    const message = data?.error?.message || 'Upload failed';
+    throw new Error(message);
+  }
+
   return data.secure_url;
 }
 

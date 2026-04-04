@@ -22,9 +22,12 @@ Official site for the Girls' Computer Programming Club (GCPC) under the Departme
 - `event.html` plus wing-specific pages for ACM, Research, Career, PR, and Women in Tech storytelling.
 - `admin.html` — private utilities for updates and validation.
 
+## Security & Secrets
+- Firebase config in the browser is public by design. Protect the project with: (1) domain-restricted API keys, (2) strict Firestore/Storage rules that block public writes, and (3) rotating keys after enabling restrictions.
+- Cloudinary uploads now require a **signed upload** endpoint at `/api/cloudinary-sign` (Netlify/Vercel function or small backend). That endpoint must return `{ uploadUrl, fields }` for direct POST to Cloudinary. Do not commit Cloudinary API keys or upload presets.
+- Keep environment variables in your hosting provider’s secrets, not in the repo. If you add serverless functions, guard them with auth/role checks.
+
 ## Development Notes
-- Keep the Firebase config file (`firebase-config.js` or similar) private; the repo ships with placeholder variables only.
-- Environment secrets and Firestore rules live in the Firebase console, not in this repository.
 - For local previews, serve the project with any static server (e.g., `python3 -m http.server 8000`).
 
 ## Ownership

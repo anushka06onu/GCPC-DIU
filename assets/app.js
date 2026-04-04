@@ -63,6 +63,69 @@ const EVENT_TYPE_LABELS = {
   meetup: 'Meetup'
 };
 
+const ROUTE_MAP = {
+  '/': '#top',
+  '/home': '#top',
+  '/about': '#about',
+  '/wings': '#wings',
+  '/committee': '#committee',
+  '/committe': '#committee',
+  '/events': '#events',
+  '/gallery': '#gallery',
+  '/contact': '#contact'
+};
+
+const normalizePath = (pathname) => {
+  const normalized = pathname.replace(/\/+$/, '');
+  return normalized === '' ? '/' : normalized;
+};
+
+const getRouteAnchor = (pathname) => ROUTE_MAP[normalizePath(pathname)] || null;
+
+const scrollToRoute = (pathname, replace = false) => {
+  const anchor = getRouteAnchor(pathname);
+  if (!anchor) return false;
+
+  const target = document.querySelector(anchor);
+  if (!target) return false;
+
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const newPath = pathname === '/' ? '/home' : pathname;
+  if (replace) history.replaceState(null, '', newPath);
+  else history.pushState(null, '', newPath);
+  return true;
+};
+
+const closeNavMenu = () => {
+  const navMenu = $('#nav-menu');
+  const toggle = $('.menu-toggle');
+  if (navMenu) navMenu.classList.remove('open');
+  if (toggle) {
+    toggle.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+};
+
+const bindSectionLinks = () => {
+  const sectionRoutes = Object.keys(ROUTE_MAP).filter((route) => route !== '/');
+
+  document.querySelectorAll('a[href^=\"/\"]').forEach((link) => {
+    const url = new URL(link.href, window.location.origin);
+    const normalized = normalizePath(url.pathname);
+    if (!sectionRoutes.includes(normalized)) return;
+    if (link.classList.contains('brand')) return;
+    const anchor = getRouteAnchor(normalized);
+    const target = anchor ? document.querySelector(anchor) : null;
+    if (!target) return;
+
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeNavMenu();
+      scrollToRoute(url.pathname);
+    });
+  });
+};
+
 const formatEventTypeLabel = (value) => {
   const key = String(value || '').toLowerCase();
   if (EVENT_TYPE_LABELS[key]) return EVENT_TYPE_LABELS[key];
@@ -223,18 +286,16 @@ const navInit = () => {
   });
 
   $$('#nav-menu a').forEach((link) => {
-    link.addEventListener('click', () => {
-      navMenu.classList.remove('open');
-      toggle.classList.remove('is-open');
-      toggle.setAttribute('aria-expanded', 'false');
-    });
+    link.addEventListener('click', () => closeNavMenu());
   });
 
   const brand = $('.brand');
-  if (brand && brand.getAttribute('href') === '#top') {
+  if (brand) {
     brand.addEventListener('click', (event) => {
       event.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      closeNavMenu();
+      // Hard navigate to reset scroll and state
+      window.location.href = '/home';
     });
   }
 };
@@ -1598,7 +1659,20 @@ const initAdmin = async () => {
 const initPage = async () => {
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
-  window.addEventListener('pageshow', () => window.scrollTo(0, 0));
+  window.addEventListener('pageshow', () => {
+    const path = normalizePath(window.location.pathname);
+    if (getRouteAnchor(path) && getRouteAnchor(path) !== '#top') return;
+    window.scrollTo(0, 0);
+  });
+
+  bindSectionLinks();
+  const initialPath = normalizePath(window.location.pathname);
+  if (!scrollToRoute(initialPath, true) && initialPath === '/') {
+    history.replaceState(null, '', '/home');
+  }
+  window.addEventListener('popstate', () => {
+    scrollToRoute(window.location.pathname, true);
+  });
 
   navInit();
   initReveal();

@@ -1,7 +1,14 @@
 {
   "rewrites": [
-    { "source": "/join", "destination": "/join.html" },
-    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/join", "destination": "/join/index.html" },
+    { "source": "/home", "destination": "/index.html" },
+    { "source": "/wings", "destination": "/index.html" },
+    { "source": "/committee", "destination": "/index.html" },
+    { "source": "/committe", "destination": "/index.html" },
+    { "source": "/about", "destination": "/index.html" },
+    { "source": "/events", "destination": "/index.html" },
+    { "source": "/gallery", "destination": "/index.html" },
+    { "source": "/contact", "destination": "/contact/index.html" },
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/event", "destination": "/event.html" },
     { "source": "/wing-acm", "destination": "/wing-acm.html" },

@@ -2,12 +2,52 @@ const menuToggle = document.querySelector('.menu-toggle');
 const navMenu = document.querySelector('.nav-links');
 const brandLink = document.querySelector('.brand');
 
+const routeMap = {
+  '/': '#top',
+  '/home': '#top',
+  '/about': '#about',
+  '/wings': '#wings',
+  '/committee': '#committee',
+  '/committe': '#committee',
+  '/events': '#events',
+  '/gallery': '#gallery',
+  '/contact': '#contact'
+};
+
+const normalizePath = (pathname) => {
+  const normalized = pathname.replace(/\/+$/, '');
+  return normalized === '' ? '/' : normalized;
+};
+
+const getRouteAnchor = (pathname) => routeMap[normalizePath(pathname)] || null;
+
+const scrollToRoute = (pathname, replace = false) => {
+  const anchor = getRouteAnchor(pathname);
+  if (!anchor) return false;
+
+  const target = document.querySelector(anchor);
+  if (!target) return false;
+
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const newPath = pathname === '/' ? '/home' : pathname;
+  if (replace) {
+    history.replaceState(null, '', newPath);
+  } else {
+    history.pushState(null, '', newPath);
+  }
+  return true;
+};
+
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
 
 window.addEventListener('load', () => {
-  window.scrollTo(0, 0);
+  const pathname = normalizePath(window.location.pathname);
+  const handled = scrollToRoute(pathname, true);
+  if (!handled && pathname === '/') {
+    history.replaceState(null, '', '/home');
+  }
 });
 
 if (menuToggle && navMenu) {
@@ -29,15 +69,40 @@ if (menuToggle && navMenu) {
 if (brandLink) {
   brandLink.addEventListener('click', (event) => {
     event.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     if (navMenu && menuToggle) {
       navMenu.classList.remove('open');
       menuToggle.setAttribute('aria-expanded', 'false');
       menuToggle.classList.remove('is-open');
     }
-    history.replaceState(null, '', '#top');
+    // Hard navigation to reset scroll and state
+    window.location.href = '/home';
   });
 }
+
+window.addEventListener('popstate', () => {
+  scrollToRoute(window.location.pathname, true);
+});
+
+const sectionRoutes = Object.keys(routeMap).filter(k => k !== '/');
+document.querySelectorAll('a[href^="/"]').forEach((link) => {
+  const linkUrl = new URL(link.href, window.location.origin);
+  const normalizedPath = normalizePath(linkUrl.pathname);
+  if (!sectionRoutes.includes(normalizedPath)) return;
+
+  const anchor = getRouteAnchor(normalizedPath);
+  const target = anchor ? document.querySelector(anchor) : null;
+  if (!target) return; // only hijack if anchor exists on this page
+
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    if (navMenu && menuToggle) {
+      navMenu.classList.remove('open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+      menuToggle.classList.remove('is-open');
+    }
+    scrollToRoute(linkUrl.pathname);
+  });
+});
 
 const revealNodes = document.querySelectorAll('.reveal');
 const observer = new IntersectionObserver(

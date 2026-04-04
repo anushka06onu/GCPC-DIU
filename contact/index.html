@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <base href="/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact GCPC | DIU GCPC</title>
+  <link rel="icon" type="image/png" href="../gcpc-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/styles.css" />
+</head>
+<body data-page="contact">
+  <header class="site-nav-wrap">
+    <nav class="site-nav container">
+      <a href="/home" class="brand" aria-label="Go to home"><img src="../gcpc-logo.png" alt="GCPC logo" /></a>
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="/home"><span>Home</span></a></li>
+        <li><a href="/verify/"><span>Certification Validity</span></a></li>
+        <li><a href="/join"><span>Join</span></a></li>
+        <li><a href="/contact"><span>Contact</span></a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section page-top-space">
+    <div class="container">
+      <p class="section-kicker">Contact For Queries</p>
+      <h2 class="reveal">Send Your Message</h2>
+
+      <div class="form-shell top-gap reveal">
+        <form id="contact-form" novalidate>
+          <div class="field-grid">
+            <div class="field full">
+              <label for="contact-email">Email</label>
+              <input id="contact-email" type="email" placeholder="you@diu.edu.bd" />
+              <p class="error"></p>
+            </div>
+            <div class="field full">
+              <label for="contact-subject">Subject</label>
+              <input id="contact-subject" type="text" placeholder="Subject" />
+              <p class="error"></p>
+            </div>
+            <div class="field full">
+              <label for="contact-message">Message</label>
+              <textarea id="contact-message" placeholder="Write your query"></textarea>
+              <p class="error"></p>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button id="contact-submit" class="btn btn-primary" type="submit">Send Message</button>
+            <a class="btn btn-soft" href="/">Back to Home</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="../script.js"></script>
+  <script type="module" src="../assets/app.js"></script>
+</body>
+</html>

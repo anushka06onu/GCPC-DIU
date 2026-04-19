@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
-import { firebaseConfig } from '../firebase-config.js';
+import { firebaseConfig } from '../assets/config.js';
 
 const form = document.querySelector('#verify-cert-form');
 const certIdInput = document.querySelector('#cert-id');

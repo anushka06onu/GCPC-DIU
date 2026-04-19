@@ -1,34 +1,59 @@
-# DIU GCPC Portal
+# DIU GCPC | Girls' Computer Programming Club Portal
 
-Official site for the Girls' Computer Programming Club (GCPC) under the Department of CSE, Daffodil International University. The portal showcases initiatives, highlights achievements, and keeps members informed.
+This is the repository for the official website and management portal of the **Girls' Computer Programming Club (GCPC)** at Daffodil International University. I designed and developed this platform to empower female students in programming, research, and leadership through a modern, responsive, and functional web experience.
 
-## What the Portal Delivers
-- Central landing page with club story, hero visuals, and quick entry points to core sections.
-- Event spotlights covering ACM practice, research tracks, and career-development series.
-- Certificate verification flow that lets visitors confirm issued IDs (scan-friendly links supported).
-- Join and contact funnels to collect interest, success stories, and collaboration queries.
-- Lightweight admin dashboard for club moderators to curate content and validate requests.
+## 🚀 Live Demo
+**Website:** [https://gcpc.daffodilvarsity.edu.bd/](https://gcpc.daffodilvarsity.edu.bd/)  
+*(Portal hosted on DIU University Domain)*
 
-## Tech Snapshot
-- Built with semantic HTML, modular CSS, and vanilla JavaScript for animations/interactions.
-- Uses Firebase (Authentication + Firestore) strictly for dynamic content, membership stats, and message inboxes.
-- Assets and static data are versioned in-repo; deployment-ready for any static host (Vercel, Netlify, etc.).
+---
 
-## Page Map
-- `index.html` — hero, key metrics, quick links.
-- `join.html` — intake form + live member counter.
-- `contact.html` — inbox handoff for partners and students.
-- `verify/` — certificate search detail view with QR entry support.
-- `event.html` plus wing-specific pages for ACM, Research, Career, PR, and Women in Tech storytelling.
-- `admin.html` — private utilities for updates and validation.
+## 🛠 Features & Architecture
 
-## Security & Secrets
-- Firebase config in the browser is public by design. Protect the project with: (1) domain-restricted API keys, (2) strict Firestore/Storage rules that block public writes, and (3) rotating keys after enabling restrictions.
-- Cloudinary uploads now require a **signed upload** endpoint at `/api/cloudinary-sign` (Netlify/Vercel function or small backend). That endpoint must return `{ uploadUrl, fields }` for direct POST to Cloudinary. Do not commit Cloudinary API keys or upload presets.
-- Keep environment variables in your hosting provider’s secrets, not in the repo. If you add serverless functions, guard them with auth/role checks.
+I built this site focusing on high performance, clean design, and easy management.
 
-## Development Notes
-- For local previews, serve the project with any static server (e.g., `python3 -m http.server 8000`).
+### Platform Features:
+- **Dynamic Content Management**: I integrated a custom **Admin Panel** that allows club officials to manage events, certificates, and memberships in real-time.
+- **Certificate Verification System**: A secure desk for students and employers to verify certification validity via Student ID or Certificate ID.
+- **Responsive Slideshows & Galleries**: Premium interactive sliders showcasing club moments, seminars, and workshops.
+- **Department-Specific Wings**: Detailed sections for ACM, Research, Career, and Development wings.
+- **Glassmorphic UI**: High-end modern aesthetics featuring smooth animations, reveal-on-scroll effects, and a premium dark-themed color palette.
 
-## Ownership
-Designed, built, and maintained by Fateha Hossain Anushka for the GCPC community.
+### Technical Stack:
+- **Frontend**: Vanilla HTML5, CSS3 (Custom Design System), and Modular ES6+ JavaScript.
+- **Backend/Database**: **Firebase Firestore** for real-time document storage and management.
+- **Authentication**: **Firebase Auth** securing the Management Console.
+- **Server Support**: Custom `.htaccess` configuration for cPanel/Apache stability, clean SEO-friendly URLs, and HTTPS enforcement.
+
+---
+
+## 📂 Project Structure
+
+- `/admin`: Management console for club officials.
+- `/assets`: Modular JavaScript drivers, design tokens, and core CSS.
+- `/join`: Membership registration flow.
+- `/verify`: Certification verification desk.
+- `index.html`: Optimized landing page with structural SEO.
+
+---
+
+## 🔧 Installation & Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/anushka06onu/GCPC-DIU.git
+   ```
+2. **Setup Discovery**:
+   Open `index.html` via a local server (I recommend Python's `http.server` or VS Code Live Server).
+3. **Configure Database**:
+   Add your Firebase credentials within `assets/firebase.js` to enable the dynamic features.
+
+---
+
+## 📜 Documentation & Usage
+
+I have ensured the codebase is modular. Managing the club data is straightforward through the Admin Portal, which communicates directly with the Firestore collection. For production deployment on cPanel, simply upload the root directory; the included `.htaccess` handles the custom routing.
+
+---
+
+Developed with ❤️ by **Anushka**

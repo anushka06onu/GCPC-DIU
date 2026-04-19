@@ -1,0 +1,43 @@
+# GCPC Production Configuration for cPanel/Apache
+# Domain: https://gcpc.daffodilvarsity.edu.bd/
+
+RewriteEngine On
+RewriteBase /
+
+# 1. Enforce HTTPS (Recommended for cPanel)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2. Clean URLs Redirects (Mirroring netlify.toml)
+
+# Map /admin to /admin/index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^admin$ admin/index.html [L]
+
+# Map other clean URLs to .html files if they exist
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.+)$ $1.html [L]
+
+# 3. SPA-style Routing for specific paths that point back to home (with scroll anchors)
+# These paths are handled by the JS router in app.js
+RewriteRule ^home$ index.html [L]
+RewriteRule ^about$ index.html [L]
+RewriteRule ^wings$ index.html [L]
+RewriteRule ^committee$ index.html [L]
+RewriteRule ^events$ index.html [L]
+RewriteRule ^gallery$ index.html [L]
+
+# 4. Success Stories & Achievements redirects
+RewriteRule ^achievement-(.*)$ achievement-$1.html [L]
+RewriteRule ^event-(.*)$ event-$1.html [L]
+RewriteRule ^past-(.*)$ past-$1.html [L]
+
+# 5. Handle trailing slashes for directories
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_URI} !\/$
+RewriteRule ^(.*)$ $1/ [L,R=301]
+
+# 6. Error handling
+ErrorDocument 404 /index.html

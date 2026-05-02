@@ -1,59 +1,80 @@
 # DIU GCPC | Girls' Computer Programming Club Portal
 
-This is the repository for the official website and management portal of the **Girls' Computer Programming Club (GCPC)** at Daffodil International University. I designed and developed this platform to empower female students in programming, research, and leadership through a modern, responsive, and functional web experience.
+The official web platform for the **Girls' Computer Programming Club (GCPC)** at Daffodil International University. This platform serves as a centralized hub for female students to engage in competitive programming, research, software development, and professional grooming.
 
-## 🚀 Live Demo
-**Website:** [https://gcpc.daffodilvarsity.edu.bd/](https://gcpc.daffodilvarsity.edu.bd/)  
-*(Portal hosted on DIU University Domain)*
-
----
-
-## 🛠 Features & Architecture
-
-I built this site focusing on high performance, clean design, and easy management.
-
-### Platform Features:
-- **Dynamic Content Management**: I integrated a custom **Admin Panel** that allows club officials to manage events, certificates, and memberships in real-time.
-- **Certificate Verification System**: A secure desk for students and employers to verify certification validity via Student ID or Certificate ID.
-- **Responsive Slideshows & Galleries**: Premium interactive sliders showcasing club moments, seminars, and workshops.
-- **Department-Specific Wings**: Detailed sections for ACM, Research, Career, and Development wings.
-- **Glassmorphic UI**: High-end modern aesthetics featuring smooth animations, reveal-on-scroll effects, and a premium dark-themed color palette.
-
-### Technical Stack:
-- **Frontend**: Vanilla HTML5, CSS3 (Custom Design System), and Modular ES6+ JavaScript.
-- **Backend/Database**: **Firebase Firestore** for real-time document storage and management.
-- **Authentication**: **Firebase Auth** securing the Management Console.
-- **Server Support**: Custom `.htaccess` configuration for cPanel/Apache stability, clean SEO-friendly URLs, and HTTPS enforcement.
+## 🚀 Live Platform
+**Website:** [https://gcpc.daffodilvarsity.edu.bd/](https://gcpc.daffodilvarsity.edu.bd/)
 
 ---
 
-## 📂 Project Structure
+## 🛠 Features & Capabilities
 
-- `/admin`: Management console for club officials.
-- `/assets`: Modular JavaScript drivers, design tokens, and core CSS.
-- `/join`: Membership registration flow.
-- `/verify`: Certification verification desk.
-- `index.html`: Optimized landing page with structural SEO.
+### 🏢 Department-Specific Wings
+*   **ACM Wing**: Focuses on competitive programming, data structures, and algorithms.
+*   **Research Wing**: Guides members from idea formation to academic publication.
+*   **Career & PR Wing**: Prepares students for internships, branding, and professional networking.
+*   **Development Wing**: Strengthens software engineering through hands-on project building.
 
----
-
-## 🔧 Installation & Setup
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/anushka06onu/GCPC-DIU.git
-   ```
-2. **Setup Discovery**:
-   Open `index.html` via a local server (I recommend Python's `http.server` or VS Code Live Server).
-3. **Configure Database**:
-   Add your Firebase credentials within `assets/firebase.js` to enable the dynamic features.
+### 💎 Key Features
+*   **Dynamic Event Management**: Automated "Upcoming Activities" section with wing-specific auto-sliding carousels.
+*   **Unified Modal System**: High-fidelity detail views for all events (Upcoming & Past) with registration integrations.
+*   **Certificate Verification Desk**: Secure infrastructure for verifying club-issued certificates via Student ID or Unique Certificate ID.
+*   **Premium Dark Mode**: Native dark theme support with glassmorphic UI elements and theme-persistence.
+*   **Interactive FAQ**: Modern, responsive 2-column accordion FAQ with smooth transitions and theme-aware styling.
+*   **Management Dashboard**: Secure admin portal for real-time updates to events, gallery, and memberships.
 
 ---
 
-## 📜 Documentation & Usage
+## 💻 Tech Stack & Architecture
 
-I have ensured the codebase is modular. Managing the club data is straightforward through the Admin Portal, which communicates directly with the Firestore collection. For production deployment on cPanel, simply upload the root directory; the included `.htaccess` handles the custom routing.
+### Frontend
+*   **Core**: Semantic HTML5, Modular CSS3 (Custom Design System), ES6+ JavaScript.
+*   **Design**: Glassmorphism, Responsive Grid Layouts, Inter/Roboto Typography, Smooth Reveal-on-Scroll animations.
+
+### Backend & DevOps
+*   **Database/Auth**: **Firebase Firestore** (Real-time DB) & **Firebase Auth** (Identity Management).
+*   **Routing**: Custom Apache `.htaccess` configuration for clean, SEO-friendly URLs and HTTPS enforcement.
+*   **Hosting Compatibility**: Optimized for **cPanel** and standard web servers with support for shared hosting environments.
+
+---
+
+## 📦 Deployment on cPanel
+
+This project is fully optimized for cPanel/Shared Hosting deployment.
+
+1.  **Configure Environment**: 
+    *   Rename `assets/config.sample.js` to `assets/config.js`.
+    *   Inject your Firebase project configuration (API Key, Project ID, etc.).
+2.  **Upload**:
+    *   Upload the root contents to your `public_html` directory.
+3.  **Routing**:
+    *   The included `.htaccess` file will automatically handle clean URL routing (e.g., `/join` instead of `join.html`).
+4.  **Security**:
+    *   Ensure `assets/config.js` is not committed to public repositories (pre-configured in `.gitignore`).
+
+---
+
+## 📂 Directory Structure
+
+```text
+├── admin/          # Secure Management Portal
+├── assets/         # CSS design tokens, Modular JS drivers, and SVGs
+├── images/         # Local assets and fallbacks
+├── join/           # Membership registration infrastructure
+├── verify/         # Certificate verification engine
+├── index.html      # Optimized Landing Page
+└── .htaccess       # Server-level routing configuration
+```
+
+---
+
+## 🔒 Security Best Practices
+
+*   **Firebase Rules**: Ensure Firestore rules are locked down to authenticated users for write operations.
+*   **API Security**: The platform uses restricted API keys; ensure your Firebase project has domain restriction enabled for `daffodilvarsity.edu.bd`.
+*   **Hidden Configs**: Sensitive keys in `assets/config.js` are strictly excluded from version control via `.gitignore`.
 
 ---
 
 Developed with ❤️ by **Anushka**
+GCPC | Daffodil International University

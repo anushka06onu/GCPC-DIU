@@ -22,6 +22,13 @@
         <li><a href="/join"><span>Join</span></a></li>
         <li><a href="/contact"><span>Contact</span></a></li>
       </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+          <span class="theme-toggle-icon theme-toggle-sun" aria-hidden="true">☀</span>
+          <span class="theme-toggle-icon theme-toggle-moon" aria-hidden="true">☾</span>
+          <span class="theme-toggle-text">Theme</span>
+        </button>
+      </div>
     </nav>
   </header>
 
@@ -30,7 +37,7 @@
       <p class="section-kicker">Event Description</p>
       <div id="event-detail"><article class="card skeleton-card"></article></div>
       <div class="form-actions top-gap">
-        <a class="btn btn-soft" href="/#events">Back to Events</a>
+        <a class="btn btn-soft" href="/#events" data-return-link>Back to Events</a>
       </div>
     </div>
   </main>

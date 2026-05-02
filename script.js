@@ -14,9 +14,96 @@ const routeMap = {
   '/contact': '#contact'
 };
 
+const THEME_STORAGE_KEY = 'gcpc-theme';
+const SCROLL_MEMORY_KEY = 'gcpc-scroll-memory';
+const SCROLL_RESTORE_KEY = 'gcpc-scroll-restore';
+
 const normalizePath = (pathname) => {
   const normalized = pathname.replace(/\/+$/, '');
   return normalized === '' ? '/' : normalized;
+};
+
+const isHomePath = (pathname) => ['/', '/home'].includes(normalizePath(pathname));
+const pathsMatch = (left, right) => {
+  const a = normalizePath(left || '/');
+  const b = normalizePath(right || '/');
+  return a === b || (isHomePath(a) && isHomePath(b));
+};
+
+const readSessionJson = (key) => {
+  try {
+    return JSON.parse(sessionStorage.getItem(key) || 'null');
+  } catch (error) {
+    return null;
+  }
+};
+
+const rememberCurrentScroll = (targetHref = '', sectionId = '') => {
+  if (typeof sessionStorage === 'undefined') return;
+  sessionStorage.setItem(SCROLL_MEMORY_KEY, JSON.stringify({
+    path: normalizePath(window.location.pathname),
+    scrollY: window.scrollY,
+    targetPath: targetHref ? normalizePath(new URL(targetHref, window.location.origin).pathname) : '',
+    sectionId: String(sectionId || '').trim(),
+    ts: Date.now()
+  }));
+};
+
+const readScrollMemory = () => {
+  const saved = readSessionJson(SCROLL_MEMORY_KEY);
+  if (!saved || typeof saved !== 'object') return null;
+  if (Date.now() - Number(saved.ts || 0) > 30 * 60 * 1000) return null;
+  return saved;
+};
+
+const flagScrollRestore = (pathname) => {
+  if (typeof sessionStorage === 'undefined') return;
+  sessionStorage.setItem(SCROLL_RESTORE_KEY, JSON.stringify({
+    path: normalizePath(pathname || window.location.pathname),
+    ts: Date.now()
+  }));
+};
+
+const hasScrollRestoreFlag = (pathname) => {
+  const flag = readSessionJson(SCROLL_RESTORE_KEY);
+  if (!flag || typeof flag !== 'object') return false;
+  if (Date.now() - Number(flag.ts || 0) > 30 * 60 * 1000) return false;
+  return pathsMatch(flag.path, pathname);
+};
+
+const clearScrollRestoreFlag = () => {
+  if (typeof sessionStorage === 'undefined') return;
+  sessionStorage.removeItem(SCROLL_RESTORE_KEY);
+};
+
+const shouldRestoreScroll = (pathname) => {
+  const navEntries = performance.getEntriesByType?.('navigation') || [];
+  return hasScrollRestoreFlag(pathname) || navEntries[0]?.type === 'back_forward';
+};
+
+const restoreSavedScroll = (pathname) => {
+  const saved = readScrollMemory();
+  if (!saved || !pathsMatch(saved.path, pathname)) return false;
+
+  let attempts = 0;
+  const target = Math.max(0, Number(saved.scrollY || 0));
+  const tick = () => {
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    window.scrollTo(0, Math.min(target, maxScroll));
+    attempts += 1;
+    const reached = Math.abs(window.scrollY - Math.min(target, maxScroll)) < 4;
+    if (!reached && attempts < 12) {
+      requestAnimationFrame(tick);
+      return;
+    }
+    if (!reached && saved.sectionId) {
+      document.getElementById(saved.sectionId)?.scrollIntoView({ block: 'start' });
+    }
+    clearScrollRestoreFlag();
+  };
+
+  requestAnimationFrame(tick);
+  return true;
 };
 
 const getRouteAnchor = (pathname) => routeMap[normalizePath(pathname)] || null;
@@ -42,12 +129,24 @@ if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
 
+const applyPersistedTheme = () => {
+  const theme = localStorage.getItem(THEME_STORAGE_KEY) === 'dark' ? 'dark' : 'light';
+  document.body.dataset.theme = theme;
+  document.documentElement.dataset.theme = theme;
+};
+
+if (typeof localStorage !== 'undefined') {
+  applyPersistedTheme();
+}
+
 window.addEventListener('load', () => {
   const pathname = normalizePath(window.location.pathname);
-  const handled = scrollToRoute(pathname, true);
+  const restoreOnLoad = shouldRestoreScroll(pathname);
+  const handled = restoreOnLoad ? false : scrollToRoute(pathname, true);
   if (!handled && pathname === '/') {
     history.replaceState(null, '', '/home');
   }
+  if (restoreOnLoad) restoreSavedScroll(pathname);
 });
 
 if (menuToggle && navMenu) {
@@ -80,7 +179,17 @@ if (brandLink) {
 }
 
 window.addEventListener('popstate', () => {
-  scrollToRoute(window.location.pathname, true);
+  const currentPath = normalizePath(window.location.pathname);
+  if (!restoreSavedScroll(currentPath)) {
+    scrollToRoute(window.location.pathname, true);
+  }
+});
+
+window.addEventListener('pageshow', (event) => {
+  const currentPath = normalizePath(window.location.pathname);
+  if (event.persisted || hasScrollRestoreFlag(currentPath)) {
+    restoreSavedScroll(currentPath);
+  }
 });
 
 const sectionRoutes = Object.keys(routeMap).filter(k => k !== '/');
@@ -101,6 +210,57 @@ document.querySelectorAll('a[href^="/"]').forEach((link) => {
       menuToggle.classList.remove('is-open');
     }
     scrollToRoute(linkUrl.pathname);
+  });
+});
+
+document.addEventListener('click', (event) => {
+  const link = event.target.closest('a[href]');
+  if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
+
+  const rawHref = link.getAttribute('href') || '';
+  if (!rawHref || rawHref.startsWith('#') || rawHref.startsWith('mailto:') || rawHref.startsWith('tel:')) return;
+
+  const url = new URL(link.href, window.location.origin);
+  if (url.origin !== window.location.origin) return;
+
+  const normalizedPath = normalizePath(url.pathname);
+  const anchor = getRouteAnchor(normalizedPath);
+  const target = anchor ? document.querySelector(anchor) : null;
+  if (target) return;
+
+  const sourceSection = link.closest('section[id], footer[id], [data-scroll-source]')?.id || '';
+  rememberCurrentScroll(link.href, sourceSection);
+}, true);
+
+document.querySelectorAll('[data-return-link]').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    const saved = readScrollMemory();
+    if (!saved) return;
+
+    event.preventDefault();
+    flagScrollRestore(saved.path);
+    const canUseHistoryBack =
+      document.referrer &&
+      new URL(document.referrer, window.location.origin).origin === window.location.origin &&
+      window.history.length > 1;
+
+    if (canUseHistoryBack) {
+      let settled = false;
+      const release = () => {
+        settled = true;
+        window.removeEventListener('pagehide', release);
+        window.removeEventListener('beforeunload', release);
+      };
+      window.addEventListener('pagehide', release, { once: true });
+      window.addEventListener('beforeunload', release, { once: true });
+      window.history.back();
+      window.setTimeout(() => {
+        if (!settled) window.location.href = saved.path;
+      }, 180);
+      return;
+    }
+
+    window.location.href = saved.path;
   });
 });
 

@@ -31,6 +31,13 @@
         <li><a href="/join"><span>Join</span></a></li>
         <li><a href="/contact"><span>Contact</span></a></li>
       </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+          <span class="theme-toggle-icon theme-toggle-sun" aria-hidden="true">☀</span>
+          <span class="theme-toggle-icon theme-toggle-moon" aria-hidden="true">☾</span>
+          <span class="theme-toggle-text">Theme</span>
+        </button>
+      </div>
     </nav>
   </header>
 
@@ -94,42 +101,42 @@
       <div class="container">
         <p class="section-kicker">GCPC Wings</p>
         <h2 class="reveal">Structured Wings for Focused Impact</h2>
-        <div class="grid-4 top-gap">
+        <div class="grid-4 top-gap wings-grid">
           <a class="card gcpc-card interactive-card wing-card reveal" href="/wing-acm">
-            <h3>ACM Wing</h3>
-            <p>Competitive programming culture, algorithmic problem-solving, and contest-driven technical growth.</p>
-            <ul class="wing-points">
-              <li>Weekly problem-solving and contest preparation sessions</li>
-              <li>Hands-on coding workshops and practice contests</li>
-              <li>Join via GCPC member selection and wing onboarding</li>
-            </ul>
+            <div class="wing-card-media">
+              <img src="assets/wing-acm-visual.svg" alt="Thematic visual for the ACM Wing" loading="lazy" />
+            </div>
+            <div class="wing-card-body">
+              <h3>ACM Wing</h3>
+              <p>Build competitive programming strength through structured problem solving, mock contests, and guided algorithm practice for consistent technical growth.</p>
+            </div>
           </a>
           <a class="card gcpc-card interactive-card wing-card reveal" href="/wing-research">
-            <h3>Research Wing</h3>
-            <p>Research foundations, guided methodology, paper writing, publication readiness, and collaborative projects.</p>
-            <ul class="wing-points">
-              <li>Research methodology and paper writing workshops</li>
-              <li>Publication guidance and project mentoring support</li>
-              <li>Join through research orientation and skill screening</li>
-            </ul>
+            <div class="wing-card-media">
+              <img src="assets/wing-research-visual.svg" alt="Thematic visual for the Research Wing" loading="lazy" />
+            </div>
+            <div class="wing-card-body">
+              <h3>Research Wing</h3>
+              <p>Guide members from idea formation to publication with research methodology, writing support, mentor feedback, and collaborative academic projects.</p>
+            </div>
           </a>
           <a class="card gcpc-card interactive-card wing-card reveal" href="/wing-career">
-            <h3>Career & PR Wing</h3>
-            <p>Career development, professional skills, public relations, and industry networking opportunities.</p>
-            <ul class="wing-points">
-              <li>Career seminars, CV guidance, and development grooming</li>
-              <li>Public relations and marketing initiatives</li>
-              <li>Join by registering interest in career and PR activities</li>
-            </ul>
+            <div class="wing-card-media">
+              <img src="assets/wing-career-pr-visual.svg" alt="Thematic visual for the Career and PR Wing" loading="lazy" />
+            </div>
+            <div class="wing-card-body">
+              <h3>Career &amp; PR Wing</h3>
+              <p>Prepare members for internships and professional visibility through career readiness, communication practice, branding support, and networking guidance.</p>
+            </div>
           </a>
           <a class="card gcpc-card interactive-card wing-card reveal" href="/wing-pr">
-            <h3>Development Wing</h3>
-            <p>Technical development training, project practice, software development, and innovation initiatives.</p>
-            <ul class="wing-points">
-              <li>Hands-on software development projects</li>
-              <li>Technical workshops on modern development tools</li>
-              <li>Join through development skill assessment</li>
-            </ul>
+            <div class="wing-card-media">
+              <img src="assets/wing-development-visual.svg" alt="Thematic visual for the Development Wing" loading="lazy" />
+            </div>
+            <div class="wing-card-body">
+              <h3>Development Wing</h3>
+              <p>Strengthen engineering practice through software projects, modern tooling, systems thinking, and hands-on development experiences.</p>
+            </div>
           </a>
         </div>
       </div>
@@ -177,7 +184,7 @@
         <p class="section-kicker">Events & Workshops</p>
         <h2 class="reveal">Upcoming Activities by Wing</h2>
 
-        <div class="grid-4 top-gap">
+        <div class="grid-4 top-gap wing-activity-grid">
           <article class="card gcpc-card wing-activity-card reveal" data-wing-card="acm">
             <h3>ACM Wing Activities</h3>
             <div class="vertical-slider top-gap-sm" id="acm-activity-slider">
@@ -193,7 +200,7 @@
           </article>
 
           <article class="card gcpc-card wing-activity-card reveal" data-wing-card="career">
-            <h3>Career & PR Activities</h3>
+            <h3>Career &amp; PR Wing Activities</h3>
             <div class="vertical-slider top-gap-sm" id="career-activity-slider">
               <div class="vertical-skeleton"></div>
             </div>
@@ -226,8 +233,8 @@
       <div class="container">
         <p class="section-kicker">Gallery</p>
         <h2 class="reveal">Club Moments</h2>
-        <div class="grid-4 top-gap">
-          <article class="card gcpc-card reveal" data-slideshow data-auto="4300">
+        <div class="gallery-grid top-gap">
+          <article class="card gcpc-card gallery-card reveal" data-slideshow data-auto="4300">
             <h3>Workshops</h3>
             <div class="slide-frame top-gap-sm">
               <div class="slide active"><img src="work1.jpg" alt="Workshop 1" /></div>
@@ -244,7 +251,7 @@
             </div>
           </article>
 
-          <article class="card gcpc-card reveal" data-slideshow data-auto="4700">
+          <article class="card gcpc-card gallery-card reveal" data-slideshow data-auto="4700">
             <h3>Seminars</h3>
             <div class="slide-frame top-gap-sm">
               <div class="slide active"><img src="seminar1.jpg" alt="Seminar 1" /></div>
@@ -260,12 +267,12 @@
             </div>
           </article>
 
-          <article class="card gcpc-card reveal" data-slideshow data-auto="5000">
-            <h3>Meetups & Special Events</h3>
+          <article class="card gcpc-card gallery-card reveal" data-slideshow data-auto="5000">
+            <h3>Contest</h3>
             <div class="slide-frame top-gap-sm">
-              <div class="slide active"><img src="special3.jpg" alt="Meetup 1" /></div>
-              <div class="slide"><img src="visit.jpg" alt="Meetup 2" /></div>
-              <div class="slide"><img src="special1.jpg" alt="Meetup 3" /></div>
+              <div class="slide active"><img src="ngpc.jpg" alt="Contest 1" /></div>
+              <div class="slide"><img src="contest_special.jpg" alt="Contest 2" /></div>
+              <div class="slide"><img src="ngpc2.jpg" alt="Contest 3" /></div>
             </div>
             <div class="slide-controls">
               <button class="slide-btn prev" type="button">&#10094;</button>
@@ -276,12 +283,28 @@
             </div>
           </article>
 
-          <article class="card gcpc-card reveal" data-slideshow data-auto="5300">
-            <h3>Contest Pictures</h3>
+          <article class="card gcpc-card gallery-card reveal" data-slideshow data-auto="5300">
+            <h3>Meetups</h3>
             <div class="slide-frame top-gap-sm">
-              <div class="slide active"><img src="ngpc.jpg" alt="Contest 1" /></div>
-              <div class="slide"><img src="contest_special.jpg" alt="Contest 2" /></div>
-              <div class="slide"><img src="ngpc2.jpg" alt="Contest 3" /></div>
+              <div class="slide active"><img src="meet.jpg" alt="Meetup 1" /></div>
+              <div class="slide"><img src="meet1.jpg" alt="Meetup 2" /></div>
+              <div class="slide"><img src="meetup1.jpg" alt="Meetup 3" /></div>
+            </div>
+            <div class="slide-controls">
+              <button class="slide-btn prev" type="button">&#10094;</button>
+              <button class="slide-dot active" type="button">1</button>
+              <button class="slide-dot" type="button">2</button>
+              <button class="slide-dot" type="button">3</button>
+              <button class="slide-btn next" type="button">&#10095;</button>
+            </div>
+          </article>
+
+          <article class="card gcpc-card gallery-card reveal" data-slideshow data-auto="5600">
+            <h3>Special Events</h3>
+            <div class="slide-frame top-gap-sm">
+              <div class="slide active"><img src="special3.jpg" alt="Special event 1" /></div>
+              <div class="slide"><img src="special1.jpg" alt="Special event 2" /></div>
+              <div class="slide"><img src="visit.jpg" alt="Special event 3" /></div>
             </div>
             <div class="slide-controls">
               <button class="slide-btn prev" type="button">&#10094;</button>
@@ -414,6 +437,13 @@
         <p>&copy; <a href="https://fatehahossainanushka.vercel.app/" target="_blank" rel="noopener noreferrer">Fateha Hossain Anushka</a></p>
     </div>
   </footer>
+
+  <div class="event-detail-modal hidden" id="past-event-modal" aria-hidden="true">
+    <div class="event-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="past-event-title">
+      <button class="event-detail-close" id="past-event-close" type="button" aria-label="Close past event details">&times;</button>
+      <div id="past-event-modal-content"></div>
+    </div>
+  </div>
 
   <script type="module" src="assets/app.js"></script>
 </body>

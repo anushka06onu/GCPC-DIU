@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
-<body data-page="wing-pr">
+<body data-page="wing-pr" data-wing="development">
   <header class="site-nav-wrap" id="top">
     <nav class="site-nav container">
       <a href="/home" class="brand" aria-label="Go to home">
@@ -30,6 +30,13 @@
         <li><a href="/join"><span>Join</span></a></li>
         <li><a href="/#contact"><span>Contact</span></a></li>
       </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+          <span class="theme-toggle-icon theme-toggle-sun" aria-hidden="true">☀</span>
+          <span class="theme-toggle-icon theme-toggle-moon" aria-hidden="true">☾</span>
+          <span class="theme-toggle-text">Theme</span>
+        </button>
+      </div>
     </nav>
   </header>
 
@@ -37,9 +44,12 @@
     <section class="section">
       <div class="container">
         <p class="section-kicker">GCPC Wings</p>
-        <h1 class="reveal">PR & Development Wing</h1>
+        <h1 class="reveal">Development Wing</h1>
+        <div class="top-gap-sm">
+          <a class="btn btn-soft" href="/wings" data-return-link>Back</a>
+        </div>
         <p class="reveal top-gap">
-          Public Relations, Marketing, and Development initiatives to enhance GCPC's visibility, engagement, and growth.
+          Software engineering, product building, and practical implementation initiatives that help members turn ideas into working systems.
         </p>
       </div>
     </section>
@@ -49,16 +59,16 @@
         <h2 class="reveal">Wing Focus Areas</h2>
         <div class="grid-3 top-gap">
           <article class="card gcpc-card interactive-card reveal">
-            <h3>Public Relations</h3>
-            <p>Building and maintaining relationships with stakeholders, media, and the community to promote GCPC's mission and activities.</p>
+            <h3>Software Engineering</h3>
+            <p>Building practical foundations in software design, architecture, and implementation through guided project work.</p>
           </article>
           <article class="card gcpc-card interactive-card reveal">
-            <h3>Marketing & Branding</h3>
-            <p>Creating compelling content, managing social media presence, and developing marketing strategies to increase visibility.</p>
+            <h3>Web & Product Development</h3>
+            <p>Creating usable web experiences and member-facing tools with structured practice in frontend and backend workflows.</p>
           </article>
           <article class="card gcpc-card interactive-card reveal">
-            <h3>Development & Growth</h3>
-            <p>Planning and executing initiatives for organizational development, member engagement, and sustainable growth.</p>
+            <h3>Systems & Innovation</h3>
+            <p>Exploring system design, modern tooling, and applied problem-solving to deliver scalable technical solutions.</p>
           </article>
         </div>
       </div>
@@ -69,20 +79,20 @@
         <h2 class="reveal">Key Activities</h2>
         <div class="grid-2 top-gap">
           <article class="card gcpc-card interactive-card reveal">
-            <h3>Content Creation</h3>
-            <p>Developing engaging content for social media, newsletters, and promotional materials to showcase GCPC activities and achievements.</p>
+            <h3>Project Sprints</h3>
+            <p>Collaborative build cycles where members plan, implement, test, and improve software features in a structured workflow.</p>
           </article>
           <article class="card gcpc-card interactive-card reveal">
-            <h3>Event Promotion</h3>
-            <p>Managing publicity for GCPC events, workshops, and seminars through various channels and partnerships.</p>
+            <h3>Tooling Workshops</h3>
+            <p>Hands-on sessions on frameworks, version control, deployment flow, and modern engineering tools used in real projects.</p>
           </article>
           <article class="card gcpc-card interactive-card reveal">
-            <h3>Community Engagement</h3>
-            <p>Building relationships with industry partners, alumni, and other student organizations for collaboration and support.</p>
+            <h3>System Design Practice</h3>
+            <p>Scenario-driven exercises that build confidence in thinking about architecture, reliability, and maintainable solutions.</p>
           </article>
           <article class="card gcpc-card interactive-card reveal">
-            <h3>Member Recruitment</h3>
-            <p>Developing strategies to attract and onboard new members, ensuring diverse and inclusive participation.</p>
+            <h3>Engineering Review Sessions</h3>
+            <p>Code review and feedback rounds that help members refine implementation quality, readability, and teamwork discipline.</p>
           </article>
         </div>
       </div>
@@ -95,9 +105,9 @@
           <article class="card gcpc-card reveal">
             <h3>Requirements</h3>
             <ul class="wing-points">
-              <li>Passion for communication and marketing</li>
-              <li>Creative thinking and content creation skills</li>
-              <li>Interest in public relations and community building</li>
+              <li>Interest in building software and solving technical problems</li>
+              <li>Willingness to learn development workflows and modern tools</li>
+              <li>Commitment to consistent project participation</li>
               <li>Commitment to GCPC's mission and values</li>
             </ul>
           </article>
@@ -105,8 +115,8 @@
             <h3>Application Process</h3>
             <ul class="wing-points">
               <li>Register interest through GCPC membership</li>
-              <li>Attend PR wing orientation session</li>
-              <li>Submit portfolio or creative samples</li>
+              <li>Attend Development Wing orientation session</li>
+              <li>Complete a basic skill or interest review</li>
               <li>Complete wing-specific onboarding</li>
             </ul>
           </article>
@@ -120,18 +130,18 @@
           <h2>Current Projects</h2>
           <div class="vertical-slider top-gap" data-slideshow data-auto="4000">
             <div class="vertical-slide active">
-              <h4>Social Media Campaign</h4>
-              <p>Managing GCPC's social media presence across platforms, creating engaging content, and growing our online community.</p>
+              <h4>Member Portal Improvements</h4>
+              <p>Enhancing GCPC's web presence and member-facing flows through practical UI, component, and frontend implementation work.</p>
               <p class="meta">Status: Active | Team Size: 8 members</p>
             </div>
             <div class="vertical-slide">
-              <h4>Brand Development</h4>
-              <p>Developing comprehensive branding guidelines and marketing materials to strengthen GCPC's visual identity.</p>
+              <h4>Workshop Practice Repositories</h4>
+              <p>Creating structured example repositories so members can practice development workflows beyond single-session workshops.</p>
               <p class="meta">Status: In Progress | Team Size: 6 members</p>
             </div>
             <div class="vertical-slide">
-              <h4>Partnership Program</h4>
-              <p>Establishing collaborations with tech companies, universities, and organizations for mutual growth and opportunities.</p>
+              <h4>Deployment & Toolchain Setup</h4>
+              <p>Standardizing project setup, versioning, and deployment practices to prepare members for collaborative engineering environments.</p>
               <p class="meta">Status: Planning | Team Size: 4 members</p>
             </div>
           </div>
@@ -172,6 +182,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js"></script>
+  <script type="module" src="assets/app.js"></script>
 </body>
 </html>

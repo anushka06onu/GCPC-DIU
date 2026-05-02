@@ -63,6 +63,17 @@ const EVENT_TYPE_LABELS = {
   meetup: 'Meetup'
 };
 
+const WING_LABELS = {
+  acm: 'ACM Wing',
+  research: 'Research Wing',
+  career: 'Career & PR Wing',
+  development: 'Development Wing'
+};
+
+const THEME_STORAGE_KEY = 'gcpc-theme';
+const SCROLL_MEMORY_KEY = 'gcpc-scroll-memory';
+const SCROLL_RESTORE_KEY = 'gcpc-scroll-restore';
+
 const ROUTE_MAP = {
   '/': '#top',
   '/home': '#top',
@@ -78,6 +89,94 @@ const ROUTE_MAP = {
 const normalizePath = (pathname) => {
   const normalized = pathname.replace(/\/+$/, '');
   return normalized === '' ? '/' : normalized;
+};
+
+const isHomePath = (pathname) => ['/', '/home'].includes(normalizePath(pathname));
+
+const pathsMatch = (left, right) => {
+  const a = normalizePath(left || '/');
+  const b = normalizePath(right || '/');
+  return a === b || (isHomePath(a) && isHomePath(b));
+};
+
+const readJsonStorage = (storage, key) => {
+  try {
+    return JSON.parse(storage.getItem(key) || 'null');
+  } catch (error) {
+    return null;
+  }
+};
+
+const getNavigationType = () => {
+  const navEntries = performance.getEntriesByType?.('navigation') || [];
+  return navEntries[0]?.type || 'navigate';
+};
+
+const rememberCurrentScroll = (targetHref = '', sectionId = '') => {
+  if (typeof sessionStorage === 'undefined') return;
+  sessionStorage.setItem(SCROLL_MEMORY_KEY, JSON.stringify({
+    path: normalizePath(window.location.pathname),
+    scrollY: window.scrollY,
+    targetPath: targetHref ? normalizePath(new URL(targetHref, window.location.origin).pathname) : '',
+    sectionId: String(sectionId || '').trim(),
+    ts: Date.now()
+  }));
+};
+
+const readScrollMemory = () => {
+  if (typeof sessionStorage === 'undefined') return null;
+  const saved = readJsonStorage(sessionStorage, SCROLL_MEMORY_KEY);
+  if (!saved || typeof saved !== 'object') return null;
+  if (Date.now() - Number(saved.ts || 0) > 30 * 60 * 1000) return null;
+  return saved;
+};
+
+const flagScrollRestore = (pathname) => {
+  if (typeof sessionStorage === 'undefined') return;
+  sessionStorage.setItem(SCROLL_RESTORE_KEY, JSON.stringify({
+    path: normalizePath(pathname || window.location.pathname),
+    ts: Date.now()
+  }));
+};
+
+const hasScrollRestoreFlag = (pathname) => {
+  if (typeof sessionStorage === 'undefined') return false;
+  const flag = readJsonStorage(sessionStorage, SCROLL_RESTORE_KEY);
+  if (!flag || typeof flag !== 'object') return false;
+  if (Date.now() - Number(flag.ts || 0) > 30 * 60 * 1000) return false;
+  return pathsMatch(flag.path, pathname);
+};
+
+const clearScrollRestoreFlag = () => {
+  if (typeof sessionStorage === 'undefined') return;
+  sessionStorage.removeItem(SCROLL_RESTORE_KEY);
+};
+
+const shouldRestoreScroll = (pathname) => hasScrollRestoreFlag(pathname) || getNavigationType() === 'back_forward';
+
+const restoreSavedScroll = (pathname) => {
+  const saved = readScrollMemory();
+  if (!saved || !pathsMatch(saved.path, pathname)) return false;
+
+  let attempts = 0;
+  const target = Math.max(0, Number(saved.scrollY || 0));
+  const tick = () => {
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    window.scrollTo(0, Math.min(target, maxScroll));
+    attempts += 1;
+    const reached = Math.abs(window.scrollY - Math.min(target, maxScroll)) < 4;
+    if (!reached && attempts < 12) {
+      requestAnimationFrame(tick);
+      return;
+    }
+    if (!reached && saved.sectionId) {
+      document.getElementById(saved.sectionId)?.scrollIntoView({ block: 'start' });
+    }
+    clearScrollRestoreFlag();
+  };
+
+  requestAnimationFrame(tick);
+  return true;
 };
 
 const getRouteAnchor = (pathname) => ROUTE_MAP[normalizePath(pathname)] || null;
@@ -104,6 +203,92 @@ const closeNavMenu = () => {
     toggle.classList.remove('is-open');
     toggle.setAttribute('aria-expanded', 'false');
   }
+};
+
+const initThemeToggle = () => {
+  const root = document.body;
+  if (!root) return;
+
+  const applyTheme = (theme, persist = false) => {
+    const nextTheme = theme === 'dark' ? 'dark' : 'light';
+    root.dataset.theme = nextTheme;
+    document.documentElement.dataset.theme = nextTheme;
+    document.querySelectorAll('.theme-toggle').forEach((toggle) => {
+      const isDark = nextTheme === 'dark';
+      toggle.setAttribute('aria-pressed', String(isDark));
+      toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    });
+    if (persist && typeof localStorage !== 'undefined') {
+      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    }
+  };
+
+  const savedTheme = typeof localStorage !== 'undefined'
+    ? localStorage.getItem(THEME_STORAGE_KEY)
+    : null;
+  applyTheme(savedTheme === 'dark' ? 'dark' : 'light');
+
+  document.querySelectorAll('.theme-toggle').forEach((toggle) => {
+    toggle.addEventListener('click', () => {
+      const nextTheme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(nextTheme, true);
+    });
+  });
+};
+
+const bindNavigationMemory = () => {
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href]');
+    if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
+
+    const rawHref = link.getAttribute('href') || '';
+    if (!rawHref || rawHref.startsWith('#') || rawHref.startsWith('mailto:') || rawHref.startsWith('tel:')) return;
+
+    const url = new URL(link.href, window.location.origin);
+    if (url.origin !== window.location.origin) return;
+
+    const normalized = normalizePath(url.pathname);
+    const anchor = getRouteAnchor(normalized);
+    const target = anchor ? document.querySelector(anchor) : null;
+
+    if (target) return;
+    const sourceSection = link.closest('section[id], footer[id], [data-scroll-source]')?.id || '';
+    rememberCurrentScroll(link.href, sourceSection);
+  }, true);
+};
+
+const bindReturnLinks = () => {
+  document.querySelectorAll('[data-return-link]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const saved = readScrollMemory();
+      if (!saved) return;
+
+      event.preventDefault();
+      flagScrollRestore(saved.path);
+      const canUseHistoryBack =
+        document.referrer &&
+        new URL(document.referrer, window.location.origin).origin === window.location.origin &&
+        window.history.length > 1;
+
+      if (canUseHistoryBack) {
+        let settled = false;
+        const release = () => {
+          settled = true;
+          window.removeEventListener('pagehide', release);
+          window.removeEventListener('beforeunload', release);
+        };
+        window.addEventListener('pagehide', release, { once: true });
+        window.addEventListener('beforeunload', release, { once: true });
+        window.history.back();
+        window.setTimeout(() => {
+          if (!settled) window.location.href = saved.path;
+        }, 180);
+        return;
+      }
+
+      window.location.href = saved.path;
+    });
+  });
 };
 
 const bindSectionLinks = () => {
@@ -142,6 +327,13 @@ const preloadImages = (sources = []) => {
     img.decoding = 'async';
     img.src = src;
   });
+};
+
+const truncateText = (value, max = 140) => {
+  const clean = String(value || '').trim().replace(/\s+/g, ' ');
+  if (!clean) return '';
+  if (clean.length <= max) return clean;
+  return `${clean.slice(0, max).trimEnd()}...`;
 };
 
 const escapeHtml = (value) => String(value ?? '')
@@ -282,6 +474,13 @@ const resolveEventBannerUrl = (event) => {
   return '';
 };
 
+const summarizeEvent = (event, max = 140) => truncateText(event.description || 'Event details coming soon.', max);
+
+const formatWingLabel = (value) => {
+  const key = String(value || '').toLowerCase();
+  return WING_LABELS[key] || 'GCPC Wing';
+};
+
 
 const normalizeWing = (event) => {
   const explicit = String(event.wing || '').toLowerCase();
@@ -289,7 +488,9 @@ const normalizeWing = (event) => {
 
   const text = `${event.title || ''} ${event.description || ''}`.toLowerCase();
   if (text.includes('research')) return 'research';
-  if (text.includes('career') || text.includes('development') || text.includes('devops')) return 'career';
+  if (text.includes('development wing') || text.includes('software development') || text.includes('web development') || text.includes('system design')) return 'development';
+  if (text.includes('career') || text.includes('public relation') || text.includes('branding') || text.includes('communication') || text.includes('graphic design')) return 'career';
+  if (text.includes('development') || text.includes('devops')) return 'development';
   return 'acm';
 };
 
@@ -506,41 +707,37 @@ const buildWingCards = (containerId, events) => {
     return;
   }
 
-  // For single event, just show it
-  if (events.length === 1) {
-    const event = events[0];
-    container.innerHTML = `
-      <a class="card gcpc-card interactive-card wing-event-item" href="/event?id=${encodeURIComponent(event.id)}">
-        ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
-        <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
-        <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
-        <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
-        <p class="meta">Starts: ${escapeHtml(formatDate(event.dateISO))}</p>
-        <p class="meta">Ends: ${escapeHtml(formatDate(event.deadlineISO))}</p>
-        ${event.instructor ? `<p class="meta">Instructor: ${escapeHtml(event.instructor)}</p>` : ''}
-      </a>
-    `;
-    return;
-  }
-
-  // For multiple events, create horizontal carousel inside the card
   const eventCards = events.map((event) => `
     <a class="card gcpc-card interactive-card wing-event-item" href="/event?id=${encodeURIComponent(event.id)}">
       ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
-      <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
-      <p class="meta">${escapeHtml(event.semester || 'GCPC')}</p>
-      <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
-      <p class="meta">Starts: ${escapeHtml(formatDate(event.dateISO))}</p>
-      <p class="meta">Ends: ${escapeHtml(formatDate(event.deadlineISO))}</p>
-      ${event.instructor ? `<p class="meta">Instructor: ${escapeHtml(event.instructor)}</p>` : ''}
+      <div class="wing-event-body">
+        <div class="wing-event-copy">
+          <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
+          <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
+          <p class="wing-event-desc">${escapeHtml(summarizeEvent(event, 120))}</p>
+        </div>
+        <div class="wing-event-meta">
+          <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
+          <p class="meta">Start Date: ${escapeHtml(formatDate(event.dateISO))}</p>
+          <p class="meta">End Date: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+        </div>
+        <span class="wing-event-cta">View details</span>
+      </div>
     </a>
   `).join('');
+
+  if (events.length === 1) {
+    container.innerHTML = eventCards;
+    return;
+  }
 
   container.innerHTML = `
     <div class="wing-carousel-container">
       <button class="carousel-arrow carousel-prev" type="button" aria-label="Previous">&#10094;</button>
-      <div class="wing-carousel-track">
-        ${eventCards}
+      <div class="wing-carousel-viewport">
+        <div class="wing-carousel-track">
+          ${eventCards}
+        </div>
       </div>
       <button class="carousel-arrow carousel-next" type="button" aria-label="Next">&#10095;</button>
     </div>
@@ -551,37 +748,43 @@ const buildWingCards = (containerId, events) => {
   const prevBtn = container.querySelector('.carousel-prev');
   const nextBtn = container.querySelector('.carousel-next');
 
-  if (track && prevBtn && nextBtn) {
+  const viewport = container.querySelector('.wing-carousel-viewport');
+
+  if (track && viewport && prevBtn && nextBtn) {
     let currentIndex = 0;
     const autoScrollInterval = 5000;
+    let autoScroll;
 
     const showSlide = (index) => {
       const items = track.querySelectorAll('.wing-event-item');
       if (items.length === 0) return;
-      
+
       currentIndex = (index + items.length) % items.length;
-      const offset = -currentIndex * (300 + 16); // card width (300px) + gap (16px)
+      const offset = -currentIndex * viewport.clientWidth;
       track.style.transform = `translateX(${offset}px)`;
     };
 
-    prevBtn.addEventListener('click', () => {
+    const restartAutoScroll = () => {
       clearInterval(autoScroll);
-      showSlide(currentIndex - 1);
       autoScroll = setInterval(() => showSlide(currentIndex + 1), autoScrollInterval);
+    };
+
+    prevBtn.addEventListener('click', () => {
+      showSlide(currentIndex - 1);
+      restartAutoScroll();
     });
 
     nextBtn.addEventListener('click', () => {
-      clearInterval(autoScroll);
       showSlide(currentIndex + 1);
-      autoScroll = setInterval(() => showSlide(currentIndex + 1), autoScrollInterval);
+      restartAutoScroll();
     });
 
     track.addEventListener('mouseenter', () => clearInterval(autoScroll));
-    track.addEventListener('mouseleave', () => {
-      autoScroll = setInterval(() => showSlide(currentIndex + 1), autoScrollInterval);
-    });
+    track.addEventListener('mouseleave', restartAutoScroll);
+    window.addEventListener('resize', () => showSlide(currentIndex));
 
-    let autoScroll = setInterval(() => showSlide(currentIndex + 1), autoScrollInterval);
+    showSlide(0);
+    restartAutoScroll();
   }
 };
 
@@ -594,22 +797,136 @@ const renderEventCollection = (hostId, events, emptyText) => {
   }
 
   host.innerHTML = events.map((event) => `
-    <a class="card gcpc-card interactive-card" href="/event?id=${encodeURIComponent(event.id)}">
+    <a class="card gcpc-card interactive-card event-card" href="/event?id=${encodeURIComponent(event.id)}">
       ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
-      <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
-      <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
-      <p>${escapeHtml(event.description || 'Event details coming soon.')}</p>
-      <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
-      <p class="meta">Starts: ${escapeHtml(formatDate(event.dateISO))}</p>
-      <p class="meta">Ends: ${escapeHtml(formatDate(event.deadlineISO))}</p>
-      ${event.instructor ? `<p class="meta">Instructor: ${escapeHtml(event.instructor)}</p>` : ''}
-      <p class="meta">Venue: ${escapeHtml(event.venue || 'TBA')}</p>
+      <div class="event-card-body">
+        <div class="event-card-copy">
+          <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
+          <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
+          <p class="event-card-desc">${escapeHtml(summarizeEvent(event, 160))}</p>
+        </div>
+        <div class="event-card-meta">
+          <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
+          <p class="meta">Start Date: ${escapeHtml(formatDate(event.dateISO))}</p>
+          <p class="meta">End Date: ${escapeHtml(formatDate(event.deadlineISO))}</p>
+          <p class="meta">Venue: ${escapeHtml(event.venue || 'TBA')}</p>
+        </div>
+        <span class="wing-event-cta">Open details</span>
+      </div>
     </a>
   `).join('');
 };
 
+const pastEventCache = new Map();
+
+const renderPastEventCollection = (hostId, events, emptyText) => {
+  const host = document.getElementById(hostId);
+  if (!host) return;
+
+  pastEventCache.clear();
+  if (!events.length) {
+    host.innerHTML = `<article class="card gcpc-card"><p>${escapeHtml(emptyText)}</p></article>`;
+    return;
+  }
+
+  events.forEach((event) => {
+    if (event?.id) pastEventCache.set(event.id, event);
+  });
+
+  host.innerHTML = events.map((event) => `
+    <button class="card gcpc-card interactive-card past-event-card" type="button" data-past-event-id="${escapeHtml(event.id)}">
+      ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
+      <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
+      <div class="past-event-meta">
+        <p class="meta">Semester: ${escapeHtml(event.semester || 'GCPC')}</p>
+        <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
+        <p class="meta">Start Date: ${escapeHtml(formatDate(event.dateISO))}</p>
+      </div>
+    </button>
+  `).join('');
+};
+
+const bindPastEventModal = () => {
+  const host = document.getElementById('past-events-grid');
+  const modal = document.getElementById('past-event-modal');
+  const content = document.getElementById('past-event-modal-content');
+  const closeBtn = document.getElementById('past-event-close');
+  if (!host || !modal || !content || modal.dataset.bound === '1') return;
+
+  const closeModal = () => {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  const openModal = (event) => {
+    if (!event) return;
+    content.innerHTML = `
+      <article class="event-detail-content">
+        ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
+        <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
+        <h2 id="past-event-title">${escapeHtml(event.title || 'Untitled Event')}</h2>
+        <p>${escapeHtml(event.description || 'No description provided.')}</p>
+        <div class="event-detail-grid">
+          <div class="event-detail-item">
+            <span class="event-detail-label">Semester</span>
+            <p>${escapeHtml(event.semester || 'GCPC')}</p>
+          </div>
+          <div class="event-detail-item">
+            <span class="event-detail-label">Format</span>
+            <p>${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
+          </div>
+          <div class="event-detail-item">
+            <span class="event-detail-label">Start Date</span>
+            <p>${escapeHtml(formatDate(event.dateISO))}</p>
+          </div>
+          <div class="event-detail-item">
+            <span class="event-detail-label">End Date</span>
+            <p>${escapeHtml(formatDate(event.deadlineISO))}</p>
+          </div>
+          <div class="event-detail-item">
+            <span class="event-detail-label">Venue</span>
+            <p>${escapeHtml(event.venue || 'TBA')}</p>
+          </div>
+          <div class="event-detail-item">
+            <span class="event-detail-label">Instructor</span>
+            <p>${escapeHtml(event.instructor || 'TBA')}</p>
+          </div>
+          <div class="event-detail-item">
+            <span class="event-detail-label">Status</span>
+            <p>${escapeHtml(event.status || 'N/A')}</p>
+          </div>
+        </div>
+        ${event.registrationLink ? `<a class="btn btn-primary" href="${escapeHtml(event.registrationLink)}" target="_blank" rel="noopener noreferrer">Registration Link</a>` : ''}
+      </article>
+    `;
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+
+  host.addEventListener('click', (clickEvent) => {
+    const trigger = clickEvent.target.closest('[data-past-event-id]');
+    if (!trigger) return;
+    openModal(pastEventCache.get(trigger.dataset.pastEventId));
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (clickEvent) => {
+    if (clickEvent.target === modal) closeModal();
+  });
+  document.addEventListener('keydown', (keyEvent) => {
+    if (keyEvent.key === 'Escape' && !modal.classList.contains('hidden')) {
+      closeModal();
+    }
+  });
+
+  modal.dataset.bound = '1';
+};
+
 const initHome = async () => {
   initHeroBackground();
+  bindPastEventModal();
 
   try {
     const all = await fetchAllEvents();
@@ -629,7 +946,7 @@ const initHome = async () => {
     const pastEl = $('#past-events-grid');
     const upEl = $('#upcoming-events-grid');
     if (upEl) renderEventCollection('upcoming-events-grid', upcoming.slice(0, 6), 'No upcoming activities yet.');
-    if (pastEl) renderEventCollection('past-events-grid', past.slice(0, 6), 'No past events available yet.');
+    if (pastEl) renderPastEventCollection('past-events-grid', past.slice(0, 6), 'No past events available yet.');
   } catch (error) {
     console.error(error);
     renderTicker([]);
@@ -638,7 +955,7 @@ const initHome = async () => {
     buildWingCards('career-activity-slider', []);
     buildWingCards('development-activity-slider', []);
     renderEventCollection('upcoming-events-grid', [], 'No upcoming activities yet.');
-    renderEventCollection('past-events-grid', [], 'No past events available yet.');
+    renderPastEventCollection('past-events-grid', [], 'No past events available yet.');
     showToast('Could not load upcoming events.', 'error');
   }
 };
@@ -959,18 +1276,40 @@ const initEventPage = async () => {
 
     const e = snap.data();
     host.innerHTML = `
-      <article class="card reveal in-view">
+      <article class="card gcpc-card reveal in-view">
         ${eventBannerHtml(resolveEventBannerUrl(e), `${e.title || 'Event'} banner`)}
-        <span class="badge">${escapeHtml(e.semester || 'GCPC')}</span>
-        <h2>${escapeHtml(e.title || 'Untitled Event')}</h2>
-        <p>${escapeHtml(e.description || 'No description provided.')}</p>
-        <p><strong>Format:</strong> ${escapeHtml(formatEventTypeLabel(e.eventType))}</p>
-        <p><strong>Starts:</strong> ${escapeHtml(formatDate(e.dateISO))}</p>
-        <p><strong>Ends:</strong> ${escapeHtml(formatDate(e.deadlineISO))}</p>
-        <p><strong>Venue:</strong> ${escapeHtml(e.venue || 'TBA')}</p>
-        ${e.instructor ? `<p><strong>Instructor:</strong> ${escapeHtml(e.instructor)}</p>` : ''}
-        <p><strong>Status:</strong> ${escapeHtml(e.status || 'N/A')}</p>
-        ${e.registrationLink ? `<a class="btn btn-primary" href="${escapeHtml(e.registrationLink)}" target="_blank" rel="noopener noreferrer">Registration Link</a>` : ''}
+        <div class="event-detail-content">
+          <span class="badge">${escapeHtml(e.semester || 'GCPC')}</span>
+          <h2>${escapeHtml(e.title || 'Untitled Event')}</h2>
+          <p>${escapeHtml(e.description || 'No description provided.')}</p>
+          <div class="event-detail-grid">
+            <div class="event-detail-item">
+              <span class="event-detail-label">Format</span>
+              <p>${escapeHtml(formatEventTypeLabel(e.eventType))}</p>
+            </div>
+            <div class="event-detail-item">
+              <span class="event-detail-label">Start Date</span>
+              <p>${escapeHtml(formatDate(e.dateISO))}</p>
+            </div>
+            <div class="event-detail-item">
+              <span class="event-detail-label">End Date</span>
+              <p>${escapeHtml(formatDate(e.deadlineISO))}</p>
+            </div>
+            <div class="event-detail-item">
+              <span class="event-detail-label">Venue</span>
+              <p>${escapeHtml(e.venue || 'TBA')}</p>
+            </div>
+            <div class="event-detail-item">
+              <span class="event-detail-label">Instructor</span>
+              <p>${escapeHtml(e.instructor || 'TBA')}</p>
+            </div>
+            <div class="event-detail-item">
+              <span class="event-detail-label">Status</span>
+              <p>${escapeHtml(e.status || 'N/A')}</p>
+            </div>
+          </div>
+          ${e.registrationLink ? `<a class="btn btn-primary" href="${escapeHtml(e.registrationLink)}" target="_blank" rel="noopener noreferrer">Registration Link</a>` : ''}
+        </div>
       </article>
     `;
   } catch (error) {
@@ -1056,7 +1395,7 @@ const renderAdminEvents = async () => {
           ${rows.map((row) => `
             <tr>
               <td>${escapeHtml(row.title || '')}</td>
-              <td>${escapeHtml(row.wing || normalizeWing(row))}</td>
+              <td>${escapeHtml(formatWingLabel(row.wing || normalizeWing(row)))}</td>
               <td>${escapeHtml(row.semester || '')}</td>
               <td>${escapeHtml(formatEventTypeLabel(row.eventType))}</td>
               <td>${escapeHtml(formatDate(row.dateISO))}</td>
@@ -1677,20 +2016,32 @@ const initAdmin = async () => {
 
 const initPage = async () => {
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  window.scrollTo(0, 0);
-  window.addEventListener('pageshow', () => {
-    const path = normalizePath(window.location.pathname);
-    if (getRouteAnchor(path) && getRouteAnchor(path) !== '#top') return;
-    window.scrollTo(0, 0);
-  });
-
+  initThemeToggle();
+  bindNavigationMemory();
+  bindReturnLinks();
   bindSectionLinks();
   const initialPath = normalizePath(window.location.pathname);
-  if (!scrollToRoute(initialPath, true) && initialPath === '/') {
+  const restoreOnLoad = shouldRestoreScroll(initialPath);
+  if (!restoreOnLoad && !scrollToRoute(initialPath, true) && initialPath === '/') {
     history.replaceState(null, '', '/home');
   }
+
+  if (restoreOnLoad && initialPath === '/') {
+    history.replaceState(null, '', '/home');
+  }
+
+  window.addEventListener('pageshow', (event) => {
+    const currentPath = normalizePath(window.location.pathname);
+    if (event.persisted || hasScrollRestoreFlag(currentPath)) {
+      restoreSavedScroll(currentPath);
+    }
+  });
+
   window.addEventListener('popstate', () => {
-    scrollToRoute(window.location.pathname, true);
+    const currentPath = normalizePath(window.location.pathname);
+    if (!restoreSavedScroll(currentPath)) {
+      scrollToRoute(window.location.pathname, true);
+    }
   });
 
   navInit();
@@ -1721,6 +2072,8 @@ const initPage = async () => {
   if (page === 'event') await initEventPage();
   if (page === 'wing') await initWingPage();
   if (page === 'admin') await initAdmin();
+
+  if (restoreOnLoad) restoreSavedScroll(initialPath);
 };
 
 initPage();

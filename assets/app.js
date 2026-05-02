@@ -703,117 +703,69 @@ const buildWingCards = (containerId, events) => {
   if (!container) return;
 
   if (!events.length) {
-    container.innerHTML = '<div class="vertical-empty">No upcoming events for this wing yet.</div>';
+    container.innerHTML = '<div class="wing-empty-state">Currently no upcoming events.<br>Stay tuned for updates.</div>';
     return;
   }
 
-  const eventCards = events.map((event) => `
-    <a class="card gcpc-card interactive-card wing-event-item" href="/event?id=${encodeURIComponent(event.id)}">
-      ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
-      <div class="wing-event-body">
-        <div class="wing-event-copy">
-          <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
-          <h4>${escapeHtml(event.title || 'Untitled Event')}</h4>
-          <p class="wing-event-desc">${escapeHtml(summarizeEvent(event, 120))}</p>
-        </div>
-        <div class="wing-event-meta">
-          <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
-          <p class="meta">Start Date: ${escapeHtml(formatDate(event.dateISO))}</p>
-          <p class="meta">End Date: ${escapeHtml(formatDate(event.deadlineISO))}</p>
-        </div>
-        <span class="wing-event-cta">View details</span>
-      </div>
-    </a>
+  const slidesHtml = events.map((event, idx) => `
+    <div class="wing-slide ${idx === 0 ? 'active' : ''}">
+      <button class="wing-slide-link" type="button" data-past-event-id="${escapeHtml(event.id)}" aria-label="View ${escapeHtml(event.title || 'Event')}">
+        ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
+      </button>
+    </div>
   `).join('');
 
-  if (events.length === 1) {
-    container.innerHTML = eventCards;
-    return;
-  }
-
   container.innerHTML = `
-    <div class="wing-carousel-container">
-      <button class="carousel-arrow carousel-prev" type="button" aria-label="Previous">&#10094;</button>
-      <div class="wing-carousel-viewport">
-        <div class="wing-carousel-track">
-          ${eventCards}
-        </div>
-      </div>
-      <button class="carousel-arrow carousel-next" type="button" aria-label="Next">&#10095;</button>
+    <div class="wing-slider-frame">
+      ${slidesHtml}
     </div>
   `;
 
-  // Carousel logic
-  const track = container.querySelector('.wing-carousel-track');
-  const prevBtn = container.querySelector('.carousel-prev');
-  const nextBtn = container.querySelector('.carousel-next');
+  if (events.length > 1) {
+    const slides = container.querySelectorAll('.wing-slide');
+    let idx = 0;
+    let timer = setInterval(() => {
+      slides[idx].classList.remove('active');
+      idx = (idx + 1) % slides.length;
+      slides[idx].classList.add('active');
+    }, 3500);
 
-  const viewport = container.querySelector('.wing-carousel-viewport');
-
-  if (track && viewport && prevBtn && nextBtn) {
-    let currentIndex = 0;
-    const autoScrollInterval = 5000;
-    let autoScroll;
-
-    const showSlide = (index) => {
-      const items = track.querySelectorAll('.wing-event-item');
-      if (items.length === 0) return;
-
-      currentIndex = (index + items.length) % items.length;
-      const offset = -currentIndex * viewport.clientWidth;
-      track.style.transform = `translateX(${offset}px)`;
-    };
-
-    const restartAutoScroll = () => {
-      clearInterval(autoScroll);
-      autoScroll = setInterval(() => showSlide(currentIndex + 1), autoScrollInterval);
-    };
-
-    prevBtn.addEventListener('click', () => {
-      showSlide(currentIndex - 1);
-      restartAutoScroll();
+    // Pause on hover
+    container.addEventListener('mouseenter', () => clearInterval(timer));
+    container.addEventListener('mouseleave', () => {
+      timer = setInterval(() => {
+        slides[idx].classList.remove('active');
+        idx = (idx + 1) % slides.length;
+        slides[idx].classList.add('active');
+      }, 3500);
     });
-
-    nextBtn.addEventListener('click', () => {
-      showSlide(currentIndex + 1);
-      restartAutoScroll();
-    });
-
-    track.addEventListener('mouseenter', () => clearInterval(autoScroll));
-    track.addEventListener('mouseleave', restartAutoScroll);
-    window.addEventListener('resize', () => showSlide(currentIndex));
-
-    showSlide(0);
-    restartAutoScroll();
   }
 };
 
 const renderEventCollection = (hostId, events, emptyText) => {
   const host = document.getElementById(hostId);
   if (!host) return;
+
   if (!events.length) {
     host.innerHTML = `<article class="card gcpc-card"><p>${escapeHtml(emptyText)}</p></article>`;
     return;
   }
 
+  events.forEach((event) => {
+    if (event?.id) pastEventCache.set(event.id, event);
+  });
+
   host.innerHTML = events.map((event) => `
-    <a class="card gcpc-card interactive-card event-card" href="/event?id=${encodeURIComponent(event.id)}">
+    <button class="card gcpc-card interactive-card past-event-card" type="button" data-past-event-id="${escapeHtml(event.id)}">
       ${eventBannerHtml(resolveEventBannerUrl(event), `${event.title || 'Event'} banner`)}
-      <div class="event-card-body">
-        <div class="event-card-copy">
-          <span class="badge">${escapeHtml(event.semester || 'GCPC')}</span>
-          <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
-          <p class="event-card-desc">${escapeHtml(summarizeEvent(event, 160))}</p>
-        </div>
-        <div class="event-card-meta">
-          <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
-          <p class="meta">Start Date: ${escapeHtml(formatDate(event.dateISO))}</p>
-          <p class="meta">End Date: ${escapeHtml(formatDate(event.deadlineISO))}</p>
-          <p class="meta">Venue: ${escapeHtml(event.venue || 'TBA')}</p>
-        </div>
-        <span class="wing-event-cta">Open details</span>
+      <h3>${escapeHtml(event.title || 'Untitled Event')}</h3>
+      <div class="past-event-meta">
+        <p class="meta">Semester: ${escapeHtml(event.semester || 'GCPC')}</p>
+        <p class="meta">Format: ${escapeHtml(formatEventTypeLabel(event.eventType))}</p>
+        <p class="meta">Start Date: ${escapeHtml(formatDate(event.dateISO))}</p>
+        <p class="meta">End Date: ${escapeHtml(formatDate(event.deadlineISO))}</p>
       </div>
-    </a>
+    </button>
   `).join('');
 };
 
@@ -823,7 +775,6 @@ const renderPastEventCollection = (hostId, events, emptyText) => {
   const host = document.getElementById(hostId);
   if (!host) return;
 
-  pastEventCache.clear();
   if (!events.length) {
     host.innerHTML = `<article class="card gcpc-card"><p>${escapeHtml(emptyText)}</p></article>`;
     return;
@@ -847,11 +798,13 @@ const renderPastEventCollection = (hostId, events, emptyText) => {
 };
 
 const bindPastEventModal = () => {
-  const host = document.getElementById('past-events-grid');
+  const pastHost = document.getElementById('past-events-grid');
+  const upcomingHost = document.getElementById('upcoming-events-grid');
+  const wingsSection = document.querySelector('.wing-activity-grid');
   const modal = document.getElementById('past-event-modal');
   const content = document.getElementById('past-event-modal-content');
   const closeBtn = document.getElementById('past-event-close');
-  if (!host || !modal || !content || modal.dataset.bound === '1') return;
+  if ((!pastHost && !upcomingHost && !wingsSection) || !modal || !content || modal.dataset.bound === '1') return;
 
   const closeModal = () => {
     modal.classList.add('hidden');
@@ -897,7 +850,11 @@ const bindPastEventModal = () => {
             <p>${escapeHtml(event.status || 'N/A')}</p>
           </div>
         </div>
-        ${event.registrationLink ? `<a class="btn btn-primary" href="${escapeHtml(event.registrationLink)}" target="_blank" rel="noopener noreferrer">Registration Link</a>` : ''}
+        ${event.regLink ? `
+          <div class="event-detail-actions top-gap">
+            <a href="${escapeHtml(event.regLink)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Register Now</a>
+          </div>
+        ` : ''}
       </article>
     `;
     modal.classList.remove('hidden');
@@ -905,28 +862,63 @@ const bindPastEventModal = () => {
     document.body.style.overflow = 'hidden';
   };
 
-  host.addEventListener('click', (clickEvent) => {
+  const handleModalClick = (clickEvent) => {
     const trigger = clickEvent.target.closest('[data-past-event-id]');
     if (!trigger) return;
     openModal(pastEventCache.get(trigger.dataset.pastEventId));
-  });
+  };
+
+  if (pastHost) pastHost.addEventListener('click', handleModalClick);
+  if (upcomingHost) upcomingHost.addEventListener('click', handleModalClick);
+  if (wingsSection) wingsSection.addEventListener('click', handleModalClick);
 
   closeBtn.addEventListener('click', closeModal);
   modal.addEventListener('click', (clickEvent) => {
     if (clickEvent.target === modal) closeModal();
   });
-  document.addEventListener('keydown', (keyEvent) => {
-    if (keyEvent.key === 'Escape' && !modal.classList.contains('hidden')) {
-      closeModal();
-    }
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
   });
 
   modal.dataset.bound = '1';
 };
 
+const initFAQ = () => {
+  const faqItems = document.querySelectorAll('.faq-item');
+  if (!faqItems.length) return;
+
+  faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    const answer = item.querySelector('.faq-answer');
+
+    question.addEventListener('click', () => {
+      const isExpanded = question.getAttribute('aria-expanded') === 'true';
+
+      faqItems.forEach(otherItem => {
+        if (otherItem !== item) {
+          otherItem.classList.remove('active');
+          otherItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+          otherItem.querySelector('.faq-answer').style.maxHeight = null;
+        }
+      });
+
+      if (isExpanded) {
+        question.setAttribute('aria-expanded', 'false');
+        item.classList.remove('active');
+        answer.style.maxHeight = null;
+      } else {
+        question.setAttribute('aria-expanded', 'true');
+        item.classList.add('active');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      }
+    });
+  });
+};
+
 const initHome = async () => {
   initHeroBackground();
   bindPastEventModal();
+  initFAQ();
 
   try {
     const all = await fetchAllEvents();

@@ -2,17 +2,42 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 import { getFirestore, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
+/**
+ * Firebase Configuration
+ * Sourced from environment variables for security and portability.
+ */
 export const firebaseConfig = {
-  apiKey: 'REMOVED_API_KEY',
-  authDomain: 'gcpc-portal.firebaseapp.com',
-  projectId: 'gcpc-portal',
-  messagingSenderId: 'REMOVED_SENDER_ID',
-  appId: '1:REMOVED_SENDER_ID:web:0521e002f35f817935aedb',
-  measurementId: 'REMOVED_MEASUREMENT_ID'
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-const app = initializeApp(firebaseConfig);
+// Log initialization status for production debugging
+console.log('[Firebase] Initializing with config:', {
+  apiKey: firebaseConfig.apiKey ? 'Present' : 'Missing',
+  projectId: firebaseConfig.projectId ? 'Present' : 'Missing'
+});
 
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+let app;
+let db;
+let auth;
+let initialized = false;
+
+try {
+  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+    throw new Error('Critical Firebase configuration is missing. Ensure environment variables are set.');
+  }
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+  initialized = true;
+} catch (error) {
+  console.error('[Firebase] Initialization Error:', error.message);
+}
+
+export { app, db, auth, initialized };
 export const createdAt = () => serverTimestamp();

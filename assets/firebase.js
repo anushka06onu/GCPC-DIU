@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-import { getFirestore, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+import { initializeFirestore, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
 /**
  * Firebase Configuration
@@ -34,20 +34,24 @@ let auth;
 let initialized = false;
 
 try {
-  // Prevent initialization if critical keys are missing to avoid internal Firebase errors
   if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
     throw new Error('Missing critical Firebase configuration. Check Vercel environment variables.');
   }
 
   app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
+  
+  // Use Long Polling to bypass some AdBlocker restrictions and improve firewall compatibility
+  db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+    useFetchStreams: false
+  });
+
   auth = getAuth(app);
   initialized = true;
   
-  console.log('[Firebase] Initialization Success');
+  console.log('[Firebase] Initialization Success (Long Polling Enabled)');
 } catch (error) {
   console.error('[Firebase] Initialization Error:', error.message);
-  // App continues to run, but dynamic features will be disabled (handled in app.js)
 }
 
 export { app, db, auth, initialized };

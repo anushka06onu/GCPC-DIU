@@ -4,22 +4,28 @@ import { getFirestore, serverTimestamp } from 'https://www.gstatic.com/firebasej
 
 /**
  * Firebase Configuration
- * Sourced from environment variables for security and portability.
+ * Read directly from import.meta.env to ensure Vite replaces these during build.
+ * Ternary checks prevent runtime crashes if import.meta.env is undefined.
  */
 export const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  apiKey: (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env.VITE_FIREBASE_API_KEY : '',
+  authDomain: (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env.VITE_FIREBASE_AUTH_DOMAIN : '',
+  projectId: (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env.VITE_FIREBASE_PROJECT_ID : '',
+  storageBucket: (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env.VITE_FIREBASE_STORAGE_BUCKET : '',
+  messagingSenderId: (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID : '',
+  appId: (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env.VITE_FIREBASE_APP_ID : '',
+  measurementId: (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env.VITE_FIREBASE_MEASUREMENT_ID : ''
 };
 
-// Log initialization status for production debugging
-console.log('[Firebase] Initializing with config:', {
-  apiKey: firebaseConfig.apiKey ? 'Present' : 'Missing',
-  projectId: firebaseConfig.projectId ? 'Present' : 'Missing'
+// Fail-safe logging
+if (typeof import.meta === 'undefined' || !import.meta.env) {
+  console.error('[Firebase] Critical: import.meta.env is undefined. Environment variables are not being injected correctly by the build tool.');
+}
+
+// Log status for production debugging
+console.log('[Firebase] Initializing with config status:', {
+  apiKey: firebaseConfig.apiKey ? 'LOADED' : 'MISSING',
+  projectId: firebaseConfig.projectId ? 'LOADED' : 'MISSING'
 });
 
 let app;
@@ -28,15 +34,20 @@ let auth;
 let initialized = false;
 
 try {
+  // Prevent initialization if critical keys are missing to avoid internal Firebase errors
   if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-    throw new Error('Critical Firebase configuration is missing. Ensure environment variables are set.');
+    throw new Error('Missing critical Firebase configuration. Check Vercel environment variables.');
   }
+
   app = initializeApp(firebaseConfig);
   db = getFirestore(app);
   auth = getAuth(app);
   initialized = true;
+  
+  console.log('[Firebase] Initialization Success');
 } catch (error) {
   console.error('[Firebase] Initialization Error:', error.message);
+  // App continues to run, but dynamic features will be disabled (handled in app.js)
 }
 
 export { app, db, auth, initialized };

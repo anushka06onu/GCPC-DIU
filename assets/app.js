@@ -652,11 +652,21 @@ const initSuccessStories = () => {
 };
 
 const fetchAllEvents = async () => {
-  const snap = await getDocs(collection(db, 'events'));
-  return snap.docs
-    .map((d) => ({ id: d.id, ...d.data() }))
-    .sort((a, b) => parseMillis(a.dateISO) - parseMillis(b.dateISO));
+  if (!initialized || !db) {
+    console.warn('[Events] Firebase not initialized. Skipping fetch.');
+    return [];
+  }
+  try {
+    const snap = await getDocs(collection(db, 'events'));
+    return snap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => parseMillis(a.dateISO) - parseMillis(b.dateISO));
+  } catch (error) {
+    console.error('[Events] Failed to fetch events:', error);
+    return [];
+  }
 };
+
 
 const splitEventsByDate = (events) => {
   const today = new Date();
@@ -953,6 +963,7 @@ const initHome = async () => {
 };
 
 const submitMessage = async (email, subject, message) => {
+  if (!initialized || !db) throw new Error('Firebase not ready');
   await addDoc(collection(db, 'messages'), {
     email: email.trim(),
     subject: subject.trim(),
@@ -960,6 +971,7 @@ const submitMessage = async (email, subject, message) => {
     createdAt: createdAt()
   });
 };
+
 
 const bindMessageForm = (formId, map) => {
   const form = document.getElementById(formId);
@@ -1107,6 +1119,7 @@ const verifyByCertId = async (certId) => {
   }
 
   try {
+    if (!initialized || !db) throw new Error('Firebase not ready');
     const snap = await getDoc(doc(db, 'certificates', normalized));
     if (!snap.exists()) {
       renderVerifyResult('error', '<strong>Invalid Certificate</strong>');
@@ -1147,6 +1160,7 @@ const verifyByStudentId = async (studentId) => {
   }
 
   try {
+    if (!initialized || !db) throw new Error('Firebase not ready');
     const snap = await getDocs(query(collection(db, 'certificates'), where('student_id', '==', normalized)));
     if (!snap.docs.length) {
       renderVerifyResult('error', 'No certificates found for this student ID.');
@@ -1196,6 +1210,10 @@ const initVerify = () => {
 
   certForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (!initialized || !db) {
+      alert('Verification system is currently offline.');
+      return;
+    }
     const input = document.getElementById('cert-id');
     if (!validateRequired(input, 'Certificate ID')) return;
 
@@ -1209,6 +1227,10 @@ const initVerify = () => {
 
   studentForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (!initialized || !db) {
+      alert('Verification system is currently offline.');
+      return;
+    }
     const input = document.getElementById('student-id');
     if (!validateRequired(input, 'Student ID')) return;
     await verifyByStudentId(input.value);
@@ -1260,6 +1282,7 @@ const initEventPage = async () => {
   }
 
   try {
+    if (!initialized || !db) throw new Error('Firebase not ready');
     const snap = await getDoc(doc(db, 'events', id));
     if (!snap.exists()) {
       host.innerHTML = '<article class="card"><p>Event not found.</p></article>';
@@ -1347,6 +1370,7 @@ const initWingPage = async () => {
 };
 
 const getAdminAccessByUid = async (uid) => {
+  if (!initialized || !db) throw new Error('Firebase not ready');
   const snap = await getDoc(doc(db, 'admins', uid));
   const data = snap.exists() ? snap.data() : null;
   return { snap, data };
@@ -1376,70 +1400,80 @@ const clearSkeleton = (selector) => {
 const renderAdminEvents = async () => {
   setSkeleton('#events-table-wrap');
   const wrap = document.getElementById('events-table-wrap');
-  const snap = await getDocs(query(collection(db, 'events'), orderBy('deadlineISO', 'asc')));
-  const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  try {
+    if (!initialized || !db) throw new Error('Firebase not ready');
+    const snap = await getDocs(query(collection(db, 'events'), orderBy('deadlineISO', 'asc')));
+    const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
-  wrap.innerHTML = `
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Title</th><th>Wing</th><th>Semester</th><th>Format</th><th>Start</th><th>End</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody>
-          ${rows.map((row) => `
-            <tr>
-              <td>${escapeHtml(row.title || '')}</td>
-              <td>${escapeHtml(formatWingLabel(row.wing || normalizeWing(row)))}</td>
-              <td>${escapeHtml(row.semester || '')}</td>
-              <td>${escapeHtml(formatEventTypeLabel(row.eventType))}</td>
-              <td>${escapeHtml(formatDate(row.dateISO))}</td>
-              <td>${escapeHtml(formatDate(row.deadlineISO))}</td>
-              <td>${escapeHtml(row.status || '')}</td>
-              <td>
-                <div class="action-row">
-                  <button class="small-btn" data-edit-event="${escapeHtml(row.id)}">Edit</button>
-                  <button class="small-btn danger" data-delete-event="${escapeHtml(row.id)}">Delete</button>
-                </div>
-              </td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
-
+    wrap.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Wing</th><th>Semester</th><th>Format</th><th>Start</th><th>End</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            ${rows.map((row) => `
+              <tr>
+                <td>${escapeHtml(row.title || '')}</td>
+                <td>${escapeHtml(formatWingLabel(row.wing || normalizeWing(row)))}</td>
+                <td>${escapeHtml(row.semester || '')}</td>
+                <td>${escapeHtml(formatEventTypeLabel(row.eventType))}</td>
+                <td>${escapeHtml(formatDate(row.dateISO))}</td>
+                <td>${escapeHtml(formatDate(row.deadlineISO))}</td>
+                <td>${escapeHtml(row.status || '')}</td>
+                <td>
+                  <div class="action-row">
+                    <button class="small-btn" data-edit-event="${escapeHtml(row.id)}">Edit</button>
+                    <button class="small-btn danger" data-delete-event="${escapeHtml(row.id)}">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (err) {
+    console.error(err);
+    wrap.innerHTML = '<p>Error loading events.</p>';
+  }
   clearSkeleton('#events-table-wrap');
 };
 
 const renderAdminCertificates = async () => {
   setSkeleton('#cert-table-wrap');
   const wrap = document.getElementById('cert-table-wrap');
-  const snap = await getDocs(collection(db, 'certificates'));
-  const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  try {
+    if (!initialized || !db) throw new Error('Firebase not ready');
+    const snap = await getDocs(collection(db, 'certificates'));
+    const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
-  wrap.innerHTML = `
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Cert ID</th><th>Name</th><th>Student ID</th><th>Course</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody>
-          ${rows.map((row) => `
-            <tr>
-              <td>${escapeHtml(row.id)}</td>
-              <td>${escapeHtml(row.name || '')}</td>
-              <td>${escapeHtml(row.student_id || '')}</td>
-              <td>${escapeHtml(row.course || '')}</td>
-              <td>${escapeHtml(row.status || '')}</td>
-              <td>
-                <div class="action-row">
-                  <button class="small-btn" data-edit-cert="${escapeHtml(row.id)}">Edit</button>
-                  <button class="small-btn danger" data-delete-cert="${escapeHtml(row.id)}">Delete</button>
-                </div>
-              </td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
-
+    wrap.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Cert ID</th><th>Name</th><th>Student ID</th><th>Course</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            ${rows.map((row) => `
+              <tr>
+                <td>${escapeHtml(row.id)}</td>
+                <td>${escapeHtml(row.name || '')}</td>
+                <td>${escapeHtml(row.student_id || '')}</td>
+                <td>${escapeHtml(row.course || '')}</td>
+                <td>${escapeHtml(row.status || '')}</td>
+                <td>
+                  <div class="action-row">
+                    <button class="small-btn" data-edit-cert="${escapeHtml(row.id)}">Edit</button>
+                    <button class="small-btn danger" data-delete-cert="${escapeHtml(row.id)}">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (err) {
+    console.error(err);
+    wrap.innerHTML = '<p>Error loading certificates.</p>';
+  }
   clearSkeleton('#cert-table-wrap');
 };
 
@@ -1449,6 +1483,7 @@ const renderAdminMemberships = async () => {
   if (!wrap) return;
 
   try {
+    if (!initialized || !db) throw new Error('Firebase not ready');
     let rows = [];
     try {
       const orderedSnap = await getDocs(query(collection(db, 'memberships'), orderBy('createdAt', 'desc')));
@@ -1500,6 +1535,7 @@ const renderAdminMessages = async () => {
   if (!wrap) return;
 
   try {
+    if (!initialized || !db) throw new Error('Firebase not ready');
     const snap = await getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc')));
     const rows = snap.docs.map((d) => d.data());
 
@@ -1542,6 +1578,7 @@ const renderAdminMessages = async () => {
 };
 
 const fillEventForm = async (id) => {
+  if (!initialized || !db) return;
   const snap = await getDoc(doc(db, 'events', id));
   if (!snap.exists()) return;
   const data = snap.data();
@@ -1574,6 +1611,7 @@ const fillEventForm = async (id) => {
 };
 
 const fillCertForm = async (id) => {
+  if (!initialized || !db) return;
   const snap = await getDoc(doc(db, 'certificates', id));
   if (!snap.exists()) return;
   const data = snap.data();
@@ -1775,6 +1813,7 @@ const initAdmin = async () => {
 
   document.getElementById('admin-event-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (!initialized || !db) return;
 
     const id = document.getElementById('event-id').value.trim();
     const title = document.getElementById('event-title').value.trim();
@@ -1845,6 +1884,7 @@ const initAdmin = async () => {
 
   document.getElementById('admin-cert-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (!initialized || !db) return;
 
     const certId = document.getElementById('cert-id').value.trim();
     if (!certId) {

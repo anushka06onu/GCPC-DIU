@@ -1,15 +1,18 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
   "rewrites": [
-    { "source": "/join", "destination": "/join/index.html" },
     { "source": "/home", "destination": "/index.html" },
+    { "source": "/about", "destination": "/index.html" },
     { "source": "/wings", "destination": "/index.html" },
     { "source": "/committee", "destination": "/index.html" },
-    { "source": "/committe", "destination": "/index.html" },
-    { "source": "/about", "destination": "/index.html" },
     { "source": "/events", "destination": "/index.html" },
     { "source": "/gallery", "destination": "/index.html" },
-    { "source": "/contact", "destination": "/contact/index.html" },
+    { "source": "/join", "destination": "/join.html" },
+    { "source": "/verify", "destination": "/verify.html" },
     { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/contact", "destination": "/contact.html" },
     { "source": "/event", "destination": "/event.html" },
     { "source": "/wing-acm", "destination": "/wing-acm.html" },
     { "source": "/wing-research", "destination": "/wing-research.html" },
@@ -30,8 +33,7 @@
     { "source": "/event-research-workshop", "destination": "/event-research-workshop.html" },
     { "source": "/event-research-zero-to-published", "destination": "/event-research-zero-to-published.html" },
     { "source": "/research-publication-tracker", "destination": "/research-publication-tracker.html" },
-    { "source": "/women-in-tech-spotlight", "destination": "/women-in-tech-spotlight.html" },
-    { "source": "/verify", "destination": "/verify/" }
+    { "source": "/women-in-tech-spotlight", "destination": "/women-in-tech-spotlight.html" }
   ],
   "redirects": [
     { "source": "/admin.html", "destination": "/admin", "permanent": true }

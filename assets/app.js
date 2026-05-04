@@ -359,6 +359,16 @@ const showToast = (message, type = 'success') => {
   setTimeout(() => toast.remove(), 3200);
 };
 
+const checkConnectivity = async () => {
+  try {
+    await fetch('https://firestore.googleapis.com', { mode: 'no-cors' });
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
+
 const setFieldError = (input, message = '') => {
   const field = input.closest('.field');
   if (!field) return;
@@ -2047,7 +2057,12 @@ const initAdmin = async () => {
 };
 
 const initPage = async () => {
+  const isConnected = await checkConnectivity();
+  if (!isConnected) {
+    showToast('AdBlocker Detected: Database connection is blocked. Please disable AdBlockers for this site.', 'error');
+  }
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
   initThemeToggle();
   bindNavigationMemory();
   bindReturnLinks();

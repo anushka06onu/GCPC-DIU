@@ -6,10 +6,14 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: './index.html',
-        admin: './admin.html',
-        verify: './verify.html',
-        join: './join.html',
-        contact: './contact.html',
+        admin_redirect: './admin.html',
+        verify_redirect: './verify.html',
+        join_redirect: './join.html',
+        contact_redirect: './contact.html',
+        admin: './admin/index.html',
+        verify: './verify/index.html',
+        join: './join/index.html',
+        contact: './contact/index.html',
         event: './event.html',
         wing_acm: './wing-acm.html',
         wing_career: './wing-career.html',

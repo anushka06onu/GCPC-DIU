@@ -2,5 +2,8 @@
 
 assets/config.js
 .env
+.env.local
+.env.*
+dist/
 *.log
 npm-debug.log*

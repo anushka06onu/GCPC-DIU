@@ -87,31 +87,11 @@
     import { collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
     const DEFAULT_SUCCESS_STORIES = [
-      {
-        imageUrl: 'images/success-stories/story1.jpg',
-        title: 'Anika Rahman',
-        description: 'Software Engineer, Brain Station 23'
-      },
-      {
-        imageUrl: 'images/success-stories/story2.jpg',
-        title: 'Sadia Amin',
-        description: 'Research Associate, DIU Advanced Lab'
-      },
-      {
-        imageUrl: 'images/success-stories/story3.jpg',
-        title: 'Maisha Khan',
-        description: 'Product Designer, RiseUp Tech'
-      },
-      {
-        imageUrl: 'images/success-stories/story4.jpg',
-        title: 'Tasnia Ahmed',
-        description: 'National ICT Award Winner'
-      },
-      {
-        imageUrl: 'images/success-stories/story5.jpg',
-        title: 'Farhana Rahim',
-        description: 'Community Lead, Women in Tech'
-      }
+      'images/success-stories/story1.jpg',
+      'images/success-stories/story2.jpg',
+      'images/success-stories/story3.jpg',
+      'images/success-stories/story4.jpg',
+      'images/success-stories/story5.jpg'
     ];
 
     async function loadSuccessStories() {
@@ -119,7 +99,7 @@
       try {
         if (initialized && db) {
           const snap = await getDocs(query(collection(db, 'successStories'), orderBy('createdAt', 'desc')));
-          stored = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          stored = snap.docs.map(doc => doc.data().imageUrl).filter(Boolean);
         }
       } catch (error) {
         console.error('[Success Stories] Error fetching from Firestore:', error);
@@ -147,26 +127,25 @@
         slideFrame.innerHTML = '';
         if (indicators) indicators.innerHTML = '';
         
-        // Get images/stories for this card (cycle through stored stories modulo-5)
-        const cardStories = [];
+        // Get images for this card (cycle through stored images)
+        const cardImages = [];
         for (let i = cardNum - 1; i < stored.length; i += 5) {
-          cardStories.push(stored[i]);
+          cardImages.push(stored[i]);
         }
         
         // If card has no images, skip
-        if (cardStories.length === 0) continue;
+        if (cardImages.length === 0) continue;
         
         let currentIndex = 0;
         let autoSlide;
 
         // Create slides
-        cardStories.forEach((story, i) => {
+        cardImages.forEach((url, i) => {
           const slide = document.createElement('div');
           slide.className = i === 0 ? 'slide active' : 'slide';
-          
           const img = document.createElement('img');
-          img.src = story.imageUrl || story.src;
-          img.alt = story.title || `Success story ${cardNum}-${i+1}`;
+          img.src = url;
+          img.alt = `Success story ${cardNum}-${i+1}`;
           
           img.addEventListener('error', () => {
             if (img.dataset.fallback === '1') return;
@@ -175,49 +154,12 @@
           });
           
           slide.appendChild(img);
-
-          // Add premium text overlay
-          if (story.title || story.description) {
-            const overlay = document.createElement('div');
-            overlay.className = 'overlay-caption';
-            overlay.style.flexDirection = 'column';
-            overlay.style.alignItems = 'flex-start';
-            overlay.style.justifyContent = 'flex-end';
-            overlay.style.background = 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.85) 100%)';
-            overlay.style.padding = '1rem';
-            
-            if (story.title) {
-              const h4 = document.createElement('h4');
-              h4.style.margin = '0 0 0.2rem';
-              h4.style.fontFamily = 'inherit';
-              h4.style.fontSize = '1.05rem';
-              h4.style.fontWeight = '700';
-              h4.style.color = '#fff';
-              h4.style.textShadow = '0 1px 3px rgba(0,0,0,0.8)';
-              h4.textContent = story.title;
-              overlay.appendChild(h4);
-            }
-            
-            if (story.description) {
-              const p = document.createElement('p');
-              p.style.margin = '0';
-              p.style.fontSize = '0.85rem';
-              p.style.color = '#e2ecff';
-              p.style.lineHeight = '1.3';
-              p.style.textShadow = '0 1px 3px rgba(0,0,0,0.8)';
-              p.textContent = story.description;
-              overlay.appendChild(p);
-            }
-            
-            slide.appendChild(overlay);
-          }
-
           slideFrame.appendChild(slide);
         });
 
         // Create dot indicators
-        if (indicators && cardStories.length > 1) {
-          cardStories.forEach((_, i) => {
+        if (indicators && cardImages.length > 1) {
+          cardImages.forEach((_, i) => {
             const dot = document.createElement('button');
             dot.className = i === 0 ? 'slide-dot active' : 'slide-dot';
             dot.type = 'button';
@@ -261,7 +203,7 @@
         }
 
         // Auto-advance every 5 seconds
-        if (cardStories.length > 1) {
+        if (cardImages.length > 1) {
           autoSlide = setInterval(() => goToSlide(currentIndex + 1), 5000);
 
           // Pause on hover

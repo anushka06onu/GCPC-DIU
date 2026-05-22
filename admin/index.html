@@ -192,28 +192,17 @@
         <div id="pane-stories" class="admin-pane top-gap hidden">
           <div class="grid-2">
             <article class="form-shell">
-              <h3>Upload Success Story</h3>
+              <h3>Add Success Story</h3>
               <form id="admin-story-form" novalidate>
                 <div class="field-grid">
                   <div class="field full">
-                    <label for="story-title">Alumnus Name & Title</label>
-                    <input id="story-title" type="text" placeholder="e.g. Fateha Anushka - Software Engineer at Google" />
-                    <p class="error"></p>
-                  </div>
-                  <div class="field full">
-                    <label for="story-description">Success Details / Description</label>
-                    <textarea id="story-description" placeholder="e.g. Anushka secured a full-time role through consistent participation in training sessions..."></textarea>
-                    <p class="error"></p>
-                  </div>
-                  <div class="field full">
-                    <label for="story-file">Alumnus Photo</label>
-                    <input type="file" accept="image/jpeg,image/png,image/webp" id="story-file" />
-                    <p class="helper">Upload a JPG/PNG/WEBP photo of the alumnus.</p>
+                    <label for="story-url">Image URL</label>
+                    <input id="story-url" type="url" placeholder="https://example.com/image.jpg" />
                     <p class="error"></p>
                   </div>
                 </div>
                 <div class="form-actions">
-                  <button id="save-stories" class="btn btn-primary" type="submit">Upload Story</button>
+                  <button id="save-stories" class="btn btn-primary" type="submit">Add Story</button>
                   <button id="clear-stories" class="btn btn-soft" type="button">Clear</button>
                 </div>
               </form>

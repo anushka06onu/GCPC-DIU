@@ -19,11 +19,7 @@ import {
   signInWithEmailAndPassword,
   signOut
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
+
 
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
@@ -610,7 +606,7 @@ const initSuccessStories = async () => {
         const data = doc.data();
         return {
           src: data.imageUrl || STORY_PLACEHOLDER,
-          caption: data.title + (data.description ? ` — ${data.description}` : '')
+          caption: ''
         };
       });
     }
@@ -1431,7 +1427,7 @@ const renderAdminStories = () => {
       const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
       if (rows.length === 0) {
-        wrap.innerHTML = '<p class="vertical-empty">No active success stories. Use the form to upload one.</p>';
+        wrap.innerHTML = '<p class="vertical-empty">No active success stories. Use the form to add one.</p>';
         clearSkeleton('#stories-list-wrap');
         return;
       }
@@ -1442,8 +1438,7 @@ const renderAdminStories = () => {
             <thead>
               <tr>
                 <th>Photo</th>
-                <th>Alumnus Name & Title</th>
-                <th>Description</th>
+                <th>Image URL</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -1451,10 +1446,9 @@ const renderAdminStories = () => {
               ${rows.map(row => `
                 <tr>
                   <td>
-                    <img src="${escapeHtml(row.imageUrl || STORY_PLACEHOLDER)}" alt="Alumnus Photo" style="width: 48px; height: 48px; object-fit: cover; border-radius: 4px;" />
+                    <img src="${escapeHtml(row.imageUrl || STORY_PLACEHOLDER)}" alt="Story Photo" style="width: 48px; height: 48px; object-fit: cover; border-radius: 4px;" />
                   </td>
-                  <td style="font-weight: 600;">${escapeHtml(row.title || '')}</td>
-                  <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(row.description || '')}</td>
+                  <td style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: monospace;">${escapeHtml(row.imageUrl || '')}</td>
                   <td>
                     <button class="small-btn danger" data-delete-story="${escapeHtml(row.id)}">Delete</button>
                   </td>
@@ -1837,73 +1831,57 @@ const initAdmin = async () => {
   setBannerPreview('');
   setCertImagePreview('');
 
-  // success stories upload handling using Firebase Storage and Firestore
+  // success stories handling using external image URLs and Firestore
   const storyForm = document.getElementById('admin-story-form');
   if (storyForm) {
     storyForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      const titleInput = document.getElementById('story-title');
-      const descInput = document.getElementById('story-description');
-      const fileInput = document.getElementById('story-file');
+      const urlInput = document.getElementById('story-url');
       const submitBtn = document.getElementById('save-stories');
 
       let hasError = false;
-      
       storyForm.querySelectorAll('.error').forEach(el => el.textContent = '');
 
-      if (!titleInput.value.trim()) {
-        const errEl = titleInput.nextElementSibling;
-        if (errEl && errEl.classList.contains('error')) errEl.textContent = 'Alumnus Name & Title is required.';
+      if (!urlInput.value.trim()) {
+        const errEl = urlInput.nextElementSibling;
+        if (errEl && errEl.classList.contains('error')) errEl.textContent = 'Image URL is required.';
         hasError = true;
-      }
-      if (!descInput.value.trim()) {
-        const errEl = descInput.nextElementSibling;
-        if (errEl && errEl.classList.contains('error')) errEl.textContent = 'Description is required.';
-        hasError = true;
-      }
-      if (!fileInput.files || !fileInput.files[0]) {
-        const errEl = fileInput.parentElement.querySelector('.error');
-        if (errEl) errEl.textContent = 'Alumnus Photo is required.';
-        hasError = true;
+      } else {
+        try {
+          new URL(urlInput.value.trim());
+        } catch (_) {
+          const errEl = urlInput.nextElementSibling;
+          if (errEl && errEl.classList.contains('error')) errEl.textContent = 'Please enter a valid URL.';
+          hasError = true;
+        }
       }
 
       if (hasError) return;
 
-      const file = fileInput.files[0];
-      const title = titleInput.value.trim();
-      const description = descInput.value.trim();
+      const imageUrl = urlInput.value.trim();
 
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Uploading...';
+      submitBtn.textContent = 'Adding...';
 
       try {
-        if (!initialized || !db || !storage) {
-          throw new Error('Firebase services are not fully initialized.');
+        if (!initialized || !db) {
+          throw new Error('Firebase Firestore service is not fully initialized.');
         }
 
-        const fileExtension = file.name.split('.').pop();
-        const storagePath = `success-stories/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
-        const fileRef = ref(storage, storagePath);
-        
-        const uploadResult = await uploadBytes(fileRef, file);
-        const imageUrl = await getDownloadURL(uploadResult.ref);
-
         await addDoc(collection(db, 'successStories'), {
-          title,
-          description,
           imageUrl,
           createdAt: serverTimestamp()
         });
 
-        showToast('Success story uploaded successfully.');
+        showToast('Success story added successfully.');
         storyForm.reset();
       } catch (error) {
-        console.error('[Success Stories] Upload failed:', error);
-        showToast(error.message || 'Failed to upload success story.', 'error');
+        console.error('[Success Stories] Add failed:', error);
+        showToast(error.message || 'Failed to add success story.', 'error');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Upload Story';
+        submitBtn.textContent = 'Add Story';
       }
     });
 

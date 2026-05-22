@@ -1,6 +1,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 import { initializeFirestore, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+import { getStorage } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
 
 /**
  * Firebase Configuration
@@ -31,6 +32,7 @@ console.log('[Firebase] Initializing with config status:', {
 let app;
 let db;
 let auth;
+let storage;
 let initialized = false;
 
 try {
@@ -47,12 +49,13 @@ try {
   });
 
   auth = getAuth(app);
+  storage = getStorage(app);
   initialized = true;
   
-  console.log('[Firebase] Initialization Success (Long Polling Enabled)');
+  console.log('[Firebase] Initialization Success (Long Polling & Storage Enabled)');
 } catch (error) {
   console.error('[Firebase] Initialization Error:', error.message);
 }
 
-export { app, db, auth, initialized };
+export { app, db, auth, storage, initialized };
 export const createdAt = () => serverTimestamp();

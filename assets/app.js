@@ -1,4 +1,4 @@
-import { auth, createdAt, db, firebaseConfig, initialized } from './firebase.js';
+import { auth, createdAt, db, firebaseConfig, initialized, storage } from './firebase.js';
 import {
   addDoc,
   collection,
@@ -11,13 +11,19 @@ import {
   serverTimestamp,
   setDoc,
   updateDoc,
-  where
+  where,
+  onSnapshot
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut
 } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
 
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
@@ -592,42 +598,35 @@ const initSimpleSlides = () => {
   });
 };
 
-const readStoredSuccessStories = () => {
-  if (typeof localStorage === 'undefined') return [];
-  try {
-    const saved = JSON.parse(localStorage.getItem('successStories') || '[]');
-    if (!Array.isArray(saved)) return [];
-    return saved
-      .filter((src) => typeof src === 'string' && src.trim().length > 0)
-      .slice(0, 5)
-      .map((src) => ({ src }));
-  } catch (error) {
-    console.warn('[Success Stories] Could not parse stored data', error);
-    return [];
-  }
-};
-
-const buildSuccessStoryList = () => {
-  const stored = readStoredSuccessStories();
-  if (stored.length >= 5) return stored.slice(0, 5);
-
-  const list = [...stored];
-  DEFAULT_SUCCESS_STORIES.forEach((story) => {
-    if (list.length < 5) list.push(story);
-  });
-
-  return list.slice(0, 5);
-};
-
-const initSuccessStories = () => {
+const initSuccessStories = async () => {
   const grid = document.getElementById('success-stories-grid');
   if (!grid) return;
 
-  const stories = buildSuccessStoryList();
-  if (!stories.length) {
-    grid.innerHTML = '<p class="vertical-empty">Add success stories from the admin panel to display them here.</p>';
-    return;
+  let stories = [];
+  try {
+    if (initialized && db) {
+      const snap = await getDocs(query(collection(db, 'successStories'), orderBy('createdAt', 'desc')));
+      stories = snap.docs.map(doc => {
+        const data = doc.data();
+        return {
+          src: data.imageUrl || STORY_PLACEHOLDER,
+          caption: data.title + (data.description ? ` — ${data.description}` : '')
+        };
+      });
+    }
+  } catch (error) {
+    console.error('[Success Stories] Error fetching public success stories:', error);
   }
+
+  // Fallback to defaults if no custom stories
+  if (stories.length === 0) {
+    stories = DEFAULT_SUCCESS_STORIES.map(story => ({
+      src: story.src,
+      caption: story.caption
+    }));
+  }
+
+  stories = stories.slice(0, 5);
 
   grid.innerHTML = stories.map((story, idx) => {
     const caption = story.caption && story.caption.trim() ? story.caption.trim() : '';
@@ -1407,6 +1406,97 @@ const clearSkeleton = (selector) => {
   if (target) target.classList.remove('skeleton-card');
 };
 
+let unsubscribeStories = null;
+
+const renderAdminStories = () => {
+  const wrap = document.getElementById('stories-list-wrap');
+  if (!wrap) return;
+
+  setSkeleton('#stories-list-wrap');
+
+  if (!initialized || !db) {
+    wrap.innerHTML = '<p>Firebase not ready</p>';
+    clearSkeleton('#stories-list-wrap');
+    return;
+  }
+
+  if (unsubscribeStories) {
+    unsubscribeStories();
+    unsubscribeStories = null;
+  }
+
+  try {
+    const q = query(collection(db, 'successStories'), orderBy('createdAt', 'desc'));
+    unsubscribeStories = onSnapshot(q, (snap) => {
+      const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      if (rows.length === 0) {
+        wrap.innerHTML = '<p class="vertical-empty">No active success stories. Use the form to upload one.</p>';
+        clearSkeleton('#stories-list-wrap');
+        return;
+      }
+
+      wrap.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Photo</th>
+                <th>Alumnus Name & Title</th>
+                <th>Description</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(row => `
+                <tr>
+                  <td>
+                    <img src="${escapeHtml(row.imageUrl || STORY_PLACEHOLDER)}" alt="Alumnus Photo" style="width: 48px; height: 48px; object-fit: cover; border-radius: 4px;" />
+                  </td>
+                  <td style="font-weight: 600;">${escapeHtml(row.title || '')}</td>
+                  <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(row.description || '')}</td>
+                  <td>
+                    <button class="small-btn danger" data-delete-story="${escapeHtml(row.id)}">Delete</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      wrap.querySelectorAll('[data-delete-story]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const storyId = btn.dataset.deleteStory;
+          if (confirm('Are you sure you want to delete this success story?')) {
+            try {
+              btn.disabled = true;
+              btn.textContent = 'Deleting...';
+              await deleteDoc(doc(db, 'successStories', storyId));
+              showToast('Success story deleted.');
+            } catch (err) {
+              console.error('[Success Stories] Delete failed:', err);
+              showToast('Failed to delete story.', 'error');
+              btn.disabled = false;
+              btn.textContent = 'Delete';
+            }
+          }
+        });
+      });
+
+      clearSkeleton('#stories-list-wrap');
+    }, (error) => {
+      console.error('[Success Stories] Realtime subscription error:', error);
+      wrap.innerHTML = '<p>Error loading active stories.</p>';
+      clearSkeleton('#stories-list-wrap');
+    });
+  } catch (err) {
+    console.error('[Success Stories] Subscription setup error:', err);
+    wrap.innerHTML = '<p>Error loading active stories.</p>';
+    clearSkeleton('#stories-list-wrap');
+  }
+};
+
 const renderAdminEvents = async () => {
   setSkeleton('#events-table-wrap');
   const wrap = document.getElementById('events-table-wrap');
@@ -1747,33 +1837,84 @@ const initAdmin = async () => {
   setBannerPreview('');
   setCertImagePreview('');
 
-  // success stories upload handling
-  const loadStories = () => JSON.parse(localStorage.getItem('successStories') || '[]');
-  const saveStories = (arr) => localStorage.setItem('successStories', JSON.stringify(arr));
-  const storyInputs = [1,2,3,4,5].map(i => document.getElementById(`story-file-${i}`));
-  const gatherAndStore = () => {
-    const urls = [];
-    storyInputs.forEach(input => {
-      if (input && input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = evt => {
-          urls.push(evt.target.result);
-          if (urls.length === storyInputs.filter(i=>i&&i.files&&i.files[0]).length) {
-            saveStories(urls);
-            showToast('Success stories saved');
-          }
-        };
-        reader.readAsDataURL(input.files[0]);
+  // success stories upload handling using Firebase Storage and Firestore
+  const storyForm = document.getElementById('admin-story-form');
+  if (storyForm) {
+    storyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const titleInput = document.getElementById('story-title');
+      const descInput = document.getElementById('story-description');
+      const fileInput = document.getElementById('story-file');
+      const submitBtn = document.getElementById('save-stories');
+
+      let hasError = false;
+      
+      storyForm.querySelectorAll('.error').forEach(el => el.textContent = '');
+
+      if (!titleInput.value.trim()) {
+        const errEl = titleInput.nextElementSibling;
+        if (errEl && errEl.classList.contains('error')) errEl.textContent = 'Alumnus Name & Title is required.';
+        hasError = true;
+      }
+      if (!descInput.value.trim()) {
+        const errEl = descInput.nextElementSibling;
+        if (errEl && errEl.classList.contains('error')) errEl.textContent = 'Description is required.';
+        hasError = true;
+      }
+      if (!fileInput.files || !fileInput.files[0]) {
+        const errEl = fileInput.parentElement.querySelector('.error');
+        if (errEl) errEl.textContent = 'Alumnus Photo is required.';
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      const file = fileInput.files[0];
+      const title = titleInput.value.trim();
+      const description = descInput.value.trim();
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Uploading...';
+
+      try {
+        if (!initialized || !db || !storage) {
+          throw new Error('Firebase services are not fully initialized.');
+        }
+
+        const fileExtension = file.name.split('.').pop();
+        const storagePath = `success-stories/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+        const fileRef = ref(storage, storagePath);
+        
+        const uploadResult = await uploadBytes(fileRef, file);
+        const imageUrl = await getDownloadURL(uploadResult.ref);
+
+        await addDoc(collection(db, 'successStories'), {
+          title,
+          description,
+          imageUrl,
+          createdAt: serverTimestamp()
+        });
+
+        showToast('Success story uploaded successfully.');
+        storyForm.reset();
+      } catch (error) {
+        console.error('[Success Stories] Upload failed:', error);
+        showToast(error.message || 'Failed to upload success story.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Upload Story';
       }
     });
-    if (urls.length === 0) { saveStories([]); showToast('Cleared success stories'); }
-  };
-  document.getElementById('save-stories')?.addEventListener('click', gatherAndStore);
-  document.getElementById('clear-stories')?.addEventListener('click', () => {
-    storyInputs.forEach(i=>{ if(i) i.value=''; });
-    saveStories([]);
-    showToast('Cleared success stories');
-  });
+
+    const clearBtn = document.getElementById('clear-stories');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        storyForm.reset();
+        storyForm.querySelectorAll('.error').forEach(el => el.textContent = '');
+      });
+    }
+  }
 
   // Start in a strict loading state until onAuthStateChanged resolves.
   loadingShell.classList.remove('hidden');
@@ -1985,6 +2126,10 @@ const initAdmin = async () => {
       who.textContent = 'Not signed in';
       loadingShell.classList.add('hidden');
       loginShell.classList.remove('hidden');
+      if (unsubscribeStories) {
+        unsubscribeStories();
+        unsubscribeStories = null;
+      }
       return;
     }
 
@@ -2018,6 +2163,10 @@ const initAdmin = async () => {
         loadingShell.classList.add('hidden');
         deniedShell.classList.remove('hidden');
         showToast('Access denied', 'error');
+        if (unsubscribeStories) {
+          unsubscribeStories();
+          unsubscribeStories = null;
+        }
         return;
       }
 
@@ -2033,6 +2182,7 @@ const initAdmin = async () => {
         renderAdminMemberships(),
         renderAdminMessages()
       ]);
+      renderAdminStories();
     } catch (error) {
       console.error(error);
       devLog('[Admin Guard] uid doc read success:', false);
@@ -2112,7 +2262,7 @@ const initPage = async () => {
   const page = document.body.dataset.page;
   if (page === 'home') {
     await initHome();
-    initSuccessStories();
+    await initSuccessStories();
   }
   if (page === 'join') await initJoin();
   if (page === 'verify') initVerify();

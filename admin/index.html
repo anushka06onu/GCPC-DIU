@@ -190,36 +190,42 @@
           <article id="messages-table-wrap" class="card skeleton-card"></article>
         </div>
         <div id="pane-stories" class="admin-pane top-gap hidden">
-          <article class="form-shell">
-            <h3>Upload Success Story Images</h3>
-            <p class="helper">Choose up to five alumni photos. These will show on the Member Success Stories page.</p>
-            <div class="field-grid">
-              <div class="field">
-                <label>Photo 1</label>
-                <input type="file" accept="image/*" id="story-file-1" />
+          <div class="grid-2">
+            <article class="form-shell">
+              <h3>Upload Success Story</h3>
+              <form id="admin-story-form" novalidate>
+                <div class="field-grid">
+                  <div class="field full">
+                    <label for="story-title">Alumnus Name & Title</label>
+                    <input id="story-title" type="text" placeholder="e.g. Fateha Anushka - Software Engineer at Google" />
+                    <p class="error"></p>
+                  </div>
+                  <div class="field full">
+                    <label for="story-description">Success Details / Description</label>
+                    <textarea id="story-description" placeholder="e.g. Anushka secured a full-time role through consistent participation in training sessions..."></textarea>
+                    <p class="error"></p>
+                  </div>
+                  <div class="field full">
+                    <label for="story-file">Alumnus Photo</label>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" id="story-file" />
+                    <p class="helper">Upload a JPG/PNG/WEBP photo of the alumnus.</p>
+                    <p class="error"></p>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button id="save-stories" class="btn btn-primary" type="submit">Upload Story</button>
+                  <button id="clear-stories" class="btn btn-soft" type="button">Clear</button>
+                </div>
+              </form>
+            </article>
+            <article class="card">
+              <h3>Active Success Stories</h3>
+              <p class="helper">These are stored permanently in Firestore and render dynamically on the landing subpage.</p>
+              <div id="stories-list-wrap" class="top-gap-sm skeleton-card">
+                <!-- dynamic active success stories will render here -->
               </div>
-              <div class="field">
-                <label>Photo 2</label>
-                <input type="file" accept="image/*" id="story-file-2" />
-              </div>
-              <div class="field">
-                <label>Photo 3</label>
-                <input type="file" accept="image/*" id="story-file-3" />
-              </div>
-              <div class="field">
-                <label>Photo 4</label>
-                <input type="file" accept="image/*" id="story-file-4" />
-              </div>
-              <div class="field">
-                <label>Photo 5</label>
-                <input type="file" accept="image/*" id="story-file-5" />
-              </div>
-            </div>
-            <div class="form-actions">
-              <button id="save-stories" class="btn btn-primary" type="button">Save</button>
-              <button id="clear-stories" class="btn btn-soft" type="button">Clear</button>
-            </div>
-          </article>
+            </article>
+          </div>
         </div>
       </section>
     </div>

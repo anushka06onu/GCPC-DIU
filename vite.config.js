@@ -1,4 +1,9 @@
 import { defineConfig } from 'vite';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   build: {
@@ -40,5 +45,31 @@ export default defineConfig({
   },
   server: {
     port: 3000
-  }
+  },
+  plugins: [
+    {
+      name: 'html-rewrite',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          const cleanPath = req.url.split('?')[0];
+          // 1. SPA-style paths that rewrite to /index.html
+          const spaPaths = ['/home', '/about', '/wings', '/committee', '/events', '/gallery'];
+          if (spaPaths.includes(cleanPath)) {
+            req.url = '/index.html' + (req.url.includes('?') ? '?' + req.url.split('?')[1] : '');
+            next();
+            return;
+          }
+          
+          // 2. Clean URLs that map to .html files if they exist
+          if (cleanPath !== '/' && !cleanPath.includes('.') && !cleanPath.endsWith('/')) {
+            const filePath = path.join(__dirname, cleanPath + '.html');
+            if (fs.existsSync(filePath)) {
+              req.url = cleanPath + '.html' + (req.url.includes('?') ? '?' + req.url.split('?')[1] : '');
+            }
+          }
+          next();
+        });
+      }
+    }
+  ]
 });

@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <base href="/" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Research Wing | DIU GCPC</title>
+  <meta name="description" content="Research Wing of DIU Girls' Computer Programming Club - Scientific Writing, Literature Review, and Academic Publications." />
   <link rel="icon" type="image/png" href="/gcpc-logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,15 +13,23 @@
   <link rel="stylesheet" href="/assets/styles.css" />
 </head>
 <body data-page="wing" data-wing="research">
-  <header class="site-nav-wrap">
+  <header class="site-nav-wrap" id="top">
     <nav class="site-nav container">
-      <a href="/home" class="brand" aria-label="Go to home"><img src="/gcpc-logo.png" alt="GCPC logo" /></a>
-      <button class="menu-toggle" aria-expanded="false" aria-controls="nav-menu"><span></span><span></span><span></span></button>
+      <a href="/home" class="brand" aria-label="Go to home">
+        <img src="/gcpc-logo.png" alt="GCPC logo" />
+      </a>
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu">
+        <span></span><span></span><span></span>
+      </button>
       <ul class="nav-links" id="nav-menu">
-        <li><a href="/"><span>Home</span></a></li>
+        <li><a href="/#about"><span>About</span></a></li>
+        <li><a href="/wings"><span>Wings</span></a></li>
+        <li><a href="/committee"><span>Committee</span></a></li>
+        <li><a href="/#events"><span>Events</span></a></li>
+        <li><a href="/#gallery"><span>Gallery</span></a></li>
         <li><a href="/verify/"><span>Certification Validity</span></a></li>
         <li><a href="/join"><span>Join</span></a></li>
-        <li><a href="/contact"><span>Contact</span></a></li>
+        <li><a href="/#contact"><span>Contact</span></a></li>
       </ul>
       <div class="nav-actions">
         <button class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
@@ -31,33 +41,226 @@
     </nav>
   </header>
 
-  <main class="section page-top-space">
-    <div class="container">
-      <p class="section-kicker">GCPC Wing</p>
-      <h2 class="reveal">Research Wing</h2>
-      <div class="top-gap-sm">
-        <a class="btn btn-soft" href="/wings" data-return-link>Back</a>
+  <main class="page-top-space">
+    <section class="section">
+      <div class="container">
+        <p class="section-kicker">GCPC Wings</p>
+        <h1 class="reveal">Research Wing</h1>
+        <div class="top-gap-sm">
+          <a class="btn btn-soft" href="/wings" data-return-link>Back</a>
+        </div>
+        <p class="reveal top-gap">
+          Academic writing, literature review, and structural research methodologies that help members write, publish, and present high-quality scientific papers.
+        </p>
       </div>
-      <div class="grid-2 top-gap">
-        <article class="card gcpc-card interactive-card reveal">
-          <h3>What This Wing Does</h3>
-          <p>The research wing guides students through research foundations, methodology, topic selection, and paper writing.</p>
-        </article>
-        <article class="card gcpc-card interactive-card reveal">
-          <h3>How This Helps Members</h3>
-          <p>Members gain structured support from beginner research understanding to publication readiness and long-term research growth.</p>
-        </article>
-      </div>
+    </section>
 
-      <section class="section top-gap">
+    <section class="section section-soft">
+      <div class="container">
+        <h2 class="reveal">Wing Focus Areas</h2>
+        <div class="grid-3 top-gap">
+          <article class="card gcpc-card interactive-card reveal">
+            <h3>Research Methodologies</h3>
+            <p>Building practical foundations in scientific research design, data collection, and qualitative/quantitative analysis.</p>
+          </article>
+          <article class="card gcpc-card interactive-card reveal">
+            <h3>Literature Review &amp; Synthesis</h3>
+            <p>Learning how to efficiently read, analyze, and synthesize academic literature to identify key research gaps.</p>
+          </article>
+          <article class="card gcpc-card interactive-card reveal">
+            <h3>Academic Writing &amp; Publication</h3>
+            <p>Mastering structure, academic tone, citations, and the formatting requirements of top-tier conferences and journals.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2 class="reveal">Key Activities</h2>
+        <div class="grid-2 top-gap">
+          <article class="card gcpc-card interactive-card reveal">
+            <h3>Literature Review Sessions</h3>
+            <p>Regular group meetings where members analyze pioneering research papers and discuss innovative findings.</p>
+          </article>
+          <article class="card gcpc-card interactive-card reveal">
+            <h3>Technical Writing Bootcamps</h3>
+            <p>Hands-on intensive bootcamps focused on writing structured abstracts, introductions, and methodologies.</p>
+          </article>
+          <article class="card gcpc-card interactive-card reveal">
+            <h3>Journal Submission Guides</h3>
+            <p>Step-by-step guidance on understanding review processes, journal criteria, and responding to peer reviews.</p>
+          </article>
+          <article class="card gcpc-card interactive-card reveal">
+            <h3>Data Analytics Workshops</h3>
+            <p>Guided sessions on data visualization tools, statistical software, and analysis models used in scientific projects.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft">
+      <div class="container">
+        <h2 class="reveal">How to Join</h2>
+        <div class="grid-2 top-gap">
+          <article class="card gcpc-card reveal">
+            <h3>Requirements</h3>
+            <ul class="wing-points">
+              <li>Intellectual curiosity and strong analytical skills</li>
+              <li>Willingness to read scientific papers and academic literature</li>
+              <li>Commitment to structured academic writing</li>
+              <li>Consistent participation in research group discussions</li>
+            </ul>
+          </article>
+          <article class="card gcpc-card reveal">
+            <h3>Application Process</h3>
+            <ul class="wing-points">
+              <li>Register interest in the Research Wing through GCPC portal</li>
+              <li>Attend the Research Orientation &amp; Topic Selection session</li>
+              <li>Complete an introductory literature summary exercise</li>
+              <li>Complete wing-specific research team onboarding</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="card gcpc-card reveal">
+          <h2>Current Projects</h2>
+          <div class="vertical-slider top-gap" data-slideshow data-auto="4000">
+            <div class="vertical-slide active">
+              <div class="project-card-header">
+                <div class="project-title-area">
+                  <span class="project-icon">🔍</span>
+                  <h4>Research Paper Indexer</h4>
+                </div>
+                <span class="status-badge status-active">Active</span>
+              </div>
+              <p class="project-description">Implementing a curated system to index and reference past publications by DIU GCPC students and alumni.</p>
+              <div class="project-card-footer">
+                <span class="project-meta-item">
+                  <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                  Team Size: 4 members
+                </span>
+                <span class="project-meta-item">
+                  <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 10h-2V7h2v5zm0 4h-2v-2h2v2z"/></svg>
+                  Publication Tracker
+                </span>
+              </div>
+            </div>
+            <div class="vertical-slide">
+              <div class="project-card-header">
+                <div class="project-title-area">
+                  <span class="project-icon">✍️</span>
+                  <h4>Collaborative Thesis Hub</h4>
+                </div>
+                <span class="status-badge status-in-progress">In Progress</span>
+              </div>
+              <p class="project-description">Developing a shared writing sandbox with standard templates for literature reviews and methodology drafts.</p>
+              <div class="project-card-footer">
+                <span class="project-meta-item">
+                  <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                  Team Size: 5 members
+                </span>
+                <span class="project-meta-item">
+                  <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 10h-2V7h2v5zm0 4h-2v-2h2v2z"/></svg>
+                  Research Sandbox
+                </span>
+              </div>
+            </div>
+            <div class="vertical-slide">
+              <div class="project-card-header">
+                <div class="project-title-area">
+                  <span class="project-icon">🎓</span>
+                  <h4>Research Mentorship Network</h4>
+                </div>
+                <span class="status-badge status-planning">Planning</span>
+              </div>
+              <p class="project-description">Establishing a channel connecting student researchers with experienced academic mentors and advisors.</p>
+              <div class="project-card-footer">
+                <span class="project-meta-item">
+                  <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                  Team Size: 3 members
+                </span>
+                <span class="project-meta-item">
+                  <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 10h-2V7h2v5zm0 4h-2v-2h2v2z"/></svg>
+                  Mentorship Program
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="vertical-dots">
+            <button type="button" class="active"></button>
+            <button type="button"></button>
+            <button type="button"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section top-gap">
+      <div class="container">
         <p class="section-kicker">Upcoming Events</p>
         <h3 class="reveal">Research Activities</h3>
         <div id="wing-events" class="event-grid top-gap">
           <article class="card gcpc-card skeleton-card"></article>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer-top">
+      <div class="footer-info">
+        <h3>DIU GCPC</h3>
+        <p>Girls' Computer Programming Club, Department of CSE, Daffodil International University.</p>
+        <p>Email: gcpc@diu.edu.bd</p>
+
+        <h4 class="top-gap">Official Socials</h4>
+        <div class="socials top-gap-sm">
+          <a href="https://www.facebook.com/DIUGCPC" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M13.5 21v-8.1h2.7l.4-3.2h-3.1V7.7c0-.9.3-1.6 1.6-1.6h1.7V3.2c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4.1v2.5H8v3.2h2.3V21h3.2z"/></svg></a>
+          <a href="https://t.me/diugcpc" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><svg viewBox="0 0 24 24"><path d="M21.9 4.6l-3.1 14.6c-.2 1-1 1.2-1.8.8l-4.1-3-2 1.9c-.2.2-.4.4-.9.4l.3-4.3 7.9-7.1c.3-.3-.1-.5-.5-.2L8 14.6l-4.1-1.3c-.9-.3-.9-.9.2-1.3L20.4 4c.8-.3 1.6.2 1.5.6z"/></svg></a>
+          <a href="https://www.instagram.com/diu_gcpc/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2zm0 1.9C5.7 3.9 3.9 5.7 3.9 7.8v8.4c0 2.1 1.8 3.9 3.9 3.9h8.4c2.1 0 3.9-1.8 3.9-3.9V7.8c0-2.1-1.8-3.9-3.9-3.9H7.8z"/><path d="M12 7.3A4.7 4.7 0 1 1 12 16.7 4.7 4.7 0 0 1 12 7.3zm0 1.9A2.8 2.8 0 1 0 12 14.8 2.8 2.8 0 0 0 12 9.2z"/></svg></a>
+          <a href="https://www.linkedin.com/company/106392305/admin/dashboard/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.7 3.5a1.9 1.9 0 110 3.8 1.9 1.9 0 010-3.8zM3 8.9h3.4V21H3V8.9zm5.4 0h3.3v1.7h.1c.5-.9 1.6-2 3.4-2 3.6 0 4.3 2.4 4.3 5.5V21H16v-5.9c0-1.4 0-3.2-2-3.2s-2.3 1.5-2.3 3.1V21H8.4V8.9z"/></svg></a>
+        </div>
+
+        <div class="footer-logo-group">
+          <img class="footer-logo" src="/gcpc-logo.png" alt="GCPC logo" />
+          <img class="footer-logo" src="/cse-logo.jpeg" alt="Department of CSE logo" />
+          <img class="footer-logo" src="/university-logo.png" alt="Daffodil International University logo" />
+        </div>
+      </div>
+
+      <div>
+        <h4>Quick Contact</h4>
+        <form id="footer-contact-form" class="footer-contact-form" novalidate>
+          <div class="field">
+            <label for="footer-email">Email</label>
+            <input id="footer-email" type="email" placeholder="you@diu.edu.bd" />
+            <p class="error"></p>
+          </div>
+          <div class="field">
+            <label for="footer-subject">Subject</label>
+            <input id="footer-subject" type="text" placeholder="Subject" />
+            <p class="error"></p>
+          </div>
+          <div class="field">
+            <label for="footer-message">Message</label>
+            <textarea id="footer-message" placeholder="Write your message"></textarea>
+            <p class="error"></p>
+          </div>
+          <button id="footer-contact-submit" class="btn btn-primary" type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Girls' Computer Programming Club. All Rights Reserved.</p>
+      <p>&copy; <a href="https://fatehahossainanushka.vercel.app/" target="_blank" rel="noopener noreferrer">Fateha Hossain Anushka</a></p>
+    </div>
+  </footer>
 
   <script type="module" src="/assets/app.js"></script>
 </body>

@@ -1,80 +1,269 @@
-# DIU GCPC | Girls' Computer Programming Club Portal
+# DIU GCPC Portal
 
-The official web platform for the **Girls' Computer Programming Club (GCPC)** at Daffodil International University. This platform serves as a centralized hub for female students to engage in competitive programming, research, software development, and professional grooming.
+Official web portal for the Girls' Computer Programming Club (GCPC) at Daffodil International University.
 
-## 🚀 Live Platform
-**Website:** [https://gcpc.daffodilvarsity.edu.bd/](https://gcpc.daffodilvarsity.edu.bd/)
+[![Live Website](https://img.shields.io/badge/Live%20Website-gcpc.daffodilvarsity.edu.bd-6d28d9?style=for-the-badge)](https://gcpc.daffodilvarsity.edu.bd/)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev/)
+[![Firebase](https://img.shields.io/badge/Firebase-Auth%20%2B%20Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
 
----
+The portal centralizes GCPC information, wing activities, event announcements, achievements, certificate verification, contact submissions, and selected administrative workflows. It is built as a multi-page Vite application using semantic HTML, CSS, client-side JavaScript, Firebase Authentication, and Cloud Firestore.
 
-## 🛠 Features & Capabilities
+> **Project status:** Deployed organizational portal. Production security depends on Firebase Authentication configuration and Firestore/Storage rules maintained outside this repository.
 
-### 🏢 Department-Specific Wings
-*   **ACM Wing**: Focuses on competitive programming, data structures, and algorithms.
-*   **Research Wing**: Guides members from idea formation to academic publication.
-*   **Career & PR Wing**: Prepares students for internships, branding, and professional networking.
-*   **Development Wing**: Strengthens software engineering through hands-on project building.
 
-### 💎 Key Features
-*   **Dynamic Event Management**: Automated "Upcoming Activities" section with wing-specific auto-sliding carousels.
-*   **Unified Modal System**: High-fidelity detail views for all events (Upcoming & Past) with registration integrations.
-*   **Certificate Verification Desk**: Secure infrastructure for verifying club-issued certificates via Student ID or Unique Certificate ID.
-*   **Premium Dark Mode**: Native dark theme support with glassmorphic UI elements and theme-persistence.
-*   **Interactive FAQ**: Modern, responsive 2-column accordion FAQ with smooth transitions and theme-aware styling.
-*   **Management Dashboard**: Secure admin portal for real-time updates to events, gallery, and memberships.
+## Live platform
 
----
+**Website:** [gcpc.daffodilvarsity.edu.bd](https://gcpc.daffodilvarsity.edu.bd/)
 
-## 💻 Tech Stack & Architecture
+## What the portal provides
 
-### Frontend
-*   **Core**: Semantic HTML5, Modular CSS3 (Custom Design System), ES6+ JavaScript.
-*   **Design**: Glassmorphism, Responsive Grid Layouts, Inter/Roboto Typography, Smooth Reveal-on-Scroll animations.
+### Public experience
 
-### Backend & DevOps
-*   **Database/Auth**: **Firebase Firestore** (Real-time DB) & **Firebase Auth** (Identity Management).
-*   **Routing**: Custom Apache `.htaccess` configuration for clean, SEO-friendly URLs and HTTPS enforcement.
-*   **Hosting Compatibility**: Optimized for **cPanel** and standard web servers with support for shared hosting environments.
+- Club overview, committee information, wings, achievements, and galleries
+- Separate pages for the ACM, Research, Career, and PR-oriented activities
+- Upcoming and past event presentation backed by Firestore
+- Event detail views and external registration links
+- Certificate lookup by certificate ID or student ID
+- Certificate status and optional certificate-image display
+- Contact forms that create Firestore message records
+- Light/dark theme persistence
+- Responsive navigation, carousels, accordions, modals, and scroll restoration
+- Clean routes for Apache/cPanel and platform-specific rewrites for Vercel
 
----
+### Administrative experience
 
-## 📦 Deployment on cPanel
+- Firebase email/password sign-in
+- UID-based administrator lookup through `admins/{uid}`
+- Event creation, editing, deletion, and banner references
+- Certificate creation, editing, revocation/expiry status, and deletion
+- Membership-submission and contact-message review when the corresponding Firestore collections are available
+- Firestore-backed success-story image management
 
-This project is fully optimized for cPanel/Shared Hosting deployment.
 
-1.  **Configure Environment**: 
-    *   Rename `assets/config.sample.js` to `assets/config.js`.
-    *   Inject your Firebase project configuration (API Key, Project ID, etc.).
-2.  **Upload**:
-    *   Upload the root contents to your `public_html` directory.
-3.  **Routing**:
-    *   The included `.htaccess` file will automatically handle clean URL routing (e.g., `/join` instead of `join.html`).
-4.  **Security**:
-    *   Ensure `assets/config.js` is not committed to public repositories (pre-configured in `.gitignore`).
+## System architecture
 
----
-
-## 📂 Directory Structure
-
-```text
-├── admin/          # Secure Management Portal
-├── assets/         # CSS design tokens, Modular JS drivers, and SVGs
-├── images/         # Local assets and fallbacks
-├── join/           # Membership registration infrastructure
-├── verify/         # Certificate verification engine
-├── index.html      # Optimized Landing Page
-└── .htaccess       # Server-level routing configuration
+```mermaid
+flowchart TD
+    U[Public visitor] --> V[Vite multi-page frontend]
+    A[Authorized administrator] --> V
+    V --> FA[Firebase Authentication]
+    V --> FS[Cloud Firestore]
+    V --> EX[External registration links]
+    V --> IMG[Static and remote images]
+    A --> SG[Optional upload-signing endpoint]
+    SG --> CL[Cloudinary]
 ```
 
----
+The application has no repository-hosted business-logic backend. Firebase services provide authentication and persistence, while Firestore Security Rules must enforce all read/write permissions.
 
-## 🔒 Security Best Practices
+## Firestore data model
 
-*   **Firebase Rules**: Ensure Firestore rules are locked down to authenticated users for write operations.
-*   **API Security**: The platform uses restricted API keys; ensure your Firebase project has domain restriction enabled for `daffodilvarsity.edu.bd`.
-*   **Hidden Configs**: Sensitive keys in `assets/config.js` are strictly excluded from version control via `.gitignore`.
+```mermaid
+erDiagram
+    ADMINS {
+        string uid PK
+    }
+    EVENTS {
+        string id PK
+        string title
+        string wing
+        string semester
+        string status
+        string eventType
+        string dateISO
+        string deadlineISO
+        string bannerUrl
+    }
+    CERTIFICATES {
+        string certificateId PK
+        string student_id
+        string name
+        string course
+        string status
+        string certImageUrl
+    }
+    MEMBERSHIPS {
+        string id PK
+        string semester
+    }
+    MESSAGES {
+        string id PK
+        string email
+        string subject
+        string message
+    }
+    SUCCESS_STORIES {
+        string id PK
+        string imageUrl
+    }
+```
 
----
+The diagram documents collections referenced by the client. Firestore is schemaless, so field validation and authorization must be enforced through rules and trusted administrative workflows.
 
-Developed with ❤️ by **Anushka**
-GCPC | Daffodil International University
+## Certificate-verification flow
+
+```mermaid
+sequenceDiagram
+    participant Visitor
+    participant Portal
+    participant Firestore
+    Visitor->>Portal: Enter certificate or student ID
+    Portal->>Firestore: Read certificate record(s)
+    Firestore-->>Portal: Record and status
+    Portal-->>Visitor: Show valid, revoked, expired, or not found
+```
+
+Certificate lookup proves only that a matching record exists in the configured Firestore project. Its trustworthiness depends on restrictive rules that allow only authorized administrators to create or modify certificate records.
+
+## Technology stack
+
+| Layer | Technology |
+|---|---|
+| Markup and interface | HTML5, CSS3, JavaScript ES modules |
+| Build system | Vite 5 |
+| Authentication | Firebase Authentication |
+| Persistence | Cloud Firestore |
+| Storage client | Firebase Storage SDK initialized; file workflow is configuration-dependent |
+| Optional event-image service | Cloudinary through a signed-upload endpoint |
+| Hosting | cPanel/Apache, Vercel, or Netlify-compatible static hosting |
+| Routing | Vite multi-page inputs, `.htaccess`, and host rewrites |
+
+## Repository structure
+
+```text
+GCPC-DIU/
+├── admin/                         # Administrative console
+├── assets/
+│   ├── app.js                     # Shared UI, Firestore, and admin logic
+│   ├── firebase.js                # Firebase initialization
+│   ├── config.sample.js           # Legacy/static-host configuration sample
+│   ├── styles.css                 # Main design system
+│   └── wing-*.svg                 # Wing illustrations
+├── contact/                       # Contact page
+├── home/                          # Additional home assets
+├── join/                          # Membership information and external join link
+├── public/                        # Build-time static assets
+│   └── images/
+│       ├── certificates/
+│       ├── events/
+│       └── success-stories/
+├── verify/                        # Certificate-verification page
+├── index.html                     # Main portal
+├── event.html                     # Dynamic event detail view
+├── wing-*.html                    # Wing pages
+├── achievement-*.html             # Achievement pages
+├── vite.config.js                 # Multi-page build configuration
+├── vercel.json                    # Vercel routes
+├── netlify.toml                   # Netlify configuration
+└── .htaccess                      # Apache clean routes and HTTPS behavior
+```
+
+## Local development
+
+### Requirements
+
+- Node.js 18 or newer
+- npm
+- A Firebase project with Authentication and Firestore configured
+
+### Installation
+
+```bash
+git clone https://github.com/anushka06onu/GCPC-DIU.git
+cd GCPC-DIU
+npm ci
+```
+
+Create `.env.local` from `.env.example`:
+
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Create and preview a production build:
+
+```bash
+npm run build
+npm run preview
+```
+
+The verified build output is written to `dist/`.
+
+## Firebase setup
+
+1. Enable Email/Password in Firebase Authentication.
+2. Create the Firestore collections needed by the enabled workflows.
+3. Add each authorized administrator as a document at `admins/{firebaseAuthUid}`.
+4. Deploy restrictive Firestore rules before exposing the application publicly.
+5. Restrict public reads to the minimum fields and collections required by the website.
+6. Allow administrative writes only when the authenticated UID has an authorized administrator record.
+7. Add App Check, quotas, and abuse controls for public forms where appropriate.
+
+> Firebase web configuration is intentionally visible in browser applications and is not a substitute for authorization. The actual protection must come from Firebase rules, Authentication, App Check, and restricted service configuration.
+
+## Hosting
+
+### Vercel
+
+Configure the `VITE_FIREBASE_*` variables in the project settings and deploy. `vercel.json` builds the Vite application into `dist/` and supplies clean-route rewrites.
+
+### Apache/cPanel
+
+Run `npm run build`, upload the contents of `dist/` to the target web root, and retain the generated `.htaccess` file. Environment variables must be injected during the build; they are not read dynamically by a static site after deployment.
+
+### Netlify
+
+Configure the same build-time variables, use `npm run build`, and publish `dist/`.
+
+## Optional Cloudinary upload
+
+The event editor can request a signed upload from:
+
+```text
+POST /api/cloudinary-sign
+```
+
+That endpoint is **not included in this repository**. File upload will work only after a trusted backend or serverless function returns a Cloudinary upload URL and signed fields. Never place a Cloudinary API secret in client-side JavaScript. Administrators may instead save an already-hosted image URL.
+
+## Current limitations
+
+- Firestore and Storage rules are not versioned in the repository, so production authorization cannot be independently audited here.
+- The public Join page redirects to the official DIU Student Hub; it does not create membership records itself.
+- There is no automated test suite or Firebase Emulator test suite.
+
+
+## Roadmap
+
+- Commit tested Firebase rules and indexes
+- Add Firebase Emulator and end-to-end tests
+- Implement or remove the signed Cloudinary upload control
+- Replace hard-coded membership statistics with clearly sourced live data
+- Add certificate audit history and downloadable QR verification links
+- Add moderation, retention, and privacy controls for submitted data
+- Consolidate legacy assets and remove packaged build archives from source control
+- Optimize large images and add automated image processing
+- Add CI for build, linting, accessibility checks, and link validation
+
+## Responsible use
+
+This portal handles organizational records and may process student identifiers, contact messages, and membership information. Deployers are responsible for obtaining appropriate permission, limiting data collection, protecting personal information, and keeping certificate and administrator records accurate.
+
+## Author
+
+Developed by **Fateha Hossain Anushka** for the DIU Girls' Computer Programming Club.
+
+## Institutional note
+
+The live domain and institutional branding should be used only with authorization from Daffodil International University and GCPC. Repository documentation does not itself constitute institutional endorsement.

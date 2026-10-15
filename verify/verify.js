@@ -1,13 +1,11 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
-import { firebaseConfig } from '../assets/config.js';
+import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+import { db, initialized } from '../assets/firebase.js';
 
 const form = document.querySelector('#verify-cert-form');
 const certIdInput = document.querySelector('#cert-id');
 const resultEl = document.querySelector('#cert-result');
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+
 
 const setResult = (type, html) => {
   resultEl.classList.remove('success', 'error');
@@ -62,6 +60,7 @@ const verifyByCertId = async (certId) => {
     return;
   }
 
+  if (!initialized || !db) { setResult('error', 'Certificate verification is unavailable until Firebase is configured.'); return; }
   setResult('', 'Checking certificate...');
 
   try {
@@ -94,3 +93,4 @@ if (certIdFromQuery) {
   certIdInput.value = certIdFromQuery;
   verifyByCertId(certIdFromQuery);
 }
+
